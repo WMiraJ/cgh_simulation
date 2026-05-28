@@ -11,15 +11,14 @@
   <script src="https://unpkg.com/aframe-environment-component/dist/aframe-environment-component.min.js"></script>
 
   <script>
-    window.addEventListener('load', () => {
+    document.addEventListener('DOMContentLoaded', () => {
 
       const elevator = document.querySelector('#elevatorModel');
 
       // =========================
       // PLAY ANIMATION FUNCTION
       // =========================
-      function playLiftAnimation(name) {
-
+        function playLiftAnimation(name) {
         elevator.setAttribute(
           'animation-mixer',
           {
@@ -30,21 +29,26 @@
         );
       }
 
+      // =========================      
+      // WAIT FOR 3D ASSETS TO LOAD
       // =========================
-      // EXAMPLE SEQUENCE
+      const assets = document.querySelector('a-assets');
+      
+      assets.addEventListener('loaded', () => {
+        console.log("3D Assets fully loaded! Starting the timeline now.");
+
+        setTimeout(() => {
+          playLiftAnimation('DoorOpen');
+        }, 10000);
+
+        setTimeout(() => {
+          playLiftAnimation('DoorClose');
+        }, 30000);
+      });
+
       // =========================
-
-      // Open after 10 second
-      setTimeout(() => {
-        playLiftAnimation('DoorOpen');
-      }, 10000);
-
-      // Close after 30 seconds
-      setTimeout(() => {
-        playLiftAnimation('DoorClose');
-      }, 30000);
-
-
+      // MANUAL TRIGGERS
+      // =========================
       window.openLift = () => {
         playLiftAnimation('DoorOpen');
       };
