@@ -1,0 +1,170 @@
+```html
+<!DOCTYPE html>
+<html>
+<head>
+  <title>HDB Lift - Sourcing 3D Assets</title>
+
+  <script src="https://aframe.io/releases/1.6.0/aframe.min.js"></script>
+
+  <script src="https://cdn.jsdelivr.net/gh/c-frame/aframe-extras@7.5.0/dist/aframe-extras.min.js"></script>
+
+  <script src="https://unpkg.com/aframe-environment-component/dist/aframe-environment-component.min.js"></script>
+
+  <script>
+    window.addEventListener('load', () => {
+
+      const elevator = document.querySelector('#elevatorModel');
+
+      // =========================
+      // PLAY ANIMATION FUNCTION
+      // =========================
+      function playLiftAnimation(name) {
+
+        elevator.setAttribute(
+          'animation-mixer',
+          {
+            clip: name,
+            loop: 'once',
+            clampWhenFinished: true
+          }
+        );
+      }
+
+      // =========================
+      // EXAMPLE SEQUENCE
+      // =========================
+
+      // Open after 10 second
+      setTimeout(() => {
+        playLiftAnimation('DoorOpen');
+      }, 10000);
+
+      // Close after 30 seconds
+      setTimeout(() => {
+        playLiftAnimation('DoorClose');
+      }, 30000);
+
+
+      window.openLift = () => {
+        playLiftAnimation('DoorOpen');
+      };
+
+      window.closeLift = () => {
+        playLiftAnimation('DoorClose');
+      };
+
+    });
+  </script>
+
+</head>
+
+<body>
+
+<a-scene
+  renderer="
+    colorManagement: true;
+    physicallyCorrectLights: true;
+    exposure: 1.2;
+    toneMapping: ACESFilmic;
+  "
+  background="color: #222">
+
+  <!-- Assets -->
+  <a-assets>
+    <a-asset-item id="elevator" src="assets/elevator.glb"></a-asset-item>
+
+    <a-asset-item
+      id="avatar01"
+      src="assets/Talking-On-Phone.glb">
+    </a-asset-item>
+  </a-assets>
+
+  <!-- Environment -->
+  <a-entity environment="preset: forest"></a-entity>
+
+  <!-- Elevator -->
+  <a-entity
+    id="elevatorModel"
+    gltf-model="#elevator"
+    position="0 1 0"
+    rotation="0 0 0"
+    scale="1 1 1"
+    animation-mixer="clip: none">
+  </a-entity>
+
+  <!-- Avatar -->
+  <a-entity
+    gltf-model="#avatar01"
+    position="0 1.5 -0.8"
+    rotation="0 0 0"
+    scale="0.011 0.011 0.011"
+    animation-mixer>
+  </a-entity>
+
+  <!-- Lights -->
+
+  <!-- Soft global ambient -->
+  <a-light
+    type="ambient"
+    intensity="0.35"
+    color="#dfe8ff">
+  </a-light>
+
+  <!-- Elevator ceiling light -->
+  <a-light
+    type="spot"
+    position="1 4.8 0"
+    rotation="-90 0 0"
+    angle="85"
+    penumbra="0.1"
+    intensity="7"
+    color="#fff5e6"
+    distance="10"
+    decay="0.1">
+  </a-light>
+
+  <!-- Soft front fill -->
+  <a-light
+    type="spot"
+    position="0 2 -1"
+    angle="45"
+    penumbra="0.5"
+    intensity="0.6"
+    color="#ffffff"
+    target="#liftTarget">
+  </a-light>
+
+  <a-entity
+    id="liftTarget"
+    position="0 1 0">
+  </a-entity>
+
+  <!-- Camera Rig -->
+  <a-entity
+    id="rig"
+    movement-controls="speed: 0.1;"
+    position="0 1 0">
+
+    <a-entity
+      camera
+      look-controls
+      wasd-controls
+      position="0 2.1 0">
+    </a-entity>
+
+    <a-entity
+      hand-controls="hand: left; handModelStyle: lowPoly; color: #CCCCCC">
+    </a-entity>
+
+    <a-entity
+      hand-controls="hand: right; handModelStyle: lowPoly; color: #CCCCCC"
+      laser-controls="hand: right">
+    </a-entity>
+
+  </a-entity>
+
+</a-scene>
+
+</body>
+</html>
+```
