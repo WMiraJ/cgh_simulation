@@ -90,6 +90,21 @@
       src="https://huggingface.co/datasets/MiraJ102/cgh-assets/resolve/main/Talking-On-Phone.glb">
   </a-assets>
 
+  <script>
+    // Check if we are running on a local development server
+    const isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+    
+    // Define the correct URLs based on the environment
+    const elevatorUrl = isLocal ? 'assets/elevator.glb' : 'https://huggingface.co/datasets/MiraJ102/cgh-assets/resolve/main/elevator.glb';
+    const avatarUrl = isLocal ? 'assets/Talking-On-Phone.glb' : 'https://huggingface.co/datasets/MiraJ102/cgh-assets/resolve/main/Talking-On-Phone.glb';
+
+    // Inject the URLs before A-Frame starts loading the scene
+    document.querySelector('#elevator').setAttribute('src', elevatorUrl);
+    document.querySelector('#avatar01').setAttribute('src', avatarUrl);
+    
+    console.log(isLocal ? "Running locally: Using local assets." : "Running remote: Using Hugging Face assets.");
+  </script>
+
   <!-- Environment -->
   <a-entity environment="preset: forest"></a-entity>
 
