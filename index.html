@@ -4,97 +4,189 @@
   <title>HDB Lift - Sourcing 3D Assets</title>
 
   <script src="https://aframe.io/releases/1.6.0/aframe.min.js"></script>
-
   <script src="https://cdn.jsdelivr.net/gh/c-frame/aframe-extras@7.5.0/dist/aframe-extras.min.js"></script>
-
   <script src="https://unpkg.com/aframe-environment-component/dist/aframe-environment-component.min.js"></script>
 
-  <script>
-    // =========================
-    // CUSTOM HEAD-TRACKER COMPONENT
-    // =========================
-    AFRAME.registerComponent('head-tracker', {
-      schema: {
-        target: {type: 'selector', default: '[camera]'},
-        boneName: {type: 'string', default: 'mixamorigHead'} // Default Mixamo head bone
-      },
-
-      init: function () {
-        this.headBone = null;
-        this.target3D = this.data.target.object3D;
-        this.targetPos = new THREE.Vector3(); // Used to store camera's world position
-
-        // Wait for the GLTF model to load, then find the head bone
-        this.el.addEventListener('model-loaded', () => {
-          const mesh = this.el.getObject3D('mesh');
-          if (mesh) {
-            this.headBone = mesh.getObjectByName(this.data.boneName);
-            if (!this.headBone) {
-              console.warn("Head bone '" + this.data.boneName + "' not found in the model!");
-            }
-          }
-        });
-      },
-
-      tick: function () {
-        if (!this.headBone || !this.target3D) return;
-        
-        // Get the current world position of the VR headset
-        this.target3D.getWorldPosition(this.targetPos);
-        
-        // Force the head bone to look at the headset
-        this.headBone.lookAt(this.targetPos);
+<script>
+  // =========================
+  // CUSTOM SCROLLER COMPONENT
+  // =========================
+  AFRAME.registerComponent('texture-scroller', {
+    schema: {
+      speed: { type: 'number', default: 0.5 },
+      direction: { type: 'string', default: 'down' },
+      active: { type: 'boolean', default: false } // Added toggle to stop/start
+    },
+    tick: function (time, timeDelta) {
+      if (!this.data.active) return; // Only scroll when moving
+      
+      const mesh = this.el.getObject3D('mesh');
+      if (!mesh || !mesh.material || !mesh.material.map) return;
+      
+      const texture = mesh.material.map;
+      const offsetChange = (this.data.speed * timeDelta) / 1000;
+      
+      if (this.data.direction === 'up') {
+        texture.offset.y -= offsetChange;
+      } else {
+        texture.offset.y += offsetChange;
       }
+    }
+  });
+
+  document.addEventListener('DOMContentLoaded', () => {
+    const elevator = document.querySelector('#elevatorModel');
+    const avatar = document.querySelector('#avatarModel'); 
+    
+    // Lift State Variables
+    let currFloor = 1;
+    let isMoving = false;
+
+    // =========================
+    // PLAY ANIMATION FUNCTIONS
+    // =========================
+    function playLiftAnimation(name) {
+      elevator.setAttribute('animation-mixer', {
+        clip: name,
+        loop: 'once',
+        clampWhenFinished: true
+      });
+    }
+
+    function playAvatarAnimation(name) {
+      if (avatar) {
+        avatar.setAttribute('animation-mixer', {
+          clip: name,
+          loop: 'repeat'
+        });
+      }
+    }
+
+    // =========================      
+    // WAIT FOR 3D ASSETS TO LOAD
+    // =========================
+    const assets = document.querySelector('a-assets');
+    
+    assets.addEventListener('loaded', () => {
+      console.log("3D Assets fully loaded!");
+      setTimeout(() => playAvatarAnimation('mixamo.com'), 2000);
+      
+      // Initialize the screen display to Floor 1, Idle
+      updateAllDisplays(currFloor, 'idle');
+
+      document.querySelector('#scrolling-shaft').setAttribute('visible', 'false');
+      document.querySelector('#first-floor').setAttribute('visible', 'true');
+      document.querySelector('#upper-floor').setAttribute('visible', 'false');
+
+      setTimeout(() => {
+        // Safety check: Only open if the user hasn't already started moving the lift
+        if (!isMoving) {
+          playLiftAnimation('DoorOpen');
+        }
+      }, 10000);
     });
 
-    document.addEventListener('DOMContentLoaded', () => {
+    // =========================
+    // Screen Display Update
+    // =========================
+    function updateAllDisplays(floorNumber, direction) {
+      const floors = document.querySelectorAll('.lift-floor');
+      const arrows = document.querySelectorAll('.lift-arrow');
 
-      const elevator = document.querySelector('#elevatorModel');
-
-      // =========================
-      // PLAY ANIMATION FUNCTION
-      // =========================
-        function playLiftAnimation(name) {
-        elevator.setAttribute(
-          'animation-mixer',
-          {
-            clip: name,
-            loop: 'once',
-            clampWhenFinished: true
-          }
-        );
-      }
-
-      // =========================      
-      // WAIT FOR 3D ASSETS TO LOAD
-      // =========================
-      const assets = document.querySelector('a-assets');
-      
-      assets.addEventListener('loaded', () => {
-        console.log("3D Assets fully loaded! Starting the timeline now.");
-
-        setTimeout(() => {
-          playLiftAnimation('DoorOpen');
-        }, 10000);
-
-        setTimeout(() => {
-          playLiftAnimation('DoorClose');
-        }, 30000);
+      floors.forEach(floor => {
+        floor.setAttribute('value', floorNumber);
       });
 
-      // =========================
-      // MANUAL TRIGGERS
-      // =========================
-      window.openLift = () => {
-        playLiftAnimation('DoorOpen');
-      };
+      arrows.forEach(arrow => {
+        if (direction === 'up') {
+          arrow.setAttribute('visible', 'true');
+          arrow.setAttribute('rotation', '0 0 0');
+        } else if (direction === 'down') {
+          arrow.setAttribute('visible', 'true');
+          arrow.setAttribute('rotation', '0 0 180');
+        } else {
+          arrow.setAttribute('visible', 'false'); // Idle state
+        }
+      });
+    }
 
-      window.closeLift = () => {
-        playLiftAnimation('DoorClose');
-      };
+    // =========================
+    // LIFT MOVEMENT LOGIC
+    // =========================
+    window.goToFloor = function(destFloor) {
+      // Prevent running if already moving or already at the requested floor
+      if (isMoving || currFloor === destFloor) return;
+      isMoving = true;
 
-    });
-  </script>
+      const firstFloorPlane = document.querySelector('#first-floor');
+      const upperFloorPlane = document.querySelector('#upper-floor');
+      const scrollingShaft = document.querySelector('#scrolling-shaft');
+
+      // 1. Close the doors
+      playLiftAnimation('DoorClose');
+
+      // 2. Wait 2 seconds for doors to close, then start moving
+      setTimeout(() => {
+        const isGoingUp = destFloor > currFloor;
+        const screenDir = isGoingUp ? 'up' : 'down';
+        
+        // If moving UP, background pans DOWN (and vice versa)
+        const scrollDir = isGoingUp ? 'down' : 'up'; 
+
+        // Update the LED arrows
+        updateAllDisplays(currFloor, screenDir);
+
+        // Hide the static 1st floor, show and start the scrolling shaft
+        firstFloorPlane.setAttribute('visible', 'false');
+        upperFloorPlane.setAttribute('visible', 'false');
+        
+        scrollingShaft.setAttribute('visible', 'true');
+        scrollingShaft.setAttribute('texture-scroller', `active: true; direction: ${scrollDir}`);
+
+        // 3. The 1-second counting interval
+        const floorInterval = setInterval(() => {
+          // Increment or decrement the current floor
+          if (isGoingUp) {
+            currFloor++;
+          } else {
+            currFloor--;
+          }
+
+          // Update screens with the new number
+          updateAllDisplays(currFloor, screenDir);
+
+          // 4. Check if we arrived at the destination
+          if (currFloor === destFloor) {
+            clearInterval(floorInterval); // Stop counting
+
+            // Update screens to idle
+            updateAllDisplays(currFloor, 'idle');
+            
+            // Stop the scrolling animation
+            scrollingShaft.setAttribute('texture-scroller', 'active: false');
+            scrollingShaft.setAttribute('visible', 'false');
+
+            // Handle the outside scenery based on arrival floor
+            if (currFloor === 1) {
+              firstFloorPlane.setAttribute('visible', 'true');
+            } else {
+              upperFloorPlane.setAttribute('visible', 'true');
+            }
+
+            playLiftAnimation('DoorOpen');
+            isMoving = false; 
+          }
+        }, 1000); 
+
+      }, 2000); 
+    };
+
+
+    // MANUAL TRIGGERS
+    window.openLift = () => playLiftAnimation('DoorOpen');
+    window.closeLift = () => playLiftAnimation('DoorClose');
+  });
+</script>
 
 </head>
 
@@ -109,9 +201,7 @@
   "
   background="color: #222">
 
-  <!-- Assets -->
-<a-assets timeout="120000">
-  </a-assets>
+  <a-assets timeout="120000"></a-assets>
 
   <script>
     // Check the environment
@@ -144,10 +234,8 @@
     }
   </script>
 
-  <!-- Environment -->
   <a-entity environment="preset: forest"></a-entity>
 
-  <!-- Elevator -->
   <a-entity
     id="elevatorModel"
     gltf-model="#elevator"
@@ -157,8 +245,77 @@
     animation-mixer="clip: none">
   </a-entity>
 
-  <!-- Avatar -->
+  <a-box id="outside-screen-display" position="-2.042 4.124 0" width="0.631" height="0.231" depth="0.0483" color="#111111" rotation="0 -90 0">
+    <a-triangle class="lift-arrow" 
+              vertex-a="0 0.08 0" vertex-b="-0.08 -0.08 0" vertex-c="0.08 -0.08 0"
+              color="#FF0000" 
+              position="-0.15 0 0.0244" 
+              rotation="0 0 0"
+              visible="true"> </a-triangle>
+
+    <a-text class="lift-floor" 
+              value="1" 
+              color="#FF0000" 
+              align="center" 
+              position="0.12 0 0.02415" 
+              font="https://cdn.aframe.io/fonts/Roboto-msdf.json">
+    </a-text>
+  </a-box>
+
+  <a-box id="inside-screen-display" position="-1.482 4.124 0" width="0.631" height="0.231" depth="0.0483" color="#111111" rotation="0 90 0">
+    <a-triangle class="lift-arrow" 
+              vertex-a="0 0.08 0" vertex-b="-0.08 -0.08 0" vertex-c="0.08 -0.08 0"
+              color="#FF0000" 
+              position="-0.15 0 0.0244" 
+              rotation="0 0 0"
+              visible="true"> </a-triangle>
+
+    <a-text class="lift-floor" 
+              value="1" 
+              color="#FF0000" 
+              align="center" 
+              position="0.12 0 0.02415" 
+              font="https://cdn.aframe.io/fonts/Roboto-msdf.json">
+    </a-text>
+  </a-box>
+
+
+  <a-assets>
+    <img id="tex-loop" src="assets/floor-scroll.jpg">
+    <img id="tex-first" src="assets/floor-1.jpg">
+    <img id="tex-upper" src="assets/floor-upper.jpg"> 
+  </a-assets>
+
+  <a-plane 
+    id="scrolling-shaft"
+    position="-5 0 0" 
+    rotation="0 90 0"
+    width="12" height="35" 
+    material="src: #tex-loop; repeat: 1 4;" 
+    texture-scroller="speed: 0.8; direction: down"
+    visible="true">
+  </a-plane>
+
+  <a-plane 
+    id="first-floor"
+    position="-5 3 0"
+    rotation="0 90 0" 
+    width="12" height="7" 
+    material="src: #tex-first;" 
+    visible="false">
+  </a-plane>
+
+    <a-plane 
+    id="upper-floor"
+    position="-5 3 0"
+    rotation="0 90 0" 
+    width="12" height="7" 
+    material="src: #tex-upper;" 
+    visible="false">
+  </a-plane>
+
   <a-entity
+    id="avatarModel"
     gltf-model="#avatar01"
     position="0 1.065 -0.8"
     rotation="0 0 0"
@@ -166,16 +323,12 @@
     animation-mixer>
   </a-entity>
 
-  <!-- Lights -->
-
-  <!-- Soft global ambient -->
   <a-light
     type="ambient"
     intensity="0.35"
     color="#dfe8ff">
   </a-light>
 
-  <!-- Elevator ceiling light -->
   <a-light
     type="spot"
     position="1 4.8 0"
@@ -188,7 +341,6 @@
     decay="0.1">
   </a-light>
 
-  <!-- Soft front fill -->
   <a-light
     type="spot"
     position="0 2 -1"
@@ -204,17 +356,17 @@
     position="0 1 0">
   </a-entity>
 
-  <!-- Camera Rig -->
   <a-entity
     id="rig"
     movement-controls="speed: 0.1;"
-    position="0 1 0">
+    position="-4.5 1.6 0"
+    rotation="0 -90 0">
 
     <a-entity
       camera
       look-controls
       wasd-controls
-      position="0 2.1 0">
+      position="0 1.3 0">
     </a-entity>
 
     <a-entity
@@ -232,4 +384,3 @@
 
 </body>
 </html>
-```
