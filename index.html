@@ -180,8 +180,6 @@
           if (currFloor === destFloor) {
             clearInterval(floorInterval); // Stop counting
 
-            // Update screens to idle
-            updateAllDisplays(currFloor, 'idle');
             
             // Stop the scrolling animation
             scrollingShaft.setAttribute('texture-scroller', 'active: false');
@@ -194,6 +192,9 @@
               upperFloorPlane.setAttribute('visible', 'true');
             }
 
+            await sleep(1000); // Brief pause before updating screens to idle
+            updateAllDisplays(currFloor, 'idle');
+
             await sleep(1500); // Brief pause before opening doors
 
             playLiftAnimation('DoorOpen');
@@ -201,7 +202,7 @@
             isMoving = false; 
             resolve();
           }
-        }, 1500); 
+        }, 1200); 
 
       }, 3000); 
     });
@@ -311,33 +312,39 @@
     <img id="tex-upper" src="assets/floor-upper.jpg"> 
   </a-assets>
 
-  <a-plane 
+  <a-curvedimage 
     id="scrolling-shaft"
-    position="-5 0 0" 
-    rotation="0 90 0"
-    width="12" height="35" 
+    position="2.5 3 0" 
+    radius="7.5"
+    theta-length="137.5"
+    theta-start="201.25"
+    height="52.5"
     material="src: #tex-loop; repeat: 1 4;" 
     texture-scroller="speed: 0.8; direction: down"
     visible="true">
-  </a-plane>
+  </a-curvedimage>
 
-  <a-plane 
+  <a-curvedimage 
     id="first-floor"
-    position="-5 3 0"
-    rotation="0 90 0" 
-    width="12" height="7" 
+    position="2.5 3 0" 
+    radius="7.5"
+    theta-length="137.5"
+    theta-start="201.25"
+    height="10.5" 
     material="src: #tex-first;" 
     visible="false">
-  </a-plane>
+  </a-curvedimage>
 
-    <a-plane 
+    <a-curvedimage 
     id="upper-floor"
-    position="-5 3 0"
-    rotation="0 90 0" 
-    width="12" height="7" 
+    position="2.5 3 0"
+    radius="7.5"
+    theta-length="137.5"
+    theta-start="201.25"
+    height="10.5" 
     material="src: #tex-upper;" 
     visible="false">
-  </a-plane>
+  </a-curvedimage>
 
   <a-entity
     id="avatarModel"
@@ -384,9 +391,9 @@
   <a-entity
     id="rig"
     movement-controls="speed: 0.1;"
-    position="-4.5 2 0"
+    position="-4.5 1.8 0"
     rotation="0 -90 0"
-    animation__pan="property: position; to: 0.3 2 0; startEvents: panCameraIn; dur: 4500; easing: easeInOutQuad"
+    animation__pan="property: position; to: 0.3 1.8 0; startEvents: panCameraIn; dur: 4500; easing: easeInOutQuad"
     animation__turn="property: rotation; to: 0 90 0; startEvents: turnCameraAround; dur: 3000; easing: easeInOutQuad">
 
     <a-entity
