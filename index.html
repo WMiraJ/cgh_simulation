@@ -1,11 +1,63 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>HDB Lift - Sourcing 3D Assets</title>
+  <title>HDB Lift - Claustrophobia Scenario</title>
 
   <script src="https://aframe.io/releases/1.6.0/aframe.min.js"></script>
   <script src="https://cdn.jsdelivr.net/gh/c-frame/aframe-extras@7.5.0/dist/aframe-extras.min.js"></script>
   <script src="https://unpkg.com/aframe-environment-component/dist/aframe-environment-component.min.js"></script>
+
+  <style>
+    /* Styling for the loading overlay */
+    #loading-overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background-color: rgba(0, 0, 0, 0.6);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      color: white;
+      font-size: 36px;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      font-weight: bold;
+      z-index: 1000;
+    }
+
+    /* Styling for the in-screen replay button */
+    #ui-container {
+      position: absolute;
+      bottom: 30px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 999; 
+      display: none; 
+    }
+
+    #replayBtn {
+      background-color: #0000FF;
+      color: white;
+      border: none;
+      padding: 15px 30px;
+      font-size: 18px;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      font-weight: bold;
+      border-radius: 8px;
+      cursor: pointer;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+      transition: background-color 0.3s, transform 0.1s;
+    }
+
+    #replayBtn:hover {
+      background-color: #0000CC;
+    }
+
+    #replayBtn:active {
+      transform: scale(0.95);
+    }
+  </style>
 
 <script>
   // =========================
@@ -15,10 +67,10 @@
     schema: {
       speed: { type: 'number', default: 0.5 },
       direction: { type: 'string', default: 'down' },
-      active: { type: 'boolean', default: false } // Added toggle to stop/start
+      active: { type: 'boolean', default: false } 
     },
     tick: function (time, timeDelta) {
-      if (!this.data.active) return; // Only scroll when moving
+      if (!this.data.active) return; 
       
       const mesh = this.el.getObject3D('mesh');
       if (!mesh || !mesh.material || !mesh.material.map) return;
@@ -36,7 +88,10 @@
 
   document.addEventListener('DOMContentLoaded', () => {
     const elevator = document.querySelector('#elevatorModel');
-    const avatar = document.querySelector('#avatarModel'); 
+    const avatar = document.querySelector('#avatarModelSophie'); 
+    const replayBtnContainer = document.querySelector('#ui-container');
+    const replayBtn = document.querySelector('#replayBtn');
+    const loadingOverlay = document.querySelector('#loading-overlay');
     
     // Lift State Variables
     let currFloor = 4;
@@ -50,7 +105,7 @@
       elevator.setAttribute('animation-mixer', {
         clip: name,
         loop: 'once',
-        clampWhenFinished: true
+        clampWhenFinished: true,
       });
     }
 
@@ -58,7 +113,7 @@
       if (avatar) {
         avatar.setAttribute('animation-mixer', {
           clip: name,
-          loop: 'repeat'
+          loop: 'repeat',
         });
       }
     }
@@ -69,31 +124,60 @@
     const assets = document.querySelector('a-assets');
     const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms));
     
-    assets.addEventListener('loaded', async () => {
-      console.log("3D Assets fully loaded!");
-      setTimeout(() => playAvatarAnimation('mixamo.com'), 2000);
-      
-      // Initialize the screen display to Floor 4, Idle
-      updateAllDisplays(currFloor, 'idle');
+    // =========================
+    // THE SCENARIO SEQUENCE
+    // =========================
+    async function playSequence() {
+      // Hide button during sequence
+      replayBtnContainer.style.display = 'none';
 
-      document.querySelector('#scrolling-shaft').setAttribute('visible', 'false');
-      document.querySelector('#first-floor').setAttribute('visible', 'true');
-      document.querySelector('#upper-floor').setAttribute('visible', 'false');
-      // =========================
-      // THE AUTOMATIC SCENARIO
-      // =========================
-      await sleep(5000); // Brief pause after loading before starting
+      const rig = document.querySelector('#rig');
+      const npc1 = document.querySelector('#avatarModelSophie');
+
+      // Reset Camera Rig position/rotation and animation attributes for replay
+      rig.removeAttribute('movement-controls'); // Reset any residual movement controls
+      rig.removeAttribute('animation__pan');
+      rig.removeAttribute('animation__turn');
+      rig.setAttribute('position', '-4.5 1.8 0');
+      rig.setAttribute('rotation', '0 -90 0');
+      
+      // Reset NPC position and animation
+      npc1.removeAttribute('animation__walkin');
+      npc1.removeAttribute('animation__walkout');
+      npc1.removeAttribute('animation__turn');
+      npc1.setAttribute('position', '-3 1.065 -0.2');
+      npc1.setAttribute('rotation', '0 90 0');
+      npc1.setAttribute('animation-mixer', 'clip: Idle; loop: repeat');
+
+      // Camera animations for sequence
+      rig.setAttribute('animation__panIn', 'property: position; to: 0.3 1.8 0; startEvents: panCameraIn; dur: 4500; easing: easeInOutQuad');
+      rig.setAttribute('animation__panOut', 'property: position; to: -4.5 1.8 0; startEvents: panCameraOut; dur: 4500; easing: easeInOutQuad');
+      rig.setAttribute('animation__turn', 'property: rotation; to: 0 90 0; startEvents: turnCameraAround; dur: 3000; easing: easeInOutQuad');
+
+      // Re-register NPC position/rotation animations (required for replay to retrigger on events)
+      npc1.setAttribute('animation__walkin', 'property: position; to: -0.3 1.065 -0.6; startEvents: npcWalkIn; dur: 4000; easing: linear');
+      npc1.setAttribute('animation__turn', 'property: rotation; to: 0 -90 0; startEvents: npcTurn; dur: 2000; easing: easeInOutQuad');
+      npc1.setAttribute('animation__walkout', 'property: position; to: -8 1.065 0; startEvents: npcWalkOut; dur: 6000; easing: linear');
         
       console.log("Moving to Floor 1...");
       await window.goToFloor(1); 
 
-      await sleep(5000); // Pause at Floor 1
-
-      const rig = document.querySelector('#rig');
+      await sleep(3500); // Pause at Floor 1
         
+      console.log("NPC Walk-in...");
+      npc1.setAttribute('animation-mixer', 'clip: walk; loop: repeat; timeScale: 0.8');
+      npc1.emit('npcWalkIn');
+      await sleep(1500);
+
       console.log("Panning camera in...");
       rig.emit('panCameraIn');
-      await sleep(4000); 
+      await sleep(2500);
+      
+      console.log("NPC Turning...");
+      npc1.emit('npcTurn');
+      await sleep(2000);
+
+      npc1.setAttribute('animation-mixer', 'clip: Idle; loop: repeat');
         
       console.log("Turning camera...");
       rig.emit('turnCameraAround');
@@ -101,8 +185,54 @@
         
       console.log("Moving to Floor 8...");
       await window.goToFloor(8);
+      await sleep(5000); // Pause at Floor 8
+
+      console.log("NPC Walk-out...");
+      npc1.setAttribute('animation-mixer', 'clip: walk; loop: repeat; timeScale: 0.8');
+      npc1.emit('npcWalkOut');
+      await sleep(3000);
+
+      console.log("Moving to Floor 15...");
+      await window.goToFloor(15);
+      await sleep(2000);
+
+      console.log("Panning camera out...");
+      rig.emit('panCameraOut');
+      await sleep(2000);
+
       console.log("Sequence Complete.");
+
+      rig.setAttribute('movement-controls', 'speed: 0.1'); 
+
+      // Show the replay button once finished
+      replayBtnContainer.style.display = 'block';
+    }
+
+    assets.addEventListener('loaded', async () => {
+      console.log("3D Assets fully loaded!");
+      
+      // Initialize the screen display to Floor 4, Idle
+      updateAllDisplays(currFloor, 'idle');
+
+      document.querySelector('#scrolling-shaft').setAttribute('visible', 'false');
+      document.querySelector('#first-floor').setAttribute('visible', 'true');
+      document.querySelector('#upper-floor').setAttribute('visible', 'false');
+      
+      // Hide the loading overlay and reveal the START button
+      loadingOverlay.style.display = 'none';
+      replayBtnContainer.style.display = 'block';
     });
+
+    // Bind START button
+    replayBtn.addEventListener('click', () => {
+      // Visually close the doors and update state before starting the sequence
+      if (isDoorsOpen) {
+        playLiftAnimation('DoorClose');
+        isDoorsOpen = false;
+      }
+      playSequence();
+    });
+
     // =========================
     // Screen Display Update
     // =========================
@@ -132,7 +262,6 @@
     // =========================
     window.goToFloor = function(destFloor) {
       return new Promise((resolve) => {
-      // Prevent running if already moving or already at the requested floor
       if (isMoving || currFloor === destFloor) return;
       isMoving = true;
 
@@ -140,62 +269,49 @@
       const upperFloorPlane = document.querySelector('#upper-floor');
       const scrollingShaft = document.querySelector('#scrolling-shaft');
 
-      // 1. Close the doors if they are open
       if (isDoorsOpen) {
         playLiftAnimation('DoorClose');
         isDoorsOpen = false;
       }
 
-      // 2. Wait 3 seconds for doors to close, then start moving
       setTimeout(() => {
         const isGoingUp = destFloor > currFloor;
         const screenDir = isGoingUp ? 'up' : 'down';
-        
-        // If moving UP, background pans DOWN (and vice versa)
         const scrollDir = isGoingUp ? 'down' : 'up'; 
 
-        // Update the LED arrows
         updateAllDisplays(currFloor, screenDir);
 
-        // Hide the static 1st floor, show and start the scrolling shaft
         firstFloorPlane.setAttribute('visible', 'false');
         upperFloorPlane.setAttribute('visible', 'false');
         
         scrollingShaft.setAttribute('visible', 'true');
         scrollingShaft.setAttribute('texture-scroller', `active: true; direction: ${scrollDir}`);
 
-        // 3. The 1-second counting interval
         const floorInterval = setInterval(async () => {
-          // Increment or decrement the current floor
           if (isGoingUp) {
             currFloor++;
           } else {
             currFloor--;
           }
 
-          // Update screens with the new number
           updateAllDisplays(currFloor, screenDir);
 
-          // 4. Check if we arrived at the destination
           if (currFloor === destFloor) {
-            clearInterval(floorInterval); // Stop counting
-
+            clearInterval(floorInterval); 
             
-            // Stop the scrolling animation
             scrollingShaft.setAttribute('texture-scroller', 'active: false');
             scrollingShaft.setAttribute('visible', 'false');
 
-            // Handle the outside scenery based on arrival floor
             if (currFloor === 1) {
               firstFloorPlane.setAttribute('visible', 'true');
             } else {
               upperFloorPlane.setAttribute('visible', 'true');
             }
 
-            await sleep(1000); // Brief pause before updating screens to idle
+            await sleep(1000); 
             updateAllDisplays(currFloor, 'idle');
 
-            await sleep(1500); // Brief pause before opening doors
+            await sleep(1500); 
 
             playLiftAnimation('DoorOpen');
             isDoorsOpen = true;
@@ -208,7 +324,6 @@
     });
     };
 
-    // MANUAL TRIGGERS
     window.openLift = () => playLiftAnimation('DoorOpen');
     window.closeLift = () => playLiftAnimation('DoorClose');
   });
@@ -217,6 +332,12 @@
 </head>
 
 <body>
+
+<div id="loading-overlay">LOADING...</div>
+
+<div id="ui-container">
+  <button id="replayBtn">START</button>
+</div>
 
 <a-scene
   renderer="
@@ -230,25 +351,17 @@
   <a-assets timeout="120000"></a-assets>
 
   <script>
-    // Check the environment
     const isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
-    
-    // Define the URLs based on the environment
     const elevatorUrl = isLocal ? 'assets/elevator.glb' : 'https://huggingface.co/datasets/MiraJ102/cgh-assets/resolve/main/elevator.glb';
-    const avatarUrl = isLocal ? 'assets/Talking-On-Phone.glb' : 'https://huggingface.co/datasets/MiraJ102/cgh-assets/resolve/main/Talking-On-Phone.glb';
-
-    // Select the a-assets tag
+    const avatarUrl = isLocal ? 'assets/NPC_Sophie.glb' : 'https://huggingface.co/datasets/MiraJ102/cgh-assets/resolve/main/Talking-On-Phone.glb';
     const assetManager = document.querySelector('a-assets');
 
-    // Ensure the tag was found
     if (assetManager) {
-      // Dynamically create and append the Elevator asset
       const elevatorAsset = document.createElement('a-asset-item');
       elevatorAsset.setAttribute('id', 'elevator');
       elevatorAsset.setAttribute('src', elevatorUrl);
       assetManager.appendChild(elevatorAsset);
 
-      // Create and append the Avatar asset
       const avatarAsset = document.createElement('a-asset-item');
       avatarAsset.setAttribute('id', 'avatar01');
       avatarAsset.setAttribute('src', avatarUrl);
@@ -305,7 +418,6 @@
     </a-text>
   </a-box>
 
-
   <a-assets>
     <img id="tex-loop" src="assets/floor-scroll.jpg">
     <img id="tex-first" src="assets/floor-1.jpg">
@@ -314,7 +426,7 @@
 
   <a-curvedimage 
     id="scrolling-shaft"
-    position="2.5 3 0" 
+    position="0.4 3 0" 
     radius="7.5"
     theta-length="137.5"
     theta-start="201.25"
@@ -326,7 +438,7 @@
 
   <a-curvedimage 
     id="first-floor"
-    position="2.5 3 0" 
+    position="0.4 3 0" 
     radius="7.5"
     theta-length="137.5"
     theta-start="201.25"
@@ -337,7 +449,7 @@
 
     <a-curvedimage 
     id="upper-floor"
-    position="2.5 3 0"
+    position="0.4 3 0"
     radius="7.5"
     theta-length="137.5"
     theta-start="201.25"
@@ -347,12 +459,12 @@
   </a-curvedimage>
 
   <a-entity
-    id="avatarModel"
+    id="avatarModelSophie"
     gltf-model="#avatar01"
-    position="0 1.065 -0.8"
-    rotation="0 0 0"
-    scale="0.014 0.014 0.014"
-    animation-mixer>
+    position="-3 1.065 -0.2"
+    rotation="0 90 0"
+    scale="1.4 1.4 1.4"
+    animation-mixer="clip: Idle; loop: repeat">
   </a-entity>
 
   <a-light
