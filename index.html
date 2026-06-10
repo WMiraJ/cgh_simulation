@@ -91,6 +91,7 @@
     const avatar = document.querySelector('#avatarModelSophie'); 
     const replayBtnContainer = document.querySelector('#ui-container');
     const replayBtn = document.querySelector('#replayBtn');
+    const vrReplayBtn = document.querySelector('#vrReplayBtn');
     const loadingOverlay = document.querySelector('#loading-overlay');
     
     // Lift State Variables
@@ -130,6 +131,7 @@
     async function playSequence() {
       // Hide button during sequence
       replayBtnContainer.style.display = 'none';
+      vrReplayBtn.setAttribute('visible', 'false');
 
       const rig = document.querySelector('#rig');
       const npc1 = document.querySelector('#avatarModelSophie');
@@ -206,6 +208,7 @@
 
       // Show the replay button once finished
       replayBtnContainer.style.display = 'block';
+      vrReplayBtn.setAttribute('visible', 'true');
     }
 
     assets.addEventListener('loaded', async () => {
@@ -221,10 +224,20 @@
       // Hide the loading overlay and reveal the START button
       loadingOverlay.style.display = 'none';
       replayBtnContainer.style.display = 'block';
+      vrReplayBtn.setAttribute('visible', 'true');
     });
 
     // Bind START button
     replayBtn.addEventListener('click', () => {
+      // Visually close the doors and update state before starting the sequence
+      if (isDoorsOpen) {
+        playLiftAnimation('DoorClose');
+        isDoorsOpen = false;
+      }
+      playSequence();
+    });
+
+    vrReplayBtn.addEventListener('click', () => {
       // Visually close the doors and update state before starting the sequence
       if (isDoorsOpen) {
         playLiftAnimation('DoorClose');
@@ -458,6 +471,11 @@
     visible="false">
   </a-curvedimage>
 
+
+  <a-box id="vrReplayBtn" class="clickable" position="-3.5 1.5 0" rotation="0 -90 0" width="0.6" height="0.25" depth="0.05" color="#0000FF" visible="false">
+  <a-text value="START" align="center" position="0 0 0.03" color="#FFFFFF" font="https://cdn.aframe.io/fonts/Roboto-msdf.json"></a-text>
+  </a-box>
+
   <a-entity
     id="avatarModelSophie"
     gltf-model="#avatar01"
@@ -511,7 +529,6 @@
     <a-entity
       camera
       look-controls
-      wasd-controls
       position="0 1.3 0">
     </a-entity>
 
