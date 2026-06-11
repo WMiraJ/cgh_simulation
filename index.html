@@ -162,7 +162,7 @@
       npc1.setAttribute('animation__walkout', 'property: position; to: -8 1.065 0; startEvents: npcWalkOut; dur: 6000; easing: linear');
         
       console.log("Moving to Floor 1...");
-      await window.goToFloor(1); 
+      await window.goToFloor(1, true); 
 
       await sleep(3500); // Pause at Floor 1
         
@@ -220,6 +220,18 @@
       document.querySelector('#scrolling-shaft').setAttribute('visible', 'false');
       document.querySelector('#first-floor').setAttribute('visible', 'true');
       document.querySelector('#upper-floor').setAttribute('visible', 'false');
+      document.querySelector('#middle-floor').setAttribute('visible', 'false');
+      document.querySelector('#lower-floor').setAttribute('visible', 'false');
+
+      if (currFloor === 1) {
+        document.querySelector('#first-floor').setAttribute('visible', 'true');
+      } else if (currFloor > 1 && currFloor <= 6) {
+        document.querySelector('#lower-floor').setAttribute('visible', 'true');
+      } else if (currFloor > 6 && currFloor <= 10) {
+        document.querySelector('#middle-floor').setAttribute('visible', 'true');
+      } else if (currFloor > 10 && currFloor <= 15) {
+        document.querySelector('#upper-floor').setAttribute('visible', 'true');
+      }
       
       // Hide the loading overlay and reveal the START button
       loadingOverlay.style.display = 'none';
@@ -273,68 +285,86 @@
     // =========================
     // LIFT MOVEMENT LOGIC
     // =========================
-    window.goToFloor = function(destFloor) {
+    window.goToFloor = function(destFloor, isSilentMove = false) {
       return new Promise((resolve) => {
-      if (isMoving || currFloor === destFloor) return;
-      isMoving = true;
+        if (isMoving || currFloor === destFloor) return;
+        isMoving = true;
 
-      const firstFloorPlane = document.querySelector('#first-floor');
-      const upperFloorPlane = document.querySelector('#upper-floor');
-      const scrollingShaft = document.querySelector('#scrolling-shaft');
+        const firstFloorPlane = document.querySelector('#first-floor');
+        const lowerFloorPlane = document.querySelector('#lower-floor');
+        const middleFloorPlane = document.querySelector('#middle-floor');
+        const upperFloorPlane = document.querySelector('#upper-floor');
+        const scrollingShaft = document.querySelector('#scrolling-shaft');
 
-      if (isDoorsOpen) {
-        playLiftAnimation('DoorClose');
-        isDoorsOpen = false;
-      }
+        if (isDoorsOpen) {
+          playLiftAnimation('DoorClose');
+          isDoorsOpen = false;
+        }
 
-      setTimeout(() => {
-        const isGoingUp = destFloor > currFloor;
-        const screenDir = isGoingUp ? 'up' : 'down';
-        const scrollDir = isGoingUp ? 'down' : 'up'; 
-
-        updateAllDisplays(currFloor, screenDir);
-
-        firstFloorPlane.setAttribute('visible', 'false');
-        upperFloorPlane.setAttribute('visible', 'false');
-        
-        scrollingShaft.setAttribute('visible', 'true');
-        scrollingShaft.setAttribute('texture-scroller', `active: true; direction: ${scrollDir}`);
-
-        const floorInterval = setInterval(async () => {
-          if (isGoingUp) {
-            currFloor++;
-          } else {
-            currFloor--;
-          }
+        setTimeout(() => {
+          const isGoingUp = destFloor > currFloor;
+          const screenDir = isGoingUp ? 'up' : 'down';
+          const scrollDir = isGoingUp ? 'down' : 'up'; 
 
           updateAllDisplays(currFloor, screenDir);
 
-          if (currFloor === destFloor) {
-            clearInterval(floorInterval); 
+          // If standard move: hide all static floors and show scrolling shaft
+          if (!isSilentMove) {
+            firstFloorPlane.setAttribute('visible', 'false');
+            lowerFloorPlane.setAttribute('visible', 'false');
+            middleFloorPlane.setAttribute('visible', 'false');
+            upperFloorPlane.setAttribute('visible', 'false');
             
-            scrollingShaft.setAttribute('texture-scroller', 'active: false');
+            scrollingShaft.setAttribute('visible', 'true');
+            scrollingShaft.setAttribute('texture-scroller', `active: true; direction: ${scrollDir}`);
+          } else {
+            // If silent move: ensure only floor 1 is visible, no scroll shaft
+            firstFloorPlane.setAttribute('visible', 'true');
             scrollingShaft.setAttribute('visible', 'false');
+          }
 
-            if (currFloor === 1) {
-              firstFloorPlane.setAttribute('visible', 'true');
+          const floorInterval = setInterval(async () => {
+            if (isGoingUp) {
+              currFloor++;
             } else {
-              upperFloorPlane.setAttribute('visible', 'true');
+              currFloor--;
             }
 
-            await sleep(1000); 
-            updateAllDisplays(currFloor, 'idle');
+            updateAllDisplays(currFloor, screenDir);
 
-            await sleep(1500); 
+            if (currFloor === destFloor) {
+              clearInterval(floorInterval); 
+              
+              if (!isSilentMove) {
+                scrollingShaft.setAttribute('texture-scroller', 'active: false');
+                scrollingShaft.setAttribute('visible', 'false');
 
-            playLiftAnimation('DoorOpen');
-            isDoorsOpen = true;
-            isMoving = false; 
-            resolve();
-          }
-        }, 1200); 
+                // Logic to display the correct floor based on the destination
+                if (currFloor === 1) {
+                  firstFloorPlane.setAttribute('visible', 'true');
+                } else if (currFloor > 1 && currFloor <= 6) {
+                  lowerFloorPlane.setAttribute('visible', 'true');
+                } else if (currFloor > 6 && currFloor <= 10) {
+                  middleFloorPlane.setAttribute('visible', 'true');
+                } else if (currFloor > 10 && currFloor <= 15) {
+                  upperFloorPlane.setAttribute('visible', 'true');
+                }
+              }
 
-      }, 3000); 
-    });
+              await sleep(1000); 
+              updateAllDisplays(currFloor, 'idle');
+
+              await sleep(1500); 
+
+              playLiftAnimation('DoorOpen');
+              isDoorsOpen = true;
+              isMoving = false; 
+              resolve();
+            }
+          }, 1200); 
+
+        }, 3000); 
+      });
     };
 
     window.openLift = () => playLiftAnimation('DoorOpen');
@@ -438,6 +468,8 @@
   <a-assets>
     <img id="tex-loop" src="assets/floor-scroll.jpg">
     <img id="tex-first" src="assets/floor-1.jpg">
+    <img id="tex-lower" src="assets/floor-lower.jpg">
+    <img id="tex-middle" src="assets/floor-middle.jpg">
     <img id="tex-upper" src="assets/floor-upper.jpg"> 
   </a-assets>
 
@@ -450,23 +482,45 @@
     height="52.5"
     material="src: #tex-loop; repeat: 1 4;" 
     texture-scroller="speed: 0.8; direction: down"
-    visible="true">
+    visible="false">
   </a-curvedimage>
 
   <a-curvedimage 
     id="first-floor"
-    position="0.6 3 0" 
+    position="0.602 3 0" 
     radius="7.5"
     theta-length="137.5"
     theta-start="201.25"
     height="10.5" 
     material="src: #tex-first;" 
-    visible="false">
+    visible="true">
   </a-curvedimage>
 
     <a-curvedimage 
+    id="lower-floor"
+    position="0.6 3.6 0"
+    radius="7.5"
+    theta-length="137.5"
+    theta-start="201.25"
+    height="10.5" 
+    material="src: #tex-lower;" 
+    visible="false">
+  </a-curvedimage>
+
+      <a-curvedimage 
+    id="middle-floor"
+    position="0.6 3.6 0"
+    radius="7.5"
+    theta-length="137.5"
+    theta-start="201.25"
+    height="10.5" 
+    material="src: #tex-middle;" 
+    visible="false">
+  </a-curvedimage>
+
+  <a-curvedimage 
     id="upper-floor"
-    position="0.6 3 0"
+    position="0.6 3.6 0"
     radius="7.5"
     theta-length="137.5"
     theta-start="201.25"
