@@ -108,6 +108,17 @@
         loop: 'once',
         clampWhenFinished: true,
       });
+
+      // Tie mechanical sounds directly to the animation triggers
+      if (name === 'DoorOpen') {
+        if (elevator.components.sound__dooropen) {
+            elevator.components.sound__dooropen.playSound();
+        }
+      } else if (name === 'DoorClose') {
+        if (elevator.components.sound__doorclose) {
+            elevator.components.sound__doorclose.playSound();
+        }
+      }
     }
 
     function playAvatarAnimation(name) {
@@ -163,8 +174,7 @@
         
       console.log("Moving to Floor 1...");
       await window.goToFloor(1, true); 
-
-      await sleep(3500); // Pause at Floor 1
+      await sleep(4000); 
         
       console.log("NPC Walk-in...");
       npc1.setAttribute('animation-mixer', 'clip: walk; loop: repeat; timeScale: 0.8');
@@ -183,20 +193,18 @@
         
       console.log("Turning camera...");
       rig.emit('turnCameraAround');
-      await sleep(5000); 
         
       console.log("Moving to Floor 8...");
       await window.goToFloor(8);
-      await sleep(5000); // Pause at Floor 8
+      await sleep(4000);
 
       console.log("NPC Walk-out...");
       npc1.setAttribute('animation-mixer', 'clip: walk; loop: repeat; timeScale: 0.8');
       npc1.emit('npcWalkOut');
-      await sleep(3000);
 
       console.log("Moving to Floor 15...");
       await window.goToFloor(15);
-      await sleep(2000);
+      await sleep(4000);
 
       console.log("Panning camera out...");
       rig.emit('panCameraOut');
@@ -285,86 +293,118 @@
     // =========================
     // LIFT MOVEMENT LOGIC
     // =========================
-    window.goToFloor = function(destFloor, isSilentMove = false) {
-      return new Promise((resolve) => {
-        if (isMoving || currFloor === destFloor) return;
-        isMoving = true;
+    window.goToFloor = async function(destFloor, isSilentMove = false) {
+      if (isMoving || currFloor === destFloor) return;
+      isMoving = true;
 
-        const firstFloorPlane = document.querySelector('#first-floor');
-        const lowerFloorPlane = document.querySelector('#lower-floor');
-        const middleFloorPlane = document.querySelector('#middle-floor');
-        const upperFloorPlane = document.querySelector('#upper-floor');
-        const scrollingShaft = document.querySelector('#scrolling-shaft');
+      const isGoingUp = destFloor > currFloor;
+      const screenDir = isGoingUp ? 'up' : 'down';
+      const scrollDir = isGoingUp ? 'down' : 'up'; 
 
-        if (isDoorsOpen) {
-          playLiftAnimation('DoorClose');
-          isDoorsOpen = false;
+      // =========================
+      // PHASE 1: DEPARTURE SEQUENCE
+      // =========================
+      if (isDoorsOpen) {
+
+        // 1. Play "Going Up/Down" voice
+        if (isGoingUp && elevator.components.sound__voiceup) {
+           elevator.components.sound__voiceup.playSound();
+        } else if (!isGoingUp && elevator.components.sound__voicedown) {
+           elevator.components.sound__voicedown.playSound();
         }
+        await sleep(1500); // Adjust this sleep to match the voice file
 
-        setTimeout(() => {
-          const isGoingUp = destFloor > currFloor;
-          const screenDir = isGoingUp ? 'up' : 'down';
-          const scrollDir = isGoingUp ? 'down' : 'up'; 
+        // 2. Play "Doors Closing" voice
+        if (elevator.components.sound__voicedoorclose) {
+            elevator.components.sound__voicedoorclose.playSound();
+        }
+        await sleep(2000); // Adjust this sleep to match the length of your voice file
 
+        // 3. Close doors (this triggers the sound__doorclose via playLiftAnimation)
+        playLiftAnimation('DoorClose');
+        isDoorsOpen = false;
+        await sleep(2000); // Wait for the physical door animation to finish
+      }
+
+      // =========================
+      // PHASE 2: TRANSIT SEQUENCE
+      // =========================
+      updateAllDisplays(currFloor, screenDir);
+
+      const firstFloorPlane = document.querySelector('#first-floor');
+      const lowerFloorPlane = document.querySelector('#lower-floor');
+      const middleFloorPlane = document.querySelector('#middle-floor');
+      const upperFloorPlane = document.querySelector('#upper-floor');
+      const scrollingShaft = document.querySelector('#scrolling-shaft');
+
+      if (!isSilentMove) {
+        // Hide static floors, activate scrolling texture
+        firstFloorPlane.setAttribute('visible', 'false');
+        lowerFloorPlane.setAttribute('visible', 'false');
+        middleFloorPlane.setAttribute('visible', 'false');
+        upperFloorPlane.setAttribute('visible', 'false');
+        
+        scrollingShaft.setAttribute('visible', 'true');
+        scrollingShaft.setAttribute('texture-scroller', `active: true; direction: ${scrollDir}`);
+
+        // START MOVING SOUND
+        if (elevator.components.sound) {
+            elevator.components.sound.playSound();
+        }
+      } else {
+        firstFloorPlane.setAttribute('visible', 'true');
+        scrollingShaft.setAttribute('visible', 'false');
+      }
+
+      // =========================
+      // PHASE 3: FLOOR COUNTING
+      // =========================
+      await new Promise((resolve) => {
+        const floorInterval = setInterval(() => {
+          currFloor += isGoingUp ? 1 : -1;
           updateAllDisplays(currFloor, screenDir);
 
-          // If standard move: hide all static floors and show scrolling shaft
-          if (!isSilentMove) {
-            firstFloorPlane.setAttribute('visible', 'false');
-            lowerFloorPlane.setAttribute('visible', 'false');
-            middleFloorPlane.setAttribute('visible', 'false');
-            upperFloorPlane.setAttribute('visible', 'false');
-            
-            scrollingShaft.setAttribute('visible', 'true');
-            scrollingShaft.setAttribute('texture-scroller', `active: true; direction: ${scrollDir}`);
-          } else {
-            // If silent move: ensure only floor 1 is visible, no scroll shaft
-            firstFloorPlane.setAttribute('visible', 'true');
-            scrollingShaft.setAttribute('visible', 'false');
+          if (currFloor === destFloor) {
+            clearInterval(floorInterval);
+            resolve();
           }
-
-          const floorInterval = setInterval(async () => {
-            if (isGoingUp) {
-              currFloor++;
-            } else {
-              currFloor--;
-            }
-
-            updateAllDisplays(currFloor, screenDir);
-
-            if (currFloor === destFloor) {
-              clearInterval(floorInterval); 
-              
-              if (!isSilentMove) {
-                scrollingShaft.setAttribute('texture-scroller', 'active: false');
-                scrollingShaft.setAttribute('visible', 'false');
-
-                // Logic to display the correct floor based on the destination
-                if (currFloor === 1) {
-                  firstFloorPlane.setAttribute('visible', 'true');
-                } else if (currFloor > 1 && currFloor <= 6) {
-                  lowerFloorPlane.setAttribute('visible', 'true');
-                } else if (currFloor > 6 && currFloor <= 10) {
-                  middleFloorPlane.setAttribute('visible', 'true');
-                } else if (currFloor > 10 && currFloor <= 15) {
-                  upperFloorPlane.setAttribute('visible', 'true');
-                }
-              }
-
-              await sleep(1000); 
-              updateAllDisplays(currFloor, 'idle');
-
-              await sleep(1500); 
-
-              playLiftAnimation('DoorOpen');
-              isDoorsOpen = true;
-              isMoving = false; 
-              resolve();
-            }
-          }, 1200); 
-
-        }, 3000); 
+        }, 2800); 
       });
+
+      // =========================
+      // PHASE 4: ARRIVAL SEQUENCE
+      // =========================
+      if (!isSilentMove) {
+        // Stop scrolling
+        scrollingShaft.setAttribute('texture-scroller', 'active: false');
+        scrollingShaft.setAttribute('visible', 'false');
+
+        // STOP MOVING SOUND
+        if (elevator.components.sound) {
+            elevator.components.sound.stopSound();
+        }
+
+        // Reveal correct static floor
+        if (currFloor === 1) firstFloorPlane.setAttribute('visible', 'true');
+        else if (currFloor <= 6) lowerFloorPlane.setAttribute('visible', 'true');
+        else if (currFloor <= 10) middleFloorPlane.setAttribute('visible', 'true');
+        else upperFloorPlane.setAttribute('visible', 'true');
+      }
+
+      await sleep(1000); 
+      updateAllDisplays(currFloor, 'idle');
+      await sleep(1500); 
+
+      // 1. Ding sound first!
+      if (elevator.components.sound__ding) {
+          elevator.components.sound__ding.playSound();
+      }
+      await sleep(800); // Wait a split second so the ding rings clearly before doors move
+
+      // 2. Open doors (this triggers sound__dooropen via playLiftAnimation)
+      playLiftAnimation('DoorOpen');
+      isDoorsOpen = true;
+      isMoving = false; 
     };
 
     window.openLift = () => playLiftAnimation('DoorOpen');
@@ -396,7 +436,7 @@
   <script>
     const isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
     const elevatorUrl = isLocal ? 'assets/elevator.glb' : 'https://huggingface.co/datasets/MiraJ102/cgh-assets/resolve/main/elevator.glb';
-    const avatarUrl = isLocal ? 'assets/NPC_Sophie.glb' : 'https://huggingface.co/datasets/MiraJ102/cgh-assets/resolve/main/NPC_Sophie.glb';
+    const avatarUrl = isLocal ? 'assets/NPCs/NPC_Sophie.glb' : 'https://huggingface.co/datasets/MiraJ102/cgh-assets/resolve/main/NPC_Sophie.glb';
     const assetManager = document.querySelector('a-assets');
 
     if (assetManager) {
@@ -424,7 +464,15 @@
     position="0 1 0"
     rotation="0 0 0"
     scale="1 1 1"
-    animation-mixer="clip: none">
+    animation-mixer="clip: none"
+    sound="src: #lift-move-sound; poolSize: 2; volume: 1; loop: true"
+    sound__dooropen="src: #lift-door-open; poolSize: 2; volume: 1"
+    sound__doorclose="src: #lift-door-close; poolSize: 2; volume: 1"
+    sound__ding="src: #lift-ding; poolSize: 2; volume: 1"
+    sound__voiceup="src: #voice-going-up; poolSize: 2; volume: 1"
+    sound__voicedown="src: #voice-going-down; poolSize: 2; volume: 1"
+    sound__voicedoorclose="src: #voice-door-close; poolSize: 2; volume: 1">
+    
   </a-entity>
 
   <a-box id="outside-screen-display" position="-2.042 4.124 0" width="0.631" height="0.231" depth="0.0483" color="#111111" rotation="0 -90 0">
@@ -471,6 +519,14 @@
     <img id="tex-lower" src="assets/floor-lower.jpg">
     <img id="tex-middle" src="assets/floor-middle.jpg">
     <img id="tex-upper" src="assets/floor-upper.jpg"> 
+    
+    <audio id="lift-move-sound" src="assets/sounds/LiftMoving.mp3"></audio>
+    <audio id="lift-door-open" src="assets/sounds/DoorOpen.mp3"></audio>
+    <audio id="lift-door-close" src="assets/sounds/DoorClose.mp3"></audio>
+    <audio id="lift-ding" src="assets/sounds/Ding.mp3"></audio>
+    <audio id="voice-going-up" src="assets/sounds/Voice_GoingUp.mp3"></audio>
+    <audio id="voice-going-down" src="assets/sounds/Voice_GoingDown.mp3"></audio>
+    <audio id="voice-door-close" src="assets/sounds/Voice_DoorsClosing.mp3"></audio>
   </a-assets>
 
   <a-curvedimage 
