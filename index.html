@@ -163,9 +163,9 @@
       npc1.setAttribute('animation-mixer', 'clip: Idle; loop: repeat');
 
       // Camera animations for sequence
-      rig.setAttribute('animation__panIn', 'property: position; to: 0.3 1.8 0; startEvents: panCameraIn; dur: 4500; easing: easeInOutQuad');
-      rig.setAttribute('animation__panOut', 'property: position; to: -4.5 1.8 0; startEvents: panCameraOut; dur: 4500; easing: easeInOutQuad');
-      rig.setAttribute('animation__turn', 'property: rotation; to: 0 90 0; startEvents: turnCameraAround; dur: 3000; easing: easeInOutQuad');
+      rig.setAttribute('animation__panIn', 'property: position; to: 0.3 1.8 0; startEvents: panCameraIn; dur: 7000; easing: easeInOutQuad');
+      rig.setAttribute('animation__panOut', 'property: position; to: -4.5 1.8 0; startEvents: panCameraOut; dur: 7000; easing: easeInOutQuad');
+      rig.setAttribute('animation__turn', 'property: rotation; to: 0 90 0; startEvents: turnCameraAround; dur: 4000; easing: easeInOutQuad');
 
       // Re-register NPC position/rotation animations (required for replay to retrigger on events)
       npc1.setAttribute('animation__walkin', 'property: position; to: -0.3 1.065 -0.6; startEvents: npcWalkIn; dur: 4000; easing: linear');
@@ -196,7 +196,7 @@
         
       console.log("Moving to Floor 8...");
       await window.goToFloor(8);
-      await sleep(4000);
+      await sleep(5500);
 
       console.log("NPC Walk-out...");
       npc1.setAttribute('animation-mixer', 'clip: walk; loop: repeat; timeScale: 0.8');
