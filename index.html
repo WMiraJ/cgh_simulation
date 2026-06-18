@@ -302,6 +302,21 @@
       const scrollDir = isGoingUp ? 'down' : 'up'; 
 
       // =========================
+      // VOLUME ADJUSTMENT
+      // =========================
+      // Drop volume to 0.5 for silent moves, otherwise keep at 1.0
+      const targetVolume = isSilentMove ? 0.5 : 1.0;
+      const allElevatorSounds = [
+          'sound', 'sound__voiceup', 'sound__voicedown', 
+          'sound__voicedoorclose', 'sound__doorclose', 'sound__dooropen', 'sound__ding'
+      ];
+      allElevatorSounds.forEach(soundName => {
+          if (elevator.components[soundName]) {
+              elevator.setAttribute(soundName, 'volume', targetVolume);
+          }
+      });
+
+      // =========================
       // PHASE 1: DEPARTURE SEQUENCE
       // =========================
       if (isDoorsOpen) {
@@ -312,18 +327,18 @@
         } else if (!isGoingUp && elevator.components.sound__voicedown) {
            elevator.components.sound__voicedown.playSound();
         }
-        await sleep(1500); // Adjust this sleep to match the voice file
+        await sleep(1500); 
 
         // 2. Play "Doors Closing" voice
         if (elevator.components.sound__voicedoorclose) {
             elevator.components.sound__voicedoorclose.playSound();
         }
-        await sleep(2000); // Adjust this sleep to match the length of your voice file
+        await sleep(2000); 
 
-        // 3. Close doors (this triggers the sound__doorclose via playLiftAnimation)
+        // 3. Close doors
         playLiftAnimation('DoorClose');
         isDoorsOpen = false;
-        await sleep(2000); // Wait for the physical door animation to finish
+        await sleep(2000); 
       }
 
       // =========================
@@ -337,8 +352,8 @@
       const upperFloorPlane = document.querySelector('#upper-floor');
       const scrollingShaft = document.querySelector('#scrolling-shaft');
 
+      // Visuals split based on silent move
       if (!isSilentMove) {
-        // Hide static floors, activate scrolling texture
         firstFloorPlane.setAttribute('visible', 'false');
         lowerFloorPlane.setAttribute('visible', 'false');
         middleFloorPlane.setAttribute('visible', 'false');
@@ -346,14 +361,14 @@
         
         scrollingShaft.setAttribute('visible', 'true');
         scrollingShaft.setAttribute('texture-scroller', `active: true; direction: ${scrollDir}`);
-
-        // START MOVING SOUND
-        if (elevator.components.sound) {
-            elevator.components.sound.playSound();
-        }
       } else {
         firstFloorPlane.setAttribute('visible', 'true');
         scrollingShaft.setAttribute('visible', 'false');
+      }
+
+      // START MOVING SOUND (Plays for both standard and silent moves now)
+      if (elevator.components.sound) {
+          elevator.components.sound.playSound();
       }
 
       // =========================
@@ -374,34 +389,33 @@
       // =========================
       // PHASE 4: ARRIVAL SEQUENCE
       // =========================
+      // Stop Visuals
       if (!isSilentMove) {
-        // Stop scrolling
         scrollingShaft.setAttribute('texture-scroller', 'active: false');
         scrollingShaft.setAttribute('visible', 'false');
 
-        // STOP MOVING SOUND
-        if (elevator.components.sound) {
-            elevator.components.sound.stopSound();
-        }
-
-        // Reveal correct static floor
         if (currFloor === 1) firstFloorPlane.setAttribute('visible', 'true');
         else if (currFloor <= 6) lowerFloorPlane.setAttribute('visible', 'true');
         else if (currFloor <= 10) middleFloorPlane.setAttribute('visible', 'true');
         else upperFloorPlane.setAttribute('visible', 'true');
       }
 
+      // STOP MOVING SOUND (Stops for both standard and silent moves now)
+      if (elevator.components.sound) {
+          elevator.components.sound.stopSound();
+      }
+
       await sleep(1000); 
       updateAllDisplays(currFloor, 'idle');
       await sleep(1500); 
 
-      // 1. Ding sound first!
+      // 1. Ding sound first
       if (elevator.components.sound__ding) {
           elevator.components.sound__ding.playSound();
       }
-      await sleep(800); // Wait a split second so the ding rings clearly before doors move
+      await sleep(800); 
 
-      // 2. Open doors (this triggers sound__dooropen via playLiftAnimation)
+      // 2. Open doors 
       playLiftAnimation('DoorOpen');
       isDoorsOpen = true;
       isMoving = false; 
