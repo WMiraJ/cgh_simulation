@@ -86,6 +86,23 @@
     }
   });
 
+  // =========================
+  // VR CONTROLLER INPUT
+  // =========================
+  AFRAME.registerComponent('sequence-controller', {
+    init: function () {
+      // Right Controller: 'A' Button to Start
+      this.el.addEventListener('abuttondown', () => {
+        window.dispatchEvent(new Event('vr-start-sequence'));
+      });
+
+      // Left Controller: 'X' Button to Freeze/Unfreeze
+      this.el.addEventListener('xbuttondown', () => {
+        window.dispatchEvent(new Event('vr-freeze-sequence'));
+      });
+    }
+  });
+
   document.addEventListener('DOMContentLoaded', () => {
     const elevator = document.querySelector('#elevatorModel');
     const avatar = document.querySelector('#avatarModelSophie'); 
@@ -98,6 +115,43 @@
     let currFloor = 4;
     let isMoving = false;
     let isDoorsOpen = false;
+
+    // =========================
+    // VR BUTTON LISTENERS
+    // =========================
+    window.addEventListener('vr-start-sequence', () => {
+      if (isDoorsOpen) {
+        playLiftAnimation('DoorClose');
+        isDoorsOpen = false;
+      }
+      if (!isMoving && !window.isSimulationFrozen) {
+        playSequence();
+      }
+    });
+
+    window.addEventListener('vr-freeze-sequence', () => {
+      window.isSimulationFrozen = !window.isSimulationFrozen; // Toggle state
+
+      const rig = document.querySelector('#rig');
+      const npc1 = document.querySelector('#avatarModelSophie');
+      const scrollingShaft = document.querySelector('#scrolling-shaft');
+
+      if (window.isSimulationFrozen) {
+        console.log("SIMULATION FROZEN");
+        // Pause entity animations, scripts, and sounds
+        npc1.pause(); 
+        rig.pause(); 
+        scrollingShaft.pause(); 
+        if (elevator.components.sound) elevator.components.sound.pauseSound();
+      } else {
+        console.log("SIMULATION RESUMED");
+        // Resume entity animations, scripts, and sounds
+        npc1.play(); 
+        rig.play(); 
+        scrollingShaft.play();
+        if (isMoving && elevator.components.sound) elevator.components.sound.playSound();
+      }
+    });
 
     // =========================
     // PLAY ANIMATION FUNCTIONS
@@ -134,7 +188,22 @@
     // WAIT FOR 3D ASSETS TO LOAD
     // =========================
     const assets = document.querySelector('a-assets');
-    const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms));
+
+    // Global state for freezing
+    window.isSimulationFrozen = false;
+
+    // Freeze-aware sleep function
+    const sleep = async (ms) => {
+      let elapsed = 0;
+      const step = 50; // Check every 50ms
+      while (elapsed < ms) {
+        await new Promise(r => setTimeout(r, step));
+        // Only progress the timer if we are NOT frozen
+        if (!window.isSimulationFrozen) {
+          elapsed += step;
+        }
+      }
+    };
     
     // =========================
     // THE SCENARIO SEQUENCE
@@ -376,6 +445,9 @@
       // =========================
       await new Promise((resolve) => {
         const floorInterval = setInterval(() => {
+          if (window.isSimulationFrozen) return;
+
+    
           currFloor += isGoingUp ? 1 : -1;
           updateAllDisplays(currFloor, screenDir);
 
@@ -647,29 +719,31 @@
   </a-entity>
 
   <a-entity
-    id="rig"
-    movement-controls="speed: 0.1;"
-    position="-4.5 1.8 0"
-    rotation="0 -90 0"
-    animation__pan="property: position; to: 0.3 1.8 0; startEvents: panCameraIn; dur: 4500; easing: easeInOutQuad"
-    animation__turn="property: rotation; to: 0 90 0; startEvents: turnCameraAround; dur: 3000; easing: easeInOutQuad">
+      id="rig"
+      movement-controls="speed: 0.1;"
+      position="-4.5 1.8 0"
+      rotation="0 -90 0"
+      animation__pan="property: position; to: 0.3 1.8 0; startEvents: panCameraIn; dur: 4500; easing: easeInOutQuad"
+      animation__turn="property: rotation; to: 0 90 0; startEvents: turnCameraAround; dur: 3000; easing: easeInOutQuad">
 
-    <a-entity
-      camera
-      look-controls
-      position="0 1.3 0">
+      <a-entity
+        camera
+        look-controls
+        position="0 1.3 0">
+      </a-entity>
+
+      <a-entity
+        hand-controls="hand: left; handModelStyle: lowPoly; color: #CCCCCC"
+        sequence-controller>
+      </a-entity>
+
+      <a-entity
+        hand-controls="hand: right; handModelStyle: lowPoly; color: #CCCCCC"
+        laser-controls="hand: right"
+        sequence-controller>
+      </a-entity>
+
     </a-entity>
-
-    <a-entity
-      hand-controls="hand: left; handModelStyle: lowPoly; color: #CCCCCC">
-    </a-entity>
-
-    <a-entity
-      hand-controls="hand: right; handModelStyle: lowPoly; color: #CCCCCC"
-      laser-controls="hand: right">
-    </a-entity>
-
-  </a-entity>
 
 </a-scene>
 
