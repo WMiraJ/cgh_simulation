@@ -305,7 +305,7 @@
       // VOLUME ADJUSTMENT
       // =========================
       // Drop volume to 0.5 for silent moves, otherwise keep at 1.0
-      const targetVolume = isSilentMove ? 0.5 : 1.0;
+      const targetVolume = isSilentMove ? 1 : 2.0;
       const allElevatorSounds = [
           'sound', 'sound__voiceup', 'sound__voicedown', 
           'sound__voicedoorclose', 'sound__doorclose', 'sound__dooropen', 'sound__ding'
@@ -366,7 +366,7 @@
         scrollingShaft.setAttribute('visible', 'false');
       }
 
-      // START MOVING SOUND (Plays for both standard and silent moves now)
+      // START MOVING SOUND (Plays for both standard and silent moves)
       if (elevator.components.sound) {
           elevator.components.sound.playSound();
       }
@@ -479,9 +479,9 @@
     rotation="0 0 0"
     scale="1 1 1"
     animation-mixer="clip: none"
-    sound="src: #lift-move-sound; poolSize: 2; volume: 2; loop: true"
-    sound__dooropen="src: #lift-door-open; poolSize: 2; volume: 2"
-    sound__doorclose="src: #lift-door-close; poolSize: 2; volume: 2"
+    sound="src: #lift-move-sound; poolSize: 2; volume: 4; loop: true"
+    sound__dooropen="src: #lift-door-open; poolSize: 2; volume: 4"
+    sound__doorclose="src: #lift-door-close; poolSize: 2; volume: 4"
     sound__ding="src: #lift-ding; poolSize: 2; volume: 1"
     sound__voiceup="src: #voice-going-up; poolSize: 2; volume: 1"
     sound__voicedown="src: #voice-going-down; poolSize: 2; volume: 1"
