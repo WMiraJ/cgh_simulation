@@ -269,7 +269,7 @@ AFRAME.registerComponent('texture-scroller', {
         
       console.log("Moving to Floor 1...");
       await window.goToFloor(1, true); 
-      await sleep(4000); 
+      await sleep(2000); 
         
       console.log("NPC Walk-in...");
       npc1.setAttribute('animation-mixer', 'clip: walk; loop: repeat; timeScale: 0.8');
@@ -294,7 +294,7 @@ AFRAME.registerComponent('texture-scroller', {
         
       console.log("Moving to Floor 8...");
       await window.goToFloor(8);
-      await sleep(5500);
+      await sleep(2000);
 
       console.log("NPC Walk-out...");
       npc1.setAttribute('animation-mixer', 'clip: walk; loop: repeat; timeScale: 0.8');
@@ -303,13 +303,13 @@ AFRAME.registerComponent('texture-scroller', {
 
       console.log("Moving to Floor 15...");
       await window.goToFloor(15);
-      await sleep(4000);
+      await sleep(2000);
 
       console.log("Panning camera out...");
-      mainChar.setAttribute('animation-mixer', 'clip: walk; loop: repeat; crossFadeDuration: 0.2');
+      mainChar.setAttribute('animation-mixer', 'clip: walk; loop: repeat');
       rig.emit('panCameraOut');
       await sleep(2000);
-      mainChar.setAttribute('animation-mixer', 'clip: Idle; loop: repeat; crossFadeDuration: 0.2');
+      mainChar.setAttribute('animation-mixer', 'clip: Idle; loop: repeat');
 
       console.log("Sequence Complete.");
 
