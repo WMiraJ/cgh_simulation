@@ -75,9 +75,12 @@ AFRAME.registerComponent('body-sync', {
     const camera3D = this.data.camera.object3D;
     const body3D = this.el.object3D;
 
-    // Because both are inside the rig, copy local X and Z directly
+    // Sync position
     body3D.position.x = camera3D.position.x;
     body3D.position.z = camera3D.position.z;
+
+    // Sync rotation
+    body3D.rotation.y = camera3D.rotation.y
   }
 });
 
@@ -130,7 +133,6 @@ AFRAME.registerComponent('texture-scroller', {
     const avatar = document.querySelector('#avatarModelSophie'); 
     const replayBtnContainer = document.querySelector('#ui-container');
     const replayBtn = document.querySelector('#replayBtn');
-    const vrReplayBtn = document.querySelector('#vrReplayBtn');
     const loadingOverlay = document.querySelector('#loading-overlay');
     
     // Lift State Variables
@@ -233,7 +235,6 @@ AFRAME.registerComponent('texture-scroller', {
     async function playSequence() {
       // Hide button during sequence
       replayBtnContainer.style.display = 'none';
-      vrReplayBtn.setAttribute('visible', 'false');
 
       const rig = document.querySelector('#rig');
       const npc1 = document.querySelector('#avatarModelSophie');
@@ -317,7 +318,6 @@ AFRAME.registerComponent('texture-scroller', {
 
       // Show the replay button once finished
       replayBtnContainer.style.display = 'block';
-      vrReplayBtn.setAttribute('visible', 'true');
     }
 
     assets.addEventListener('loaded', async () => {
@@ -345,7 +345,6 @@ AFRAME.registerComponent('texture-scroller', {
       // Hide the loading overlay and reveal the START button
       loadingOverlay.style.display = 'none';
       replayBtnContainer.style.display = 'block';
-      vrReplayBtn.setAttribute('visible', 'true');
     });
 
     // Bind START button
@@ -358,14 +357,7 @@ AFRAME.registerComponent('texture-scroller', {
       playSequence();
     });
 
-    vrReplayBtn.addEventListener('click', () => {
-      // Visually close the doors and update state before starting the sequence
-      if (isDoorsOpen) {
-        playLiftAnimation('DoorClose');
-        isDoorsOpen = false;
-      }
-      playSequence();
-    });
+
 
     // =========================
     // Screen Display Update
@@ -713,16 +705,12 @@ AFRAME.registerComponent('texture-scroller', {
 
   <a-image 
     id="safety-poster"
-    position="1.4 2.9 0"  
+    position="1.4 3.4 0"  
     rotation="0 -90 0" 
     width="0.8"
     height="1.15"
     material="src: #safety-poster; transparent: true; opacity: 1">
   </a-image>
-
-  <a-box id="vrReplayBtn" class="clickable" position="-2.07 2.35 2.125" scale="0.503 0.575 0.354" rotation="0 -90 0" width="0.6" height="0.25" depth="0.05" color="#0000FF" visible="false">
-  <a-text value="START" align="center" position="0 0 0.03" scale="0.8 0.8 0.8" color="#FFFFFF" font="https://cdn.aframe.io/fonts/Roboto-msdf.json"></a-text>
-  </a-box>
 
   <a-entity
     id="avatarModelSophie"
