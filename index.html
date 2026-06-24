@@ -60,31 +60,53 @@
   </style>
 
 <script>
-  // =========================
-  // CUSTOM SCROLLER COMPONENT
-  // =========================
-  AFRAME.registerComponent('texture-scroller', {
-    schema: {
-      speed: { type: 'number', default: 0.5 },
-      direction: { type: 'string', default: 'down' },
-      active: { type: 'boolean', default: false } 
-    },
-    tick: function (time, timeDelta) {
-      if (!this.data.active) return; 
-      
-      const mesh = this.el.getObject3D('mesh');
-      if (!mesh || !mesh.material || !mesh.material.map) return;
-      
-      const texture = mesh.material.map;
-      const offsetChange = (this.data.speed * timeDelta) / 1000;
-      
-      if (this.data.direction === 'up') {
-        texture.offset.y -= offsetChange;
-      } else {
-        texture.offset.y += offsetChange;
-      }
+  
+// =========================
+// HMD TO BODY SYNC COMPONENT
+// =========================
+AFRAME.registerComponent('body-sync', {
+  schema: {
+    camera: { type: 'selector', default: '[camera]' },
+  },
+  tick: function () {
+    // Failsafe: If the camera isn't fully loaded yet, wait.
+    if (!this.data.camera) return;
+
+    const camera3D = this.data.camera.object3D;
+    const body3D = this.el.object3D;
+
+    // Because both are inside the rig, copy local X and Z directly
+    body3D.position.x = camera3D.position.x;
+    body3D.position.z = camera3D.position.z;
+  }
+});
+
+// =========================
+// CUSTOM SCROLLER COMPONENT
+// =========================
+AFRAME.registerComponent('texture-scroller', {
+  schema: {
+    speed: { type: 'number', default: 0.5 },
+    direction: { type: 'string', default: 'down' },
+    active: { type: 'boolean', default: false } 
+  },
+  tick: function (time, timeDelta) {
+    if (!this.data.active) return; 
+    
+    // Failsafe: Ensures the entity's mesh is fully loaded before scrolling
+    const mesh = this.el.getObject3D('mesh');
+    if (!mesh || !mesh.material || !mesh.material.map) return;
+    
+    const texture = mesh.material.map;
+    const offsetChange = (this.data.speed * timeDelta) / 1000;
+    
+    if (this.data.direction === 'up') {
+      texture.offset.y -= offsetChange;
+    } else {
+      texture.offset.y += offsetChange;
     }
-  });
+  }
+});
 
   // =========================
   // VR CONTROLLER INPUT
@@ -215,6 +237,7 @@
 
       const rig = document.querySelector('#rig');
       const npc1 = document.querySelector('#avatarModelSophie');
+      const mainChar = document.querySelector('#mainCharacterEntity');
 
       // Reset Camera Rig position/rotation and animation attributes for replay
       rig.removeAttribute('movement-controls'); // Reset any residual movement controls
@@ -230,6 +253,9 @@
       npc1.setAttribute('position', '-3 1.065 -0.2');
       npc1.setAttribute('rotation', '0 90 0');
       npc1.setAttribute('animation-mixer', 'clip: Idle; loop: repeat');
+
+      // Reset Main Character to Idle for replay
+      mainChar.setAttribute('animation-mixer', 'clip: Idle; loop: repeat; crossFadeDuration: 0.2');
 
       // Camera animations for sequence
       rig.setAttribute('animation__panIn', 'property: position; to: 0.3 1.8 0; startEvents: panCameraIn; dur: 7000; easing: easeInOutQuad');
@@ -251,17 +277,20 @@
       await sleep(1500);
 
       console.log("Panning camera in...");
+      mainChar.setAttribute('animation-mixer', 'clip: walk; loop: repeat; timeScale: 0.8');
       rig.emit('panCameraIn');
       await sleep(2500);
       
       console.log("NPC Turning...");
       npc1.emit('npcTurn');
       await sleep(2000);
-
       npc1.setAttribute('animation-mixer', 'clip: Idle; loop: repeat');
         
       console.log("Turning camera...");
+      mainChar.setAttribute('animation-mixer', 'clip: Idle; loop: repeat'); 
       rig.emit('turnCameraAround');
+      await sleep(4000); 
+
         
       console.log("Moving to Floor 8...");
       await window.goToFloor(8);
@@ -270,14 +299,17 @@
       console.log("NPC Walk-out...");
       npc1.setAttribute('animation-mixer', 'clip: walk; loop: repeat; timeScale: 0.8');
       npc1.emit('npcWalkOut');
+      mainChar.setAttribute('animation-mixer', 'clip: Idle; loop: repeat');
 
       console.log("Moving to Floor 15...");
       await window.goToFloor(15);
       await sleep(4000);
 
       console.log("Panning camera out...");
+      mainChar.setAttribute('animation-mixer', 'clip: walk; loop: repeat; crossFadeDuration: 0.2');
       rig.emit('panCameraOut');
       await sleep(2000);
+      mainChar.setAttribute('animation-mixer', 'clip: Idle; loop: repeat; crossFadeDuration: 0.2');
 
       console.log("Sequence Complete.");
 
@@ -522,6 +554,7 @@
   <script>
     const isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
     const elevatorUrl = isLocal ? 'assets/elevator.glb' : 'https://huggingface.co/datasets/MiraJ102/cgh-assets/resolve/main/elevator.glb';
+    const mainCharacterUrl = isLocal ? 'assets/main_char.glb' : 'https://huggingface.co/datasets/MiraJ102/cgh-assets/resolve/main/main_char.glb';
     const avatarUrl = isLocal ? 'assets/NPCs/NPC_Sophie.glb' : 'https://huggingface.co/datasets/MiraJ102/cgh-assets/resolve/main/NPC_Sophie.glb';
     const assetManager = document.querySelector('a-assets');
 
@@ -535,7 +568,12 @@
       avatarAsset.setAttribute('id', 'avatar01');
       avatarAsset.setAttribute('src', avatarUrl);
       assetManager.appendChild(avatarAsset);
-      
+
+      const mainCharacterAsset = document.createElement('a-asset-item');
+      mainCharacterAsset.setAttribute('id', 'mainCharacter');
+      mainCharacterAsset.setAttribute('src', mainCharacterUrl);
+      assetManager.appendChild(mainCharacterAsset);
+
       console.log(isLocal ? "Running locally: Using local assets." : "Running remote: Using Hugging Face assets.");
     } else {
       console.error("Critical Error: <a-assets> tag not found. Check script placement.");
@@ -613,6 +651,8 @@
     <audio id="voice-going-up" src="assets/sounds/Voice_GoingUp.mp3"></audio>
     <audio id="voice-going-down" src="assets/sounds/Voice_GoingDown.mp3"></audio>
     <audio id="voice-door-close" src="assets/sounds/Voice_DoorsClosing.mp3"></audio>
+
+    <img id="safety-poster" src="assets/poster.jpg">
   </a-assets>
 
   <a-curvedimage 
@@ -638,7 +678,7 @@
     visible="true">
   </a-curvedimage>
 
-    <a-curvedimage 
+  <a-curvedimage 
     id="lower-floor"
     position="0.6 3.6 0"
     radius="7.5"
@@ -649,7 +689,7 @@
     visible="false">
   </a-curvedimage>
 
-      <a-curvedimage 
+  <a-curvedimage 
     id="middle-floor"
     position="0.6 3.6 0"
     radius="7.5"
@@ -671,6 +711,14 @@
     visible="false">
   </a-curvedimage>
 
+  <a-image 
+    id="safety-poster"
+    position="1.4 2.9 0"  
+    rotation="0 -90 0" 
+    width="0.8"
+    height="1.15"
+    material="src: #safety-poster; transparent: true; opacity: 1">
+  </a-image>
 
   <a-box id="vrReplayBtn" class="clickable" position="-2.07 2.35 2.125" scale="0.503 0.575 0.354" rotation="0 -90 0" width="0.6" height="0.25" depth="0.05" color="#0000FF" visible="false">
   <a-text value="START" align="center" position="0 0 0.03" scale="0.8 0.8 0.8" color="#FFFFFF" font="https://cdn.aframe.io/fonts/Roboto-msdf.json"></a-text>
@@ -721,15 +769,28 @@
   <a-entity
       id="rig"
       movement-controls="speed: 0.1;"
-      position="-4.5 1.8 0"
+      position="-4.5 1.87 0"
       rotation="0 -90 0"
-      animation__pan="property: position; to: 0.3 1.8 0; startEvents: panCameraIn; dur: 4500; easing: easeInOutQuad"
-      animation__turn="property: rotation; to: 0 90 0; startEvents: turnCameraAround; dur: 3000; easing: easeInOutQuad">
+      animation__pan="property: position; to: 0.3 1.87 0; startEvents: panCameraIn; dur: 4500; easing: easeInOutQuad"
+      animation__turn="property: rotation; to: 0 90 0; startEvents: turnCameraAround; dur: 4000; easing: easeInOutQuad">
 
       <a-entity
         camera
         look-controls
-        position="0 1.3 0">
+        position="0 1.33 0">
+      </a-entity>
+
+      <a-entity
+        id="bodyWrapper"
+        body-sync="camera: [camera]"
+        position="0 -0.82 0"> <a-entity
+          id="mainCharacterEntity"
+          gltf-model="#mainCharacter"
+          rotation="0 180 0"
+          position="0 0 0.15" 
+          scale="1.4 1.4 1.4"
+          animation-mixer="clip: Idle; loop: repeat">
+        </a-entity>
       </a-entity>
 
       <a-entity
