@@ -1,0 +1,163 @@
+<!--
+  sequence01.html  ·  easy-standard
+  ─────────────────────────────────────────────────────────────────────────────
+  HTML fragment injected at runtime by main.js.
+
+  #seq-assets   → each child is appended into <a-assets> in the main scene.
+                  Includes static images and audio. GLB models are handled
+                  separately by the inline script in index.html.
+
+  #seq-entities → each child is appended into <a-scene> in the main scene.
+                  Does NOT include the player rig — that lives in index.html.
+  ─────────────────────────────────────────────────────────────────────────────
+-->
+
+
+<!-- ═══ Static Assets (images + audio) ════════════════════════════════════ -->
+
+<div id="seq-assets">
+
+  <!-- Shaft view textures -->
+  <img id="tex-loop"   src="assets/floor-scroll.jpg">
+  <img id="tex-first"  src="assets/floor-1.jpg">
+  <img id="tex-lower"  src="assets/floor-lower.jpg">
+  <img id="tex-middle" src="assets/floor-middle.jpg">
+  <img id="tex-upper"  src="assets/floor-upper.jpg">
+
+  <!-- Lift sound effects -->
+  <audio id="lift-move-sound"  src="assets/sounds/LiftMoving.mp3"></audio>
+  <audio id="lift-door-open"   src="assets/sounds/DoorOpen.mp3"></audio>
+  <audio id="lift-door-close"  src="assets/sounds/DoorClose.mp3"></audio>
+  <audio id="lift-ding"        src="assets/sounds/Ding.mp3"></audio>
+  <audio id="voice-going-up"   src="assets/sounds/Voice_GoingUp.mp3"></audio>
+  <audio id="voice-going-down" src="assets/sounds/Voice_GoingDown.mp3"></audio>
+  <audio id="voice-door-close" src="assets/sounds/Voice_DoorsClosing.mp3"></audio>
+
+  <!-- Lift interior texture -->
+  <img id="safety-poster-tex"  src="assets/poster.jpg">
+
+</div>
+
+
+<!-- ═══ A-Frame Entities ══════════════════════════════════════════════════ -->
+
+<div id="seq-entities">
+
+  <!-- Environment backdrop -->
+  <a-entity environment="preset: forest"></a-entity>
+
+  <!-- ── Elevator GLB with all sound slots attached ── -->
+  <a-entity id="elevatorModel"
+    gltf-model="#elevator"
+    position="0 1 0" rotation="0 0 0" scale="1 1 1"
+    animation-mixer="clip: none"
+    sound="src: #lift-move-sound; poolSize: 2; volume: 4; loop: true"
+    animation__fadein="property: sound.volume; from: 0; to: 4; dur: 2000; easing: linear; startEvents: fade-in"
+    animation__fadeout="property: sound.volume; from: 4; to: 0; dur: 2000; easing: linear; startEvents: fade-out"
+    sound__dooropen="src: #lift-door-open;    poolSize: 2; volume: 4"
+    sound__doorclose="src: #lift-door-close;  poolSize: 2; volume: 4"
+    sound__ding="src: #lift-ding;             poolSize: 2; volume: 1"
+    sound__voiceup="src: #voice-going-up;     poolSize: 2; volume: 1"
+    sound__voicedown="src: #voice-going-down; poolSize: 2; volume: 1"
+    sound__voicedoorclose="src: #voice-door-close; poolSize: 2; volume: 1">
+  </a-entity>
+
+  <!-- ── Floor displays ── -->
+
+  <!-- Outside the lift door (facing the corridor) -->
+  <a-box id="outside-screen-display"
+    position="-2.042 4.124 0" width="0.631" height="0.231" depth="0.0483"
+    color="#111111" rotation="0 -90 0">
+    <a-triangle class="lift-arrow"
+      vertex-a="0 0.08 0" vertex-b="-0.08 -0.08 0" vertex-c="0.08 -0.08 0"
+      color="#FF0000" position="-0.15 0 0.0244" rotation="0 0 0"
+      scale="0.9 0.9 0.9" visible="true">
+    </a-triangle>
+    <a-text class="lift-floor"
+      value="1" color="#FF0000" align="center"
+      position="0.12 0 0.02415" scale="0.9 0.9 0.9"
+      font="https://cdn.aframe.io/fonts/Roboto-msdf.json">
+    </a-text>
+  </a-box>
+
+  <!-- Inside the lift (facing the passenger) -->
+  <a-box id="inside-screen-display"
+    position="-1.482 4.124 0" width="0.631" height="0.231" depth="0.0483"
+    color="#111111" rotation="0 90 0">
+    <a-triangle class="lift-arrow"
+      vertex-a="0 0.08 0" vertex-b="-0.08 -0.08 0" vertex-c="0.08 -0.08 0"
+      color="#FF0000" position="-0.15 0 0.0244" rotation="0 0 0"
+      scale="0.9 0.9 0.9" visible="true">
+    </a-triangle>
+    <a-text class="lift-floor"
+      value="1" color="#FF0000" align="center"
+      position="0.12 0 0.02415" scale="0.9 0.9 0.9"
+      font="https://cdn.aframe.io/fonts/Roboto-msdf.json">
+    </a-text>
+  </a-box>
+
+  <!-- ── Shaft view ── -->
+
+  <!-- Looping scroll texture shown during transit -->
+  <a-curvedimage id="scrolling-shaft"
+    position="0.6 3 0" radius="7.5" theta-length="137.5" theta-start="201.25"
+    height="52.5" material="src: #tex-loop; repeat: 1 4;"
+    texture-scroller="speed: 0.35; direction: down"
+    visible="false">
+  </a-curvedimage>
+
+  <!-- Static floor images shown when the lift is at rest -->
+  <a-curvedimage id="first-floor"
+    position="0.602 3 0" radius="7.5" theta-length="137.5" theta-start="201.25"
+    height="10.5" material="src: #tex-first;"
+    visible="true">
+  </a-curvedimage>
+
+  <a-curvedimage id="lower-floor"
+    position="0.6 3.6 0" radius="7.5" theta-length="137.5" theta-start="201.25"
+    height="10.5" material="src: #tex-lower;"
+    visible="false">
+  </a-curvedimage>
+
+  <a-curvedimage id="middle-floor"
+    position="0.6 3.6 0" radius="7.5" theta-length="137.5" theta-start="201.25"
+    height="10.5" material="src: #tex-middle;"
+    visible="false">
+  </a-curvedimage>
+
+  <a-curvedimage id="upper-floor"
+    position="0.6 3.6 0" radius="7.5" theta-length="137.5" theta-start="201.25"
+    height="10.5" material="src: #tex-upper;"
+    visible="false">
+  </a-curvedimage>
+
+  <!-- ── Lift interior: safety poster ── -->
+  <!-- Note: the asset id is "safety-poster-tex" (on the <img> above);
+       this entity has no id of its own to avoid duplicate IDs. -->
+  <a-image
+    position="1.4 3.1 0" rotation="0 -90 0" width="0.8" height="1.15"
+    material="src: #safety-poster-tex; transparent: true; opacity: 1">
+  </a-image>
+
+  <!-- ── NPC: Sophie ── -->
+  <a-entity id="avatarModelSophie"
+    gltf-model="#avatar01"
+    position="-3 1.065 -0.2" rotation="0 90 0" scale="1.4 1.4 1.4"
+    animation-mixer="clip: Idle; loop: repeat">
+  </a-entity>
+
+  <!-- ── Lighting ── -->
+  <a-light type="ambient" intensity="0.35" color="#dfe8ff"></a-light>
+  <a-light type="spot"
+    position="1 4.8 0" rotation="-90 0 0"
+    angle="85" penumbra="0.1" intensity="7" color="#fff5e6"
+    distance="10" decay="0.1">
+  </a-light>
+  <a-light type="spot"
+    position="0 2 -1"
+    angle="45" penumbra="0.5" intensity="0.6" color="#ffffff"
+    target="#liftTarget">
+  </a-light>
+  <a-entity id="liftTarget" position="0 1 0"></a-entity>
+
+</div>
