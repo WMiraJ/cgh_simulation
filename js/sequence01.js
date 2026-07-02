@@ -114,8 +114,24 @@ AFRAME.registerComponent('texture-scroller', {
 // Component: Maps VR controller buttons to global sequence control events
 AFRAME.registerComponent('sequence-controller', {
   init: function () {
-    this.el.addEventListener('abuttondown', () => window.dispatchEvent(new Event('vr-start-sequence')));
-    this.el.addEventListener('xbuttondown', () => window.dispatchEvent(new Event('vr-freeze-sequence')));
+    this.el.addEventListener('abuttondown', () => {
+      window.dispatchEvent(new Event(window.isMenuOpen ? 'vr-menu-select' : 'vr-start-sequence'));
+    });
+
+    this.el.addEventListener('xbuttondown', () => {
+      window.dispatchEvent(new Event(window.isMenuOpen ? 'vr-menu-back' : 'vr-freeze-sequence'));
+    });
+
+    this.el.addEventListener('thumbstickmoved', evt => {
+      if (!window.isMenuOpen) return;
+      const { x, y } = evt.detail;
+      let direction = null;
+      if (x > 0.6) direction = 'right';
+      else if (x < -0.6) direction = 'left';
+      else if (y < -0.6) direction = 'up';
+      else if (y > 0.6) direction = 'down';
+      if (direction) window.dispatchEvent(new CustomEvent('vr-menu-scroll', { detail: { direction } }));
+    });
   }
 });
 
@@ -138,7 +154,34 @@ window.Sequence01 = {
     let currFloor             = 4;
     let isMoving              = false;
     let isDoorsOpen           = false;
+    let isSequenceRunning     = false;
+    let hasSequenceCompleted  = false;
     window.isSimulationFrozen = false;
+
+    function setMovementEnabled(enabled) {
+      if (window.setPlayerMovementEnabled) window.setPlayerMovementEnabled(enabled);
+      else {
+        const rig = document.querySelector('#rig');
+        if (!rig) return;
+        if (enabled) rig.setAttribute('movement-controls', 'speed: 0.1');
+        else rig.removeAttribute('movement-controls');
+      }
+    }
+
+    window.showSequenceMenu = function () {
+      replayBtnContainer.style.display = 'none';
+      window.isSimulationFrozen = false;
+      hasSequenceCompleted = false;
+
+      const menuContainer = document.querySelector('#vr-menu-container');
+      const menuComponent = menuContainer?.components?.['vr-sequence-menu'];
+      if (menuComponent?.resetMenu) menuComponent.resetMenu();
+      else {
+        window.isMenuOpen = true;
+        setMovementEnabled(false);
+        menuContainer?.setAttribute('visible', 'true');
+      }
+    };
 
 
     // ── Helpers ──────────────────────────────────────────────────────────────
@@ -290,6 +333,9 @@ window.Sequence01 = {
 
     async function playSequence() {
       replayBtnContainer.style.display = 'none';
+      hasSequenceCompleted = false;
+      isSequenceRunning = true;
+      setMovementEnabled(false);
 
       const rig      = document.querySelector('#rig');
       const npc1     = document.querySelector('#avatarModelSophie');
@@ -378,7 +424,9 @@ window.Sequence01 = {
 
       // ── Done
       console.log('[seq01] Sequence complete.');
-      rig.setAttribute('movement-controls', 'speed: 0.1');
+      isSequenceRunning = false;
+      hasSequenceCompleted = true;
+      setMovementEnabled(true);
       replayBtnContainer.style.display = 'block';
     }
 
@@ -387,12 +435,19 @@ window.Sequence01 = {
 
     // VR controller: A button → start / restart
     window.addEventListener('vr-start-sequence', () => {
+      if (window.isMenuOpen || isSequenceRunning) return;
       if (isDoorsOpen) { playLiftAnimation('DoorClose'); isDoorsOpen = false; }
       if (!isMoving && !window.isSimulationFrozen) playSequence();
     });
 
     // VR controller: X button → toggle freeze
     window.addEventListener('vr-freeze-sequence', () => {
+      if (window.isMenuOpen) return;
+      if (hasSequenceCompleted) {
+        window.showSequenceMenu();
+        return;
+      }
+
       window.isSimulationFrozen = !window.isSimulationFrozen;
 
       const rig          = document.querySelector('#rig');
@@ -414,13 +469,23 @@ window.Sequence01 = {
       }
     });
 
+
+    window.addEventListener('keydown', evt => {
+      if (window.isMenuOpen || !hasSequenceCompleted) return;
+      if (evt.key === 'a' || evt.key === 'A') {
+        window.dispatchEvent(new Event('vr-start-sequence'));
+      } else if (evt.key === 'x' || evt.key === 'X') {
+        window.showSequenceMenu();
+      }
+    });
+
     // Desktop replay button
     replayBtn.addEventListener('click', () => {
       if (isDoorsOpen) { playLiftAnimation('DoorClose'); isDoorsOpen = false; }
       playSequence();
     });
 
-    // A-Frame assets fully loaded → show initial state and reveal UI
+    // A-Frame assets fully loaded → show initial state and reveal the menu
     assets.addEventListener('loaded', () => {
       console.log('[seq01] 3D assets fully loaded.');
       updateAllDisplays(currFloor, 'idle');
@@ -430,6 +495,7 @@ window.Sequence01 = {
       const lowerFloorPlane  = document.querySelector('#lower-floor');
       const middleFloorPlane = document.querySelector('#middle-floor');
       const upperFloorPlane  = document.querySelector('#upper-floor');
+      const menuContainer    = document.querySelector('#vr-menu-container');
 
       // Hide everything first, then show the correct starting floor image
       [scrollingShaft, firstFloorPlane, upperFloorPlane, middleFloorPlane, lowerFloorPlane]
@@ -440,8 +506,14 @@ window.Sequence01 = {
       else if (currFloor <= 10) middleFloorPlane.setAttribute('visible', 'true');
       else                       upperFloorPlane.setAttribute('visible', 'true');
 
-      loadingOverlay.style.display     = 'none';
-      replayBtnContainer.style.display = 'block';
+      loadingOverlay.style.display = 'none';
+      replayBtnContainer.style.display = 'none';
+
+      if (menuContainer) {
+        window.showSequenceMenu();
+        menuContainer.setAttribute('animation__fadein',
+          'property: scale; from: 0.001 0.001 0.001; to: 1 1 1; dur: 400; easing: easeOutQuad');
+      }
     });
 
   } // end init()

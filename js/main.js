@@ -48,6 +48,14 @@ if (!SEQUENCES[seqKey]) {
   console.warn(`[main] Unknown sequence "${seqKey}", falling back to "easy-standard".`);
 }
 
+window.setPlayerMovementEnabled = function (enabled) {
+  const rig = document.querySelector('#rig');
+  if (!rig) return;
+
+  if (enabled) rig.setAttribute('movement-controls', 'speed: 0.1');
+  else rig.removeAttribute('movement-controls');
+};
+
 
 // ─── Sequence Loader ──────────────────────────────────────────────────────────
 
@@ -92,5 +100,12 @@ async function loadSequence(cfg) {
 
 
 // ─── Entry Point ─────────────────────────────────────────────────────────────
+
+window.startSelectedSequence = function (key) {
+  if (key && key !== 'easy-standard') {
+    console.warn(`[main] Sequence "${key}" is not wired up yet; starting the current sequence instead.`);
+  }
+  window.dispatchEvent(new Event('vr-start-sequence'));
+};
 
 document.addEventListener('DOMContentLoaded', () => loadSequence(config));
