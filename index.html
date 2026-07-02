@@ -14,6 +14,7 @@
     is initialised, so these cannot be deferred or dynamically injected.
     Add a <script> tag here for each new sequence that introduces new components.
   -->
+  <script src="js/menu.js"></script>
   <script src="js/sequence01.js"></script>
 
   <style>
@@ -128,6 +129,28 @@
     <a-entity hand-controls="hand: left;  handModelStyle: lowPoly; color: #CCCCCC" sequence-controller></a-entity>
     <a-entity hand-controls="hand: right; handModelStyle: lowPoly; color: #CCCCCC" laser-controls="hand: right" sequence-controller></a-entity>
 
+  </a-entity>
+
+  <a-entity id="vr-menu-container"
+    vr-sequence-menu
+    visible="false"
+    position="-2.5 3.5 0"
+    rotation="0 -90 0">
+    <a-entity id="title-panel" position="0 1 -0.4">
+      <a-text id="title-text"
+                value="Welcome to CGH Clinical Psychology\nVR Simulation!\nPlease select a level to start with:"
+                align="center" color="#FFFFFF" width="2.8" position="0 0 0.01" line-height="60"
+                font="exo2semibold"></a-text>
+    </a-entity>
+    <a-entity id="carousel-container" position="0 0 0"></a-entity>
+    <a-entity id="dropdown-container" visible="false" position="0 -0.6 0">
+      <a-entity id="dropdown-panel">
+        <a-text id="dropdown-text" value="Standard\nWithout NPCs\nWith All NPCs"
+                  align="center" color="#FFFFFF" width="2" position="0 0 0.01" line-height="50"
+                  font="exo2semibold"></a-text>
+      </a-entity>
+      <a-entity id="dropdown-highlight"></a-entity>
+    </a-entity>
   </a-entity>
 
 </a-scene>
