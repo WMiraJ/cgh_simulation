@@ -1,12 +1,12 @@
 // ════════════════════════════════════════════════════════════════════════════
-// sequence01.js  ·  easy-standard
+// sequence02.js  ·  easy-without-npcs
 //
 // Structure:
 //   Part 1 — A-Frame component registrations (runs immediately / synchronous).
 //             Must complete before <a-scene> is parsed, which is why this
 //             file is loaded via <script> in <head> of index.html.
 //
-//   Part 2 — window.Sequence01.init()
+//   Part 2 — window.Sequence02.init()
 //             Called by main.js after the sequence HTML entities have been
 //             injected into the live scene. Contains all state, helpers,
 //             core mechanics, and event listeners for this sequence.
@@ -18,56 +18,6 @@
 window.registerAframeComponent = window.registerAframeComponent || ((name, definition) => {
   if (!AFRAME.components[name]) {
     AFRAME.registerComponent(name, definition);
-  }
-});
-
-// Component: Quadratic Bézier walk path for NPCs
-window.registerAframeComponent('curve-walk', {
-  schema: {
-    p1:         { type: 'vec3',   default: { x: -3, y: 1.065, z: -5 } },
-    p2:         { type: 'vec3',   default: { x: -8, y: 1.065, z: -5 } },
-    dur:        { type: 'number', default: 6000 },
-    startEvent: { type: 'string', default: 'npcWalkOut' },
-    walkClip:   { type: 'string', default: 'walk' },
-    idleClip:   { type: 'string', default: 'Idle' }
-  },
-  init: function () {
-    this.active = false;
-    this.onStart = () => {
-      this.active  = true;
-      this.elapsed = 0;
-      this.p0 = new THREE.Vector3().copy(this.el.object3D.position);
-      this.p1 = new THREE.Vector3(this.data.p1.x, this.data.p1.y, this.data.p1.z);
-      this.p2 = new THREE.Vector3(this.data.p2.x, this.data.p2.y, this.data.p2.z);
-      this.el.setAttribute('animation-mixer',
-        `clip: ${this.data.walkClip}; loop: repeat; timeScale: 0.8; crossFadeDuration: 0.2`);
-    };
-    this.el.addEventListener(this.data.startEvent, this.onStart);
-  },
-  remove: function () {
-    this.el.removeEventListener(this.data.startEvent, this.onStart);
-  },
-  tick: function (time, timeDelta) {
-    if (!this.active || window.isSimulationFrozen) return;
-
-    this.elapsed += timeDelta;
-    const t   = Math.min(this.elapsed / this.data.dur, 1);
-    const omt = 1 - t;
-
-    if (t >= 1) {
-      this.active = false;
-      this.el.setAttribute('animation-mixer',
-        `clip: ${this.data.idleClip}; loop: repeat; crossFadeDuration: 0.2`);
-    }
-
-    const x = omt*omt*this.p0.x + 2*omt*t*this.p1.x + t*t*this.p2.x;
-    const y = omt*omt*this.p0.y + 2*omt*t*this.p1.y + t*t*this.p2.y;
-    const z = omt*omt*this.p0.z + 2*omt*t*this.p1.z + t*t*this.p2.z;
-    this.el.object3D.position.set(x, y, z);
-
-    const dx = 2*omt*(this.p1.x - this.p0.x) + 2*t*(this.p2.x - this.p1.x);
-    const dz = 2*omt*(this.p1.z - this.p0.z) + 2*t*(this.p2.z - this.p1.z);
-    this.el.object3D.rotation.y = Math.atan2(dx, dz);
   }
 });
 
@@ -144,14 +94,13 @@ window.registerAframeComponent('sequence-controller', {
 
 // ─── Part 2: Sequence Logic ───────────────────────────────────────────────────
 
-window.Sequence01 = {
+window.Sequence02 = {
 
   init(defaultKey = 'easy-without-npcs') {
 
     // ── DOM references & state ───────────────────────────────────────────────
 
     const elevator           = document.querySelector('#elevatorModel');
-    const avatar             = document.querySelector('#avatarModelSophie');
     const replayBtnContainer = document.querySelector('#ui-container');
     const replayBtn          = document.querySelector('#replayBtn');
     const loadingOverlay     = document.querySelector('#loading-overlay');
@@ -217,9 +166,9 @@ window.Sequence01 = {
         elevator.components.sound__doorclose.playSound();
     }
 
-    // Trigger a named looping animation on the NPC avatar
-    function playAvatarAnimation(name) {
-      if (avatar) avatar.setAttribute('animation-mixer', { clip: name, loop: 'repeat' });
+    function setNpcVisible(visible) {
+      const avatar = document.querySelector('#avatarModelSophie');
+      avatar?.setAttribute('visible', visible);
     }
 
     // Update floor number and direction arrow on both inside/outside displays
@@ -230,10 +179,6 @@ window.Sequence01 = {
         else if (direction === 'down') { el.setAttribute('visible', 'true');  el.setAttribute('rotation', '0 0 180'); }
         else                           { el.setAttribute('visible', 'false'); }
       });
-    }
-
-    function setNpcVisible(visible) {
-      if (avatar) avatar.setAttribute('visible', visible);
     }
 
     function setFloorBackdrop(floorNumber) {
@@ -390,25 +335,17 @@ window.Sequence01 = {
       const bodyWrapper = document.querySelector('#bodyWrapper');
       if (bodyWrapper) bodyWrapper.object3D.rotation.y = 0;
 
-      setNpcVisible(true);
-      npc1.removeAttribute('curve-walk');
-      npc1.setAttribute('position', '-3 1.065 -0.2');
-      npc1.setAttribute('rotation', '0 90 0');
-      npc1.setAttribute('animation-mixer', 'clip: Idle; loop: repeat');
-
       mainChar.setAttribute('animation-mixer', 'clip: Idle; loop: repeat; crossFadeDuration: 0.2');
 
       // Pre-register animations that will be triggered via events
       rig.setAttribute('animation__panIn',   'property: position; to: 0.3 1.8 0;   startEvents: panCameraIn;      dur: 7000; easing: easeInOutQuad');
       rig.setAttribute('animation__panOut',  'property: position; to: -4.5 1.8 0;  startEvents: panCameraOut;     dur: 7000; easing: easeInOutQuad');
       rig.setAttribute('animation__turn',    'property: rotation; to: 0 90 0;       startEvents: turnCameraAround; dur: 4000; easing: easeInOutQuad');
-      npc1.setAttribute('animation__walkin', 'property: position; to: -0.3 1.065 -0.6; startEvents: npcWalkIn;   dur: 3500; easing: linear');
-      npc1.setAttribute('animation__turn',   'property: rotation; to: 0 -90 0;      startEvents: npcTurn;         dur: 2000; easing: easeInOutQuad');
-
+     
       // ── Step 1: Silent reposition to Floor 1
       await sleep(3000);
-      
-      console.log('[seq01] Moving to Floor 1 (silent)…');
+
+      console.log('[seq02] Moving to Floor 1 (silent)…');
       await window.goToFloor(1, true);
       if (!isDoorsOpen) {
         playLiftAnimation('DoorOpen');
@@ -416,62 +353,38 @@ window.Sequence01 = {
       }
       await sleep(2000);
 
-      // ── Step 2: NPC walks into the lift
-      console.log('[seq01] NPC walk-in…');
-      npc1.setAttribute('animation-mixer', 'clip: walk; loop: repeat; timeScale: 0.8');
-      npc1.emit('npcWalkIn');
-      await sleep(1500);
-
-      // ── Step 3: Player pans into the lift
-      console.log('[seq01] Panning camera in…');
+      // ── Step 2: Player pans into the lift
+      console.log('[seq02] Panning camera in…');
       mainChar.setAttribute('animation-mixer', 'clip: walk; loop: repeat; timeScale: 0.8');
       rig.emit('panCameraIn');
-      await sleep(1000);
-
-      // ── Step 4: NPC turns to face the doors
-      console.log('[seq01] NPC turning…');
-      npc1.emit('npcTurn');
-      npc1.setAttribute('animation-mixer', 'clip: turn; loop: once');
-      npc1.setAttribute('animation-mixer', 'clip: Idle; loop: repeat');
-      await sleep(3000);
-
-      // ── Step 5: Camera turns to face the doors
-      // console.log('[seq01] Turning camera…');
+      await sleep(4500);
       mainChar.setAttribute('animation-mixer', 'clip: Idle; loop: repeat');
-      // rig.emit('turnCameraAround');
-      await sleep(2500);
-
-      // ── Step 6: Ride to Floor 8 (intermediate stop)
-      console.log('[seq01] Moving to Floor 8…');
-      await window.goToFloor(8);
-      await sleep(3000);
-
-      // ── Step 7: NPC exits at Floor 8
-      console.log('[seq01] NPC walk-out…');
-      npc1.setAttribute('curve-walk', 'p1: -4 1.065 1; p2: -8 1.065 -6; dur: 6000; startEvent: npcWalkOut');
-      npc1.emit('npcWalkOut');
-      mainChar.setAttribute('animation-mixer', 'clip: Idle; loop: repeat');
-
-      // ── Step 8: Continue to Floor 15 (destination)
-      console.log('[seq01] Moving to Floor 15…');
-      await window.goToFloor(15);
       await sleep(2000);
 
+      // ── Step 6: Ride to Floor 15 (intermediate stop)
+      console.log('[seq02] Moving to Floor 15…');
+      await window.goToFloor(15);
+      await sleep(3000);
+
       // ── Step 9: Player exits the lift
-      console.log('[seq01] Panning camera out…');
+      console.log('[seq02] Panning camera out…');
       mainChar.setAttribute('animation-mixer', 'clip: walk; loop: repeat');
       rig.emit('panCameraOut');
       await sleep(4000);
       mainChar.setAttribute('animation-mixer', 'clip: Idle; loop: repeat');
 
       // ── Done
-      console.log('[seq01] Sequence complete.');
+      console.log('[seq02] Sequence complete.');
       isSequenceRunning = false;
       hasSequenceCompleted = true;
       setMovementEnabled(true);
       replayBtnContainer.style.display = 'block';
     }
 
+
+    async function playWithoutNpcSequence() {
+      await playSequence();
+    }
 
     // ── Event Listeners ──────────────────────────────────────────────────────
 
@@ -501,14 +414,14 @@ window.Sequence01 = {
       const scrollingShaft = document.querySelector('#scrolling-shaft');
 
       if (window.isSimulationFrozen) {
-        console.log('[seq01] FROZEN');
+        console.log('[seq02] FROZEN');
         npc1?.pause();
         mainChar?.components?.['animation-mixer']?.pause?.();
         setEntityAnimationsPaused(rig, true);
         scrollingShaft?.pause();
         elevator.components.sound?.pauseSound();
       } else {
-        console.log('[seq01] RESUMED');
+        console.log('[seq02] RESUMED');
         npc1?.play();
         mainChar?.components?.['animation-mixer']?.play?.();
         setEntityAnimationsPaused(rig, false);
@@ -529,11 +442,11 @@ window.Sequence01 = {
 
     const onReplayClick = () => {
       if (isDoorsOpen) { playLiftAnimation('DoorClose'); isDoorsOpen = false; }
-      playSequence();
+      playWithoutNpcSequence();
     };
 
     const onAssetsLoaded = () => {
-      console.log('[seq01] 3D assets fully loaded.');
+      console.log('[seq02] 3D assets fully loaded.');
       updateAllDisplays(currFloor, 'idle');
 
       const menuContainer = document.querySelector('#vr-menu-container');
@@ -557,7 +470,7 @@ window.Sequence01 = {
     replayBtn.addEventListener('click', onReplayClick);
     assets.addEventListener('loaded', onAssetsLoaded);
 
-    window.Sequence01.teardown = function () {
+    window.Sequence02.teardown = function () {
       window.removeEventListener('vr-start-sequence', onStartSequence);
       window.removeEventListener('vr-freeze-sequence', onFreezeSequence);
       window.removeEventListener('keydown', onKeyDown);
@@ -569,4 +482,4 @@ window.Sequence01 = {
 
   } // end init()
 
-}; // end window.Sequence01
+}; // end window.Sequence02

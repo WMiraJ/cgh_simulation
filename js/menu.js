@@ -25,8 +25,6 @@ const SEQUENCE_KEY_MAP = {
   HARD: 'hard'
 };
 
-const HALO_POSITION = '0 0 0.1';
-
 const MENU_COLORS = {
   panelFill:     '0,100,245',    // deep navy glass
   panelFillSel:  '0,122,255',    // slightly lighter navy for the selected card
@@ -115,23 +113,6 @@ function createVignetteMaskTexture({
   return canvas.toDataURL('image/png');
 }
 
-// Small pulsing glow puck used behind the centered carousel card — the
-// menu's one "signature" flourish, kept subtle (a slow breathing glow
-// rather than anything flashy).
-function createHaloTexture({ width = 512, height = 512, rgb = MENU_COLORS.borderActive } = {}) {
-  const canvas = document.createElement('canvas');
-  canvas.width = width;
-  canvas.height = height;
-  const ctx = canvas.getContext('2d');
-  const cx = width / 2, cy = height / 2;
-  const grd = ctx.createRadialGradient(cx, cy, 0, cx, cy, width / 2);
-  grd.addColorStop(0,   `rgba(${rgb},0.45)`);
-  grd.addColorStop(0.6, `rgba(${rgb},0.18)`);
-  grd.addColorStop(1,   `rgba(${rgb},0)`);
-  ctx.fillStyle = grd;
-  ctx.fillRect(0, 0, width, height);
-  return canvas.toDataURL('image/png');
-}
 
 AFRAME.registerComponent('vr-sequence-menu', {
   schema: {
@@ -141,7 +122,7 @@ AFRAME.registerComponent('vr-sequence-menu', {
 
   init: function () {
     this.currentIndex = 0;
-    this.subIndex = 0;
+    this.subIndex = 1;
     this.inSubMenu = false;
     this.canScroll = true;
     this.hasSelected = false;
@@ -326,7 +307,7 @@ AFRAME.registerComponent('vr-sequence-menu', {
 
   resetMenu: function () {
     this.currentIndex = 0;
-    this.subIndex = 0;
+    this.subIndex = 1;
     this.inSubMenu = false;
     this.canScroll = true;
     this.hasSelected = false;
@@ -359,15 +340,6 @@ AFRAME.registerComponent('vr-sequence-menu', {
   renderCarousel: function () {
     this.optionEntities = [];
 
-    if (!this.halo) {
-      this.halo = document.createElement('a-entity');
-      this.halo.setAttribute('id', 'carousel-halo');
-      this.halo.setAttribute('position', HALO_POSITION);
-      this.carousel.appendChild(this.halo);
-
-      this.halo.setAttribute('geometry', { primitive: 'plane', width: 1.5, height: 1.5 });
-      this.halo.setAttribute('material', { shader: 'flat', transparent: true, src: createHaloTexture() });
-    }
 
     this.cardTextureIdle = createGlassPanelTexture({ borderRGB: MENU_COLORS.borderIdle, fillAlpha: 0.75 });
     this.cardTextureSelected = createGlassPanelTexture({

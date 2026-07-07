@@ -1,21 +1,16 @@
 <!--
-  sequence02.html  ·  [scenario name TBD]
+  sequence02.html  ·  easy-without-npcs
   ─────────────────────────────────────────────────────────────────────────────
-  Placeholder — to be implemented.
+  HTML fragment injected at runtime by main.js.
 
-  Follow the same structure as sequence01.html:
-    #seq-assets   → static assets (images, audio) for this scenario
-    #seq-entities → A-Frame entities for this scenario
+  #seq-assets   → each child is appended into <a-assets> in the main scene.
+                  Includes static images and audio. GLB models are handled
+                  separately by the inline script in index.html.
 
-  Add the companion JS file at js/sequence02.js and register it in the
-  SEQUENCES map in js/main.js.
+  #seq-entities → each child is appended into <a-scene> in the main scene.
+                  Does NOT include the player rig — that lives in index.html.
   ─────────────────────────────────────────────────────────────────────────────
 -->
 
-<div id="seq-assets">
-  <!-- TODO: add <img> and <audio> assets for this scenario -->
-</div>
-
 <div id="seq-entities">
-  <!-- TODO: add <a-entity> elements for this scenario -->
-</div>
+  </div>

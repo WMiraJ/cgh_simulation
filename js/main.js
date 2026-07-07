@@ -25,9 +25,16 @@
 // ─── Sequence Registry ────────────────────────────────────────────────────────
 
 const SEQUENCES = {
+  'easy-without-npcs': {
+    key: 'easy-without-npcs',
+    html: 'sequences/sequence02.html',
+    init: () => window.Sequence02?.init('easy-without-npcs')
+  },
+
   'easy-standard': {
+    key: 'easy-standard',
     html: 'sequences/sequence01.html',
-    init: () => window.Sequence01?.init()
+    init: () => window.Sequence01?.init('easy-standard')
   }
 
   // Placeholder for future sequences:
@@ -41,11 +48,11 @@ const SEQUENCES = {
 // ─── Resolve Active Sequence ──────────────────────────────────────────────────
 
 const params = new URLSearchParams(window.location.search);
-const seqKey = params.get('seq') || 'easy-standard';
-const config = SEQUENCES[seqKey] ?? SEQUENCES['easy-standard'];
+const seqKey = params.get('seq') || 'easy-without-npcs';
+const config = SEQUENCES[seqKey] ?? SEQUENCES['easy-without-npcs'];
 
 if (!SEQUENCES[seqKey]) {
-  console.warn(`[main] Unknown sequence "${seqKey}", falling back to "easy-standard".`);
+  console.warn(`[main] Unknown sequence "${seqKey}", falling back to "easy-without-npcs".`);
 }
 
 window.setPlayerMovementEnabled = function (enabled) {
@@ -59,9 +66,25 @@ window.setPlayerMovementEnabled = function (enabled) {
 
 // ─── Sequence Loader ──────────────────────────────────────────────────────────
 
-async function loadSequence(cfg) {
+function clearSequenceContent() {
   const scene  = document.querySelector('a-scene');
   const assets = document.querySelector('a-assets');
+
+  if (!scene || !assets) return;
+
+  scene.querySelectorAll('[data-sequence-owned]').forEach(el => el.remove());
+  assets.querySelectorAll('[data-sequence-owned]').forEach(el => el.remove());
+}
+
+async function loadSequence(cfg, { autostart = false } = {}) {
+  const scene  = document.querySelector('a-scene');
+  const assets = document.querySelector('a-assets');
+
+  if (!scene || !assets) return;
+
+  window.Sequence01?.teardown?.();
+  window.Sequence02?.teardown?.();
+  clearSequenceContent();
 
   // 1. Fetch the sequence HTML fragment
   let text;
@@ -81,7 +104,14 @@ async function loadSequence(cfg) {
   // 3. Move sequence-specific static assets (images, audio) into <a-assets>
   const seqAssets = tmp.querySelector('#seq-assets');
   if (seqAssets) {
-    [...seqAssets.children].forEach(el => assets.appendChild(el.cloneNode(true)));
+    [...seqAssets.children].forEach(el => {
+      if (el.id && assets.querySelector(`[id="${el.id}"]`)) {
+        return;
+      }
+      const clone = el.cloneNode(true);
+      clone.setAttribute('data-sequence-owned', 'true');
+      assets.appendChild(clone);
+    });
   } else {
     console.warn('[main] #seq-assets not found in sequence HTML.');
   }
@@ -89,23 +119,64 @@ async function loadSequence(cfg) {
   // 4. Inject A-Frame entities into <a-scene>
   const seqEntities = tmp.querySelector('#seq-entities');
   if (seqEntities) {
-    [...seqEntities.children].forEach(el => scene.appendChild(el.cloneNode(true)));
+    [...seqEntities.children].forEach(el => {
+      const clone = el.cloneNode(true);
+      clone.setAttribute('data-sequence-owned', 'true');
+      scene.appendChild(clone);
+    });
   } else {
     console.warn('[main] #seq-entities not found in sequence HTML.');
   }
 
+  window.activeSequenceKey = cfg.key;
+
   // 5. Hand off to the sequence's own init() (defined in its companion JS)
   cfg.init();
+
+  if (autostart) {
+    window.dispatchEvent(new CustomEvent('vr-start-sequence', {
+      detail: { key: window.activeSequenceKey }
+    }));
+  }
 }
 
 
 // ─── Entry Point ─────────────────────────────────────────────────────────────
 
 window.startSelectedSequence = function (key) {
-  if (key && key !== 'easy-standard') {
-    console.warn(`[main] Sequence "${key}" is not wired up yet; starting the current sequence instead.`);
+  if (key && !SEQUENCES[key]) {
+    console.warn(`[main] Sequence "${key}" is not wired up yet; starting without NPCs instead.`);
+    key = 'easy-without-npcs';
   }
-  window.dispatchEvent(new Event('vr-start-sequence'));
+
+  const selectedKey = key || 'easy-without-npcs';
+  const cfg = SEQUENCES[selectedKey] ?? SEQUENCES['easy-without-npcs'];
+  loadSequence(cfg, { autostart: true });
 };
 
 document.addEventListener('DOMContentLoaded', () => loadSequence(config));
+
+window.resetEnvironmentState = function() {
+  const rig = document.querySelector('#rig');
+  const elevator = document.querySelector('#elevatorModel');
+  const mainChar = document.querySelector('#mainCharacterEntity');
+  
+  // 1. Instantly snap player back to starting position
+  rig.setAttribute('position', '-4.5 1.87 0');
+  rig.setAttribute('rotation', '0 -90 0');
+  
+  // 2. Stop player animations
+  mainChar.setAttribute('animation-mixer', 'clip: Idle; loop: repeat');
+  
+  // 3. Reset Elevator state instantly (no animations)
+  window.isMoving = false;
+  window.isDoorsOpen = false;
+  elevator.setAttribute('animation-mixer', 'clip: DoorClose; timeScale: 100'); // Snap closed
+  
+  // 4. Force floor to 1 silently
+  // Note: Update your goToFloor logic to handle an instantaneous snap if a flag is passed
+  
+  // 5. Hide dynamic sequence elements
+  document.querySelectorAll('[data-sequence-owned]').forEach(el => el.setAttribute('visible', 'false'));
+};
+
