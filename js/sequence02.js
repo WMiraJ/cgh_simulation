@@ -96,23 +96,26 @@ window.registerAframeComponent('sequence-controller', {
 
 window.Sequence02 = {
 
-  init(defaultKey = 'easy-without-npcs') {
+  init(config) {
 
     // ── DOM references & state ───────────────────────────────────────────────
 
-    const elevator           = document.querySelector('#elevatorModel');
+    const resolvedConfig = typeof config === 'string' ? { key: config } : (config || {});
+    let currentSequenceKey = resolvedConfig.key || 'easy-without-npcs';
+    const parsedStartFloor = Number(resolvedConfig.startFloor);
+    const startFloor       = Number.isFinite(parsedStartFloor) ? parsedStartFloor : 2;
+    const elevator         = document.querySelector('#elevatorModel');
     const replayBtnContainer = document.querySelector('#ui-container');
     const replayBtn          = document.querySelector('#replayBtn');
     const loadingOverlay     = document.querySelector('#loading-overlay');
     const assets             = document.querySelector('a-assets');
 
-    let currFloor             = 1;
+    let currFloor             = startFloor;
     let isMoving              = false;
     let isDoorsOpen           = false;
     let isSequenceRunning     = false;
     let hasSequenceCompleted  = false;
-    let currentSequenceKey     = defaultKey;
-    window.activeSequenceKey   = defaultKey;
+    window.activeSequenceKey   = currentSequenceKey;
     window.isSimulationFrozen = false;
 
     function setMovementEnabled(enabled) {
@@ -129,7 +132,8 @@ window.Sequence02 = {
       replayBtnContainer.style.display = 'none';
       window.isSimulationFrozen = false;
       hasSequenceCompleted = false;
-      currFloor = 1;
+      currFloor = startFloor;
+      resetLiftDoorState();
       updateAllDisplays(currFloor, 'idle');
       setFloorBackdrop(currFloor);
       setNpcVisible(false);
@@ -164,6 +168,11 @@ window.Sequence02 = {
         elevator.components.sound__dooropen.playSound();
       if (name === 'DoorClose' && elevator.components.sound__doorclose)
         elevator.components.sound__doorclose.playSound();
+    }
+
+    function resetLiftDoorState() {
+      elevator?.removeAttribute('animation-mixer');
+      isDoorsOpen = false;
     }
 
     function setNpcVisible(visible) {
@@ -317,6 +326,12 @@ window.Sequence02 = {
       isSequenceRunning = true;
       setMovementEnabled(false);
 
+      currFloor = startFloor;
+      isMoving = false;
+      resetLiftDoorState();
+
+      if (window.resetEnvironmentState) window.resetEnvironmentState(startFloor);
+
       const rig      = document.querySelector('#rig');
       const npc1     = document.querySelector('#avatarModelSophie');
       const mainChar = document.querySelector('#mainCharacterEntity');
@@ -343,7 +358,7 @@ window.Sequence02 = {
       rig.setAttribute('animation__turn',    'property: rotation; to: 0 90 0;       startEvents: turnCameraAround; dur: 4000; easing: easeInOutQuad');
      
       // ── Step 1: Silent reposition to Floor 1
-      await sleep(3000);
+      await sleep(1500);
 
       console.log('[seq02] Moving to Floor 1 (silent)…');
       await window.goToFloor(1, true);
@@ -442,11 +457,13 @@ window.Sequence02 = {
 
     const onReplayClick = () => {
       if (isDoorsOpen) { playLiftAnimation('DoorClose'); isDoorsOpen = false; }
+      else resetLiftDoorState();
       playWithoutNpcSequence();
     };
 
     const onAssetsLoaded = () => {
       console.log('[seq02] 3D assets fully loaded.');
+      resetLiftDoorState();
       updateAllDisplays(currFloor, 'idle');
 
       const menuContainer = document.querySelector('#vr-menu-container');

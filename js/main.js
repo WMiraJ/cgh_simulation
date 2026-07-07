@@ -27,12 +27,14 @@
 const SEQUENCES = {
   'easy-without-npcs': {
     key: 'easy-without-npcs',
+    startFloor: 2,
     html: 'sequences/sequence02.html',
     init: () => window.Sequence02?.init('easy-without-npcs')
   },
 
   'easy-standard': {
     key: 'easy-standard',
+    startFloor: 2,
     html: 'sequences/sequence01.html',
     init: () => window.Sequence01?.init('easy-standard')
   }
@@ -156,7 +158,7 @@ window.startSelectedSequence = function (key) {
 
 document.addEventListener('DOMContentLoaded', () => loadSequence(config));
 
-window.resetEnvironmentState = function() {
+window.resetEnvironmentState = function(floor = 2) {
   const rig = document.querySelector('#rig');
   const elevator = document.querySelector('#elevatorModel');
   const mainChar = document.querySelector('#mainCharacterEntity');
@@ -168,13 +170,15 @@ window.resetEnvironmentState = function() {
   // 2. Stop player animations
   mainChar.setAttribute('animation-mixer', 'clip: Idle; loop: repeat');
   
-  // 3. Reset Elevator state instantly (no animations)
+  // 3. Reset Elevator state instantly without re-triggering the door animation
   window.isMoving = false;
   window.isDoorsOpen = false;
-  elevator.setAttribute('animation-mixer', 'clip: DoorClose; timeScale: 100'); // Snap closed
+  elevator?.removeAttribute('animation-mixer');
   
-  // 4. Force floor to 1 silently
-  // Note: Update your goToFloor logic to handle an instantaneous snap if a flag is passed
+  // 4. Keep the environment at the intended starting floor
+  if (floor) {
+    window.currentStartFloor = floor;
+  }
   
   // 5. Hide dynamic sequence elements
   document.querySelectorAll('[data-sequence-owned]').forEach(el => el.setAttribute('visible', 'false'));

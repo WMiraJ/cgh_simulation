@@ -146,10 +146,12 @@ window.registerAframeComponent('sequence-controller', {
 
 window.Sequence01 = {
 
-  init(defaultKey = 'easy-without-npcs') {
+  init(config) {
 
     // ── DOM references & state ───────────────────────────────────────────────
 
+    let currentSequenceKey = config?.key || 'easy-standard';
+    const startFloor           = config?.startFloor || 2;
     const elevator           = document.querySelector('#elevatorModel');
     const avatar             = document.querySelector('#avatarModelSophie');
     const replayBtnContainer = document.querySelector('#ui-container');
@@ -157,13 +159,12 @@ window.Sequence01 = {
     const loadingOverlay     = document.querySelector('#loading-overlay');
     const assets             = document.querySelector('a-assets');
 
-    let currFloor             = 1;
+    let currFloor             = startFloor;
     let isMoving              = false;
     let isDoorsOpen           = false;
     let isSequenceRunning     = false;
     let hasSequenceCompleted  = false;
-    let currentSequenceKey     = defaultKey;
-    window.activeSequenceKey   = defaultKey;
+    window.activeSequenceKey   = currentSequenceKey;
     window.isSimulationFrozen = false;
 
     function setMovementEnabled(enabled) {
@@ -372,6 +373,12 @@ window.Sequence01 = {
       isSequenceRunning = true;
       setMovementEnabled(false);
 
+      currFloor = startFloor;
+      isMoving = false;
+      isDoorsOpen = false;
+
+      if (window.resetEnvironmentState) window.resetEnvironmentState(startFloor);
+
       const rig      = document.querySelector('#rig');
       const npc1     = document.querySelector('#avatarModelSophie');
       const mainChar = document.querySelector('#mainCharacterEntity');
@@ -406,7 +413,7 @@ window.Sequence01 = {
       npc1.setAttribute('animation__turn',   'property: rotation; to: 0 -90 0;      startEvents: npcTurn;         dur: 2000; easing: easeInOutQuad');
 
       // ── Step 1: Silent reposition to Floor 1
-      await sleep(3000);
+      await sleep(1500);
       
       console.log('[seq01] Moving to Floor 1 (silent)…');
       await window.goToFloor(1, true);
