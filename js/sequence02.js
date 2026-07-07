@@ -103,7 +103,7 @@ window.Sequence02 = {
     const resolvedConfig = typeof config === 'string' ? { key: config } : (config || {});
     let currentSequenceKey = resolvedConfig.key || 'easy-without-npcs';
     const parsedStartFloor = Number(resolvedConfig.startFloor);
-    const startFloor       = Number.isFinite(parsedStartFloor) ? parsedStartFloor : 2;
+    const startFloor       = Number.isFinite(parsedStartFloor) ? parsedStartFloor : 1;
     const elevator         = document.querySelector('#elevatorModel');
     const replayBtnContainer = document.querySelector('#ui-container');
     const replayBtn          = document.querySelector('#replayBtn');

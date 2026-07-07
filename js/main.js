@@ -27,7 +27,7 @@
 const SEQUENCES = {
   'easy-without-npcs': {
     key: 'easy-without-npcs',
-    startFloor: 2,
+    startFloor: 1,
     html: 'sequences/sequence02.html',
     init: () => window.Sequence02?.init('easy-without-npcs')
   },
