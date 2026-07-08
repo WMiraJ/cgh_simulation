@@ -7,7 +7,9 @@
   <script src="https://aframe.io/releases/1.6.0/aframe.min.js"></script>
   <script src="https://cdn.jsdelivr.net/gh/c-frame/aframe-extras@7.5.0/dist/aframe-extras.min.js"></script>
   <script src="https://unpkg.com/aframe-environment-component/dist/aframe-environment-component.min.js"></script>
+  <script src="js/components.js"></script>
   <script src="js/menu.js"></script>
+  <script src="js/sequenceBase.js"></script>
   <script src="js/sequence01.js"></script>
   <script src="js/sequence02.js"></script>
 
@@ -96,6 +98,13 @@
       [
         { id: 'elevator',      file: 'elevator.glb'   },
         { id: 'avatar01',      file: 'NPCs/NPC_Sophie.glb' },
+        { id: 'avatar02',      file: 'NPCs/NPC_Bryce.glb' },
+        { id: 'avatar03',      file: 'NPCs/NPC_Jody.glb' },
+        { id: 'avatar04',      file: 'NPCs/NPC_Joe.glb' },
+        { id: 'avatar05',      file: 'NPCs/NPC_Josh.glb' },
+        { id: 'avatar06',      file: 'NPCs/NPC_Louise.glb' },
+        { id: 'avatar07',      file: 'NPCs/NPC_Martha.glb' },
+        { id: 'avatar08',      file: 'NPCs/NPC_Megan.glb' },
         { id: 'mainCharacter', file: 'main_char.glb'  }
       ].forEach(({ id, file }) => {
         const item = document.createElement('a-asset-item');
@@ -143,8 +152,8 @@
       </a-entity>
     </a-entity>
 
-    <a-entity hand-controls="hand: left;  handModelStyle: lowPoly; color: #CCCCCC" sequence-controller></a-entity>
-    <a-entity hand-controls="hand: right; handModelStyle: lowPoly; color: #CCCCCC" laser-controls="hand: right" sequence-controller></a-entity>
+    <a-entity hand-controls="hand: left; handModelStyle: lowPoly; color: #CCCCCC; model: false" sequence-controller></a-entity>
+    <a-entity hand-controls="hand: right; handModelStyle: lowPoly; color: #CCCCCC; model: false" laser-controls="hand: right" sequence-controller></a-entity>
 
   </a-entity>
 

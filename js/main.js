@@ -84,6 +84,11 @@ async function loadSequence(cfg, { autostart = false } = {}) {
 
   if (!scene || !assets) return;
 
+  // When a sequence is explicitly launched from the menu, suppress the
+  // default "show the menu again after assets load" behavior so the scene
+  // can run uninterrupted.
+  window._suppressSequenceMenu = Boolean(autostart);
+
   window.Sequence01?.teardown?.();
   window.Sequence02?.teardown?.();
   clearSequenceContent();

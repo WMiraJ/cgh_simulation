@@ -35,6 +35,27 @@ const MENU_COLORS = {
   textMuted:     '#AAB8CC'
 };
 
+window.isMenuOpen = false;
+window.showSequenceMenu = function () {
+  const menuContainer = document.querySelector('#vr-menu-container');
+  const menuComponent = menuContainer?.components?.['vr-sequence-menu'];
+
+  if (menuComponent?.resetMenu) {
+    menuComponent.resetMenu();
+    return;
+  }
+
+  window.pendingShowSequenceMenu = true;
+  window.isMenuOpen = true;
+
+  if (window.setPlayerMovementEnabled) window.setPlayerMovementEnabled(false);
+  if (menuContainer) {
+    menuContainer.setAttribute('visible', 'true');
+    menuContainer.removeAttribute('animation__fadeout');
+    menuContainer.setAttribute('scale', '1 1 1');
+  }
+};
+
 // ─── Canvas texture helpers ────────────────────────────────────────────────
 
 function roundRectPath(ctx, x, y, w, h, r) {
@@ -166,6 +187,14 @@ AFRAME.registerComponent('vr-sequence-menu', {
 
     this.renderCarousel();
     this.updateDisplay();
+
+    window.showSequenceMenu = () => this.resetMenu();
+    if (window.pendingShowSequenceMenu) {
+      this.el.addEventListener('loaded', () => this.resetMenu(), { once: true });
+      setTimeout(() => {
+        if (window.pendingShowSequenceMenu) this.resetMenu();
+      }, 500);
+    }
   },
 
   // ─── One-time visual setup ────────────────────────────────────────────
@@ -306,6 +335,7 @@ AFRAME.registerComponent('vr-sequence-menu', {
   },
 
   resetMenu: function () {
+    window.pendingShowSequenceMenu = false;
     this.currentIndex = 0;
     this.subIndex = 1;
     this.inSubMenu = false;
