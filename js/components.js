@@ -131,17 +131,39 @@ AFRAME.registerComponent('vr-height-fix', {
   init: function () {
     const scene = this.el.sceneEl;
     
+    // Grab the camera inside the rig
+    this.camera = this.el.querySelector('[camera]');
+    
+    // Define target heights
+    this.targetVrHeight = 3.1;
+    this.desktopHeight = 1.59;
+    
     // Set default Laptop/Desktop height
-    this.el.setAttribute('position', '-4.5 1.59 0');
+    this.el.setAttribute('position', '-4.5 ' + this.desktopHeight + ' 0');
 
-    // When headset is put on, raise the rig to compensate for local space
+    // When headset is put on, set initial target height
     scene.addEventListener('enter-vr', () => {
-      this.el.setAttribute('position', '-4.5 3.1 0');
+      const pos = this.el.getAttribute('position');
+      this.el.setAttribute('position', { x: pos.x, y: this.targetVrHeight, z: pos.z });
     });
 
     // When exiting VR, return to laptop height
     scene.addEventListener('exit-vr', () => {
-      this.el.setAttribute('position', '-4.5 1.59 0');
+      const pos = this.el.getAttribute('position');
+      this.el.setAttribute('position', { x: pos.x, y: this.desktopHeight, z: pos.z });
     });
+  },
+  
+  tick: function () {
+    // Only run this logic if we are actively in VR mode
+    if (!this.camera || !this.el.sceneEl.is('vr-mode')) return;
+
+    // The camera's local Y reflects the physical tracking height.
+    // To lock the camera's absolute world height at 3.1, we dynamically offset the rig's Y.
+    // Rig Y + Local Camera Y = Target World Height (3.1)
+    const localCamY = this.camera.object3D.position.y;
+    
+    // Modify the rig's Y directly on the object3D so it doesn't fight with your animations
+    this.el.object3D.position.y = this.targetVrHeight - localCamY;
   }
 });
