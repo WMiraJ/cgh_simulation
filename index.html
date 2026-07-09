@@ -12,6 +12,7 @@
   <script src="js/sequenceBase.js"></script>
   <script src="js/sequence01.js"></script>
   <script src="js/sequence02.js"></script>
+  <script src="js/sequence03.js"></script>
 
   <link rel="apple-touch-icon" sizes="180x180" href="favicon_io/apple-touch-icon.png">
   <link rel="icon" type="image/png" sizes="32x32" href="favicon_io/favicon-32x32.png">
@@ -58,6 +59,7 @@
 <div id="ui-container"><button id="replayBtn">START</button></div>
 
 <a-scene
+  webxr="referenceSpaceType: local"
   renderer="colorManagement: true; physicallyCorrectLights: true; exposure: 1.2; toneMapping: ACESFilmic;"
   background="color: #222">
 
@@ -136,13 +138,14 @@
         because the inline GLB loader above has already added it.
   -->
   <a-entity id="rig"
+    vr-height-fix
     movement-controls="speed: 0.1;"
-    position="-4.5 1.87 0" rotation="0 -90 0"
-    animation__pan="property: position; to: 0.3 1.87 0; startEvents: panCameraIn; dur: 4500; easing: easeInOutQuad"
+    rotation="0 -90 0"
+    animation__pan="property: position; to: 0.3 ${currentY} 0; startEvents: panCameraIn; dur: 4500; easing: easeInOutQuad"
     animation__turn="property: rotation; to: 0 90 0; startEvents: turnCameraAround; dur: 4000; easing: easeInOutQuad">
 
     <!-- Camera given an explicit ID so body-sync has an unambiguous target -->
-    <a-entity id="mainCamera" camera look-controls position="0 1.33 0"></a-entity>
+    <a-entity id="mainCamera" camera look-controls position="0 1.6 0"></a-entity>
 
     <a-entity id="bodyWrapper" body-sync="camera: #mainCamera" position="0 -0.82 0">
       <a-entity id="mainCharacterEntity"

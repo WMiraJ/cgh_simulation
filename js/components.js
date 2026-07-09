@@ -136,7 +136,7 @@ AFRAME.registerComponent('vr-height-fix', {
 
     // When headset is put on, raise the rig to compensate for local space
     scene.addEventListener('enter-vr', () => {
-      this.el.setAttribute('position', '-4.5 3.2 0');
+      this.el.setAttribute('position', '-4.5 3.1 0');
     });
 
     // When exiting VR, return to laptop height
