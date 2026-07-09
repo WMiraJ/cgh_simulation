@@ -26,8 +26,13 @@ window.Sequence01 = new (class extends window.SequenceBase {
     if (window.resetEnvironmentState) window.resetEnvironmentState(this.startFloor);
 
     // Reset rig, camera, body, and NPC to starting positions
+    const pos = this.rig.getAttribute('position');
+    const currentY = pos.y; 
+
     this.rig.removeAttribute('movement-controls');
-    this.rig.setAttribute('position', '-4.5 1.8 0');
+    
+    // Set the starting position using an Object (bypasses string parsing bugs)
+    this.rig.setAttribute('position', { x: -4.5, y: currentY, z: 0 });
     this.rig.setAttribute('rotation', '0 -90 0');
 
     const cameraEl = this.rig.querySelector('[camera]');
@@ -39,26 +44,40 @@ window.Sequence01 = new (class extends window.SequenceBase {
     const bodyWrapper = document.querySelector('#bodyWrapper');
     if (bodyWrapper) bodyWrapper.object3D.rotation.y = 0;
 
-    this.setNpcVisible(true);
-    if (this.avatar) {
-      this.avatar.removeAttribute('curve-walk');
-      this.avatar.setAttribute('position', '-3 1.065 -0.2');
-      this.avatar.setAttribute('rotation', '0 90 0');
-      this.avatar.setAttribute('animation-mixer', 'clip: Idle; loop: repeat');
-    }
-
     if (this.mainChar) {
       this.mainChar.setAttribute('animation-mixer', 'clip: Idle; loop: repeat; crossFadeDuration: 0.2');
     }
 
-    // Pre-register animations
-    this.rig.setAttribute('animation__panIn',   'property: position; to: 0.3 1.8 0;   startEvents: panCameraIn;      dur: 7000; easing: easeInOutQuad');
-    this.rig.setAttribute('animation__panOut',  'property: position; to: -4.5 1.8 0;  startEvents: panCameraOut;     dur: 7000; easing: easeInOutQuad');
-    this.rig.setAttribute('animation__turn',    'property: rotation; to: 0 90 0;       startEvents: turnCameraAround; dur: 4000; easing: easeInOutQuad');
+    // Pre-register animations using strict Object syntax
+    this.rig.setAttribute('animation__panIn', {
+      property: 'position',
+      to: { x: 0.3, y: currentY, z: 0 },
+      startEvents: 'panCameraIn',
+      dur: 7000,
+      easing: 'easeInOutQuad'
+    });
+
+    this.rig.setAttribute('animation__panOut', {
+      property: 'position',
+      to: { x: -4.5, y: currentY, z: 0 },
+      startEvents: 'panCameraOut',
+      dur: 7000,
+      easing: 'easeInOutQuad'
+    });
     
+    this.rig.setAttribute('animation__turn', 'property: rotation; to: 0 90 0; startEvents: turnCameraAround; dur: 4000; easing: easeInOutQuad');
+    
+    this.setNpcVisible(true);
     if (this.avatar) {
+      // 1. Reset NPC starting position and state
+      this.avatar.removeAttribute('curve-walk');
+      this.avatar.setAttribute('position', '-3 1.065 -0.2');
+      this.avatar.setAttribute('rotation', '0 90 0');
+      this.avatar.setAttribute('animation-mixer', 'clip: Idle; loop: repeat');
+      
+      // 2. Register standard string animations
       this.avatar.setAttribute('animation__walkin', 'property: position; to: -0.3 1.065 -0.6; startEvents: npcWalkIn;   dur: 3500; easing: linear');
-      this.avatar.setAttribute('animation__turn',   'property: rotation; to: 0 -90 0;      startEvents: npcTurn;         dur: 2000; easing: easeInOutQuad');
+      this.avatar.setAttribute('animation__turn',   'property: rotation; to: 0 -90 0;      startEvents: npcTurn;        dur: 2000; easing: easeInOutQuad');
     }
 
     // ── Step 1: Silent reposition to Floor 1

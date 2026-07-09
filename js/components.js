@@ -68,6 +68,9 @@ AFRAME.registerComponent('body-sync', {
 
     body3D.position.x = camera3D.position.x;
     body3D.position.z = camera3D.position.z;
+    
+    // NEW: Strictly enforce the 2.15m vertical gap
+    body3D.position.y = camera3D.position.y - 2.15; 
 
     const thresholdRad = this.data.threshold * (Math.PI / 180);
     const camRotY      = camera3D.rotation.y;
@@ -120,6 +123,25 @@ AFRAME.registerComponent('sequence-controller', {
       else if (y < -0.6) direction = 'up';
       else if (y > 0.6) direction = 'down';
       if (direction) window.dispatchEvent(new CustomEvent('vr-menu-scroll', { detail: { direction } }));
+    });
+  }
+});
+
+AFRAME.registerComponent('vr-height-fix', {
+  init: function () {
+    const scene = this.el.sceneEl;
+    
+    // Set default Laptop/Desktop height
+    this.el.setAttribute('position', '-4.5 1.59 0');
+
+    // When headset is put on, raise the rig to compensate for local space
+    scene.addEventListener('enter-vr', () => {
+      this.el.setAttribute('position', '-4.5 3.2 0');
+    });
+
+    // When exiting VR, return to laptop height
+    scene.addEventListener('exit-vr', () => {
+      this.el.setAttribute('position', '-4.5 1.59 0');
     });
   }
 });

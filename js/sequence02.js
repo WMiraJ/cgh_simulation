@@ -26,8 +26,13 @@ window.Sequence02 = new (class extends window.SequenceBase {
     if (window.resetEnvironmentState) window.resetEnvironmentState(this.startFloor);
 
     // Reset rig, camera, and body to starting positions
+    const pos = this.rig.getAttribute('position');
+    const currentY = pos.y; 
+
     this.rig.removeAttribute('movement-controls');
-    this.rig.setAttribute('position', '-4.5 1.8 0');
+    
+    // Set the starting position using an Object (bypasses string parsing bugs)
+    this.rig.setAttribute('position', { x: -4.5, y: currentY, z: 0 });
     this.rig.setAttribute('rotation', '0 -90 0');
 
     const cameraEl = this.rig.querySelector('[camera]');
@@ -43,11 +48,31 @@ window.Sequence02 = new (class extends window.SequenceBase {
       this.mainChar.setAttribute('animation-mixer', 'clip: Idle; loop: repeat; crossFadeDuration: 0.2');
     }
 
-    // Pre-register animations
-    this.rig.setAttribute('animation__panIn',   'property: position; to: 0.3 1.8 0;   startEvents: panCameraIn;      dur: 7000; easing: easeInOutQuad');
-    this.rig.setAttribute('animation__panOut',  'property: position; to: -4.5 1.8 0;  startEvents: panCameraOut;     dur: 7000; easing: easeInOutQuad');
-    this.rig.setAttribute('animation__turn',    'property: rotation; to: 0 90 0;       startEvents: turnCameraAround; dur: 4000; easing: easeInOutQuad');
-   
+    // Pre-register animations using strict Object syntax
+    this.rig.setAttribute('animation__panIn', {
+      property: 'position',
+      to: { x: 0.3, y: currentY, z: 0 },
+      startEvents: 'panCameraIn',
+      dur: 7000,
+      easing: 'easeInOutQuad'
+    });
+
+    this.rig.setAttribute('animation__panOut', {
+      property: 'position',
+      to: { x: -4.5, y: currentY, z: 0 },
+      startEvents: 'panCameraOut',
+      dur: 7000,
+      easing: 'easeInOutQuad'
+    });
+    
+    this.rig.setAttribute('animation__turn', {
+      property: 'rotation',
+      to: { x: 0, y: 90, z: 0 },
+      startEvents: 'turnCameraAround',
+      dur: 4000,
+      easing: 'easeInOutQuad'
+    });
+
     // ── Step 1: Silent reposition to Floor 1
     await this.sleep(1500);
     console.log('[seq02] Moving to Floor 1 (silent)…');

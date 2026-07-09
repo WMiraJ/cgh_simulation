@@ -25,25 +25,26 @@
 // ─── Sequence Registry ────────────────────────────────────────────────────────
 
 const SEQUENCES = {
-  'easy-without-npcs': {
-    key: 'easy-without-npcs',
-    startFloor: 1,
-    html: 'sequences/sequence02.html',
-    init: () => window.Sequence02?.init('easy-without-npcs')
-  },
-
   'easy-standard': {
     key: 'easy-standard',
     startFloor: 2,
     html: 'sequences/sequence01.html',
     init: () => window.Sequence01?.init('easy-standard')
-  }
+  },
 
-  // Placeholder for future sequences:
-  // 'easy-standard-02': {
-  //   html: 'sequences/sequence02.html',
-  //   init: () => window.Sequence02?.init()
-  // }
+  'easy-without-npcs': {
+    key: 'easy-without-npcs',
+    startFloor: 2,
+    html: 'sequences/sequence02.html',
+    init: () => window.Sequence02?.init('easy-without-npcs')
+  },
+
+  'easy-with-all-npcs': {
+    key: 'easy-with-all-npcs',
+    startFloor: 2,
+    html: 'sequences/sequence03.html',
+    init: () => window.Sequence03?.init()
+  }
 };
 
 
@@ -169,7 +170,8 @@ window.resetEnvironmentState = function(floor = 2) {
   const mainChar = document.querySelector('#mainCharacterEntity');
   
   // 1. Instantly snap player back to starting position
-  rig.setAttribute('position', '-4.5 1.87 0');
+  const currentY = rig.object3D.position.y; // Capture current Y position for dynamic use
+  rig.setAttribute('position', '-4.5 ' + currentY + ' 0');
   rig.setAttribute('rotation', '0 -90 0');
   
   // 2. Stop player animations
