@@ -51,11 +51,11 @@ const SEQUENCES = {
 // ─── Resolve Active Sequence ──────────────────────────────────────────────────
 
 const params = new URLSearchParams(window.location.search);
-const seqKey = params.get('seq') || 'easy-without-npcs';
-const config = SEQUENCES[seqKey] ?? SEQUENCES['easy-without-npcs'];
+const seqKey = params.get('seq') || 'easy-standard';
+const config = SEQUENCES[seqKey] ?? SEQUENCES['easy-standard'];
 
 if (!SEQUENCES[seqKey]) {
-  console.warn(`[main] Unknown sequence "${seqKey}", falling back to "easy-without-npcs".`);
+  console.warn(`[main] Unknown sequence "${seqKey}", falling back to "easy-standard".`);
 }
 
 window.setPlayerMovementEnabled = function (enabled) {
@@ -92,6 +92,7 @@ async function loadSequence(cfg, { autostart = false } = {}) {
 
   window.Sequence01?.teardown?.();
   window.Sequence02?.teardown?.();
+  window.Sequence03?.teardown?.();
   clearSequenceContent();
 
   // 1. Fetch the sequence HTML fragment
@@ -153,12 +154,12 @@ async function loadSequence(cfg, { autostart = false } = {}) {
 
 window.startSelectedSequence = function (key) {
   if (key && !SEQUENCES[key]) {
-    console.warn(`[main] Sequence "${key}" is not wired up yet; starting without NPCs instead.`);
-    key = 'easy-without-npcs';
+    console.warn(`[main] Sequence "${key}" is not wired up yet; starting Standard instead.`);
+    key = 'easy-standard';
   }
 
-  const selectedKey = key || 'easy-without-npcs';
-  const cfg = SEQUENCES[selectedKey] ?? SEQUENCES['easy-without-npcs'];
+  const selectedKey = key || 'easy-standard';
+  const cfg = SEQUENCES[selectedKey] ?? SEQUENCES['easy-standard'];
   loadSequence(cfg, { autostart: true });
 };
 

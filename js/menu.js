@@ -143,7 +143,7 @@ AFRAME.registerComponent('vr-sequence-menu', {
 
   init: function () {
     this.currentIndex = 0;
-    this.subIndex = 1;
+    this.subIndex = 0;
     this.inSubMenu = false;
     this.canScroll = true;
     this.hasSelected = false;
@@ -337,7 +337,7 @@ AFRAME.registerComponent('vr-sequence-menu', {
   resetMenu: function () {
     window.pendingShowSequenceMenu = false;
     this.currentIndex = 0;
-    this.subIndex = 1;
+    this.subIndex = 0;
     this.inSubMenu = false;
     this.canScroll = true;
     this.hasSelected = false;
