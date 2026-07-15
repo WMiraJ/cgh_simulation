@@ -91,10 +91,10 @@
   -->
   <script>
     (function () {
-      const isLocal = ['localhost', '127.0.0.1'].includes(window.location.hostname);
+      // const isLocal = ['localhost', '127.0.0.1'].includes(window.location.hostname);
       const base    = isLocal
-        ? 'assets/'
-        : 'https://huggingface.co/datasets/MiraJ102/cgh-assets/resolve/main/';
+        // ? 'assets/'
+        // : 'https://huggingface.co/datasets/MiraJ102/cgh-assets/resolve/main/';
 
       const assets = document.querySelector('a-assets');
       [
@@ -115,10 +115,10 @@
         assets.appendChild(item);
       });
 
-      console.log(isLocal
-        ? '[shell] Running locally — using local assets.'
-        : '[shell] Running remote — using Hugging Face assets.'
-      );
+      // console.log(isLocal
+      //   ? '[shell] Running locally — using local assets.'
+      //   : '[shell] Running remote — using Hugging Face assets.'
+      // );
     })();
   </script>
 
