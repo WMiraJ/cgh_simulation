@@ -127,6 +127,23 @@ AFRAME.registerComponent('sequence-controller', {
   }
 });
 
+// Component: Keeps VR controllers usable for button input while hiding their visual model/laser.
+AFRAME.registerComponent('vr-controller-input', {
+  init: function () {
+    const hideController = () => {
+      this.el.setAttribute('visible', 'false');
+      this.el.setAttribute('raycaster', 'enabled: false');
+      this.el.setAttribute('cursor', 'fuse: false');
+      this.el.setAttribute('line', 'visible: false');
+    };
+
+    hideController();
+
+    this.el.sceneEl.addEventListener('enter-vr', hideController);
+    this.el.sceneEl.addEventListener('exit-vr', hideController);
+  }
+});
+
 AFRAME.registerComponent('vr-height-fix', {
   init: function () {
     const scene = this.el.sceneEl;
