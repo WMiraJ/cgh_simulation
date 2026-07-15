@@ -12,52 +12,67 @@ window.Sequence03 = new (class extends window.SequenceBase {
     });
 
     this.npcConfigs = [
-      { selector: '#avatarModelJoe', 
-        enterCurve: {p1: '-3 1.065 0', p2: '0.650 1.065 -0.044'}, 
+      { selector: '#avatarModelJoe',
+        resetPosition: '-2.909 1.065 -0.735',
+        resetRotation: '0 90 0',
+        enterCurve: {p1: '-3 1.065 0', p2: '0.650 1.065 -0.044'},
         enterDelay: 0,
-        exitCurve: { p1: '-2.5 1.065 1.5', p2: '-8 1.065 -6', dur: 6000, startEvent: 'npcWalkOut' } 
+        exitCurve: { p1: '-2.5 1.065 1.5', p2: '-8 1.065 -6', dur: 6000, startEvent: 'npcWalkOut' }
       },
 
-      { selector: '#avatarModelMegan', 
-        enterCurve: {p1: '-3 1.065 0', p2: '0.667 1.065 0.918'}, 
+      { selector: '#avatarModelMegan',
+        resetPosition: '-3 1.065 -1.505',
+        resetRotation: '0 90 0',
+        enterCurve: {p1: '-3 1.065 0', p2: '0.667 1.065 0.918'},
         enterDelay: 800,
-        exitCurve: { p1: '-2.5 1.065 1.5', p2: '-8 1.065 -6', dur: 6000, startEvent: 'npcWalkOut' } 
-      }
-      ,
+        exitCurve: { p1: '-2.5 1.065 1.5', p2: '-8 1.065 -6', dur: 6000, startEvent: 'npcWalkOut' }
+      },
       { selector: '#avatarModelSophie',
-        enterCurve: {p1: '-3 1.065 0', p2: '0.975 1.065 -0.915'}, 
+        resetPosition: '-3.333 1.065 -0.2',
+        resetRotation: '0 90 0',
+        enterCurve: {p1: '-3 1.065 0', p2: '0.975 1.065 -0.915'},
         enterDelay: 1600,
-        exitCurve: { p1: '-2.5 1.065 -1.5', p2: '-8 1.065 6', dur: 6000, startEvent: 'npcWalkOut' } 
+        exitCurve: { p1: '-2.5 1.065 -1.5', p2: '-8 1.065 6', dur: 6000, startEvent: 'npcWalkOut' }
       },
   
-      { selector: '#avatarModelLouise', 
+      { selector: '#avatarModelLouise',
+        resetPosition: '-3.290 1.065 1.922',
+        resetRotation: '0 90 0',
         enterCurve: {p1: '-3 1.065 0', p2: '0.1 1.065 -0.892'},
         enterDelay: 2400,
-        exitCurve: { p1: '-2.5 1.065 1.5', p2: '-8 1.065 -6', dur: 6000, startEvent: 'npcWalkOut' } 
+        exitCurve: { p1: '-2.5 1.065 1.5', p2: '-8 1.065 -6', dur: 6000, startEvent: 'npcWalkOut' }
       },
 
-      { selector: '#avatarModelBryce', 
-        enterCurve: {p1: '-3 1.065 0', p2: '-0.088 1.065 0.585'}, 
+      { selector: '#avatarModelBryce',
+        resetPosition: '-3.886 1.065 0.913',
+        resetRotation: '0 90 0',
+        enterCurve: {p1: '-3 1.065 0', p2: '-0.088 1.065 0.585'},
         enterDelay: 3200,
-        exitCurve: { p1: '-2.5 1.065 -1.5', p2: '-8 1.065 6', dur: 6000, startEvent: 'npcWalkOut' } 
+        exitCurve: { p1: '-2.5 1.065 -1.5', p2: '-8 1.065 6', dur: 6000, startEvent: 'npcWalkOut' }
       },
 
-      { selector: '#avatarModelMartha', 
-        enterCurve: {p1: '-3 1.065 0', p2: '-0.847 1.065 -1.110'}, 
+      { selector: '#avatarModelMartha',
+        resetPosition: '-4.409 1.065 -1.114',
+        resetRotation: '0 90 0',
+        enterCurve: {p1: '-3 1.065 0', p2: '-0.847 1.065 -1.110'},
         enterDelay: 4800,
-        exitCurve: { p1: '-2.5 1.065 1.5', p2: '-8 1.065 -6', dur: 6000, startEvent: 'npcWalkOut' } 
+        exitCurve: { p1: '-2.5 1.065 1.5', p2: '-8 1.065 -6', dur: 6000, startEvent: 'npcWalkOut' }
       },
 
-      { selector: '#avatarModelJosh', 
-        enterCurve: {p1: '-3 1.065 0', p2: '-1.0 1.065 0.835'}, 
+      { selector: '#avatarModelJosh',
+        resetPosition: '-4.779 1.065 0.680',
+        resetRotation: '0 90 0',
+        enterCurve: {p1: '-3 1.065 0', p2: '-1.0 1.065 0.835'},
         enterDelay: 5600,
-        exitCurve: { p1: '-2.5 1.065 -1.5', p2: '-8 1.065 6', dur: 6000, startEvent: 'npcWalkOut' } 
+        exitCurve: { p1: '-2.5 1.065 -1.5', p2: '-8 1.065 6', dur: 6000, startEvent: 'npcWalkOut' }
       },
 
-      { selector: '#avatarModelJody', 
-        enterCurve: {p1: '-3 1.065 0', p2: '-1.165 1.065 0'}, 
+      { selector: '#avatarModelJody',
+        resetPosition: '-5.233 1.065 -0.2',
+        resetRotation: '0 90 0',
+        enterCurve: {p1: '-3 1.065 0', p2: '-1.165 1.065 0'},
         enterDelay: 6400,
-        exitCurve: { p1: '-2.5 1.065 -0.5', p2: '-8 1.065 6', dur: 6000, startEvent: 'npcWalkOut' } 
+        exitCurve: { p1: '-2.5 1.065 -0.5', p2: '-8 1.065 6', dur: 6000, startEvent: 'npcWalkOut' }
       }
     ];
   }
@@ -110,6 +125,8 @@ window.Sequence03 = new (class extends window.SequenceBase {
     this.npcConfigs.forEach(npc => {
       if (npc.el) {
         npc.el.removeAttribute('curve-walk');
+        npc.el.setAttribute('position', npc.resetPosition || '-3 1.065 -0.2');
+        npc.el.setAttribute('rotation', npc.resetRotation || '0 90 0');
         npc.el.setAttribute('animation-mixer', 'clip: Idle; loop: repeat');
       }
     });
