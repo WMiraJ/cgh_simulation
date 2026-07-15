@@ -141,7 +141,7 @@
     vr-height-fix
     movement-controls="speed: 0.1;"
     rotation="0 -90 0"
-    animation__pan="property: position; to: 0.3 ${currentY} 0; startEvents: panCameraIn; dur: 4500; easing: easeInOutQuad"
+    animation__pan="property: position; to: -1.165 ${currentY} 0; startEvents: panCameraIn; dur: 4500; easing: easeInOutQuad"
     animation__turn="property: rotation; to: 0 90 0; startEvents: turnCameraAround; dur: 4000; easing: easeInOutQuad">
 
     <!-- Camera given an explicit ID so body-sync has an unambiguous target -->
@@ -155,8 +155,12 @@
       </a-entity>
     </a-entity>
 
-    <a-entity hand-controls="hand: left; handModelStyle: lowPoly; color: #CCCCCC; model: false" sequence-controller></a-entity>
-    <a-entity hand-controls="hand: right; handModelStyle: lowPoly; color: #CCCCCC; model: false" laser-controls="hand: right" sequence-controller></a-entity>
+    <a-entity 
+      oculus-touch-controls="hand: left; model: false" 
+      vive-controls="hand: left; model: false"
+      windows-motion-controls="hand: left; model: false"
+      sequence-controller>
+    </a-entity>
 
   </a-entity>
 
