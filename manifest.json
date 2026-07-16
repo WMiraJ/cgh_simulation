@@ -22,21 +22,21 @@
   "screenshots": [
     {
       "src": "screenshots/091536.png",
-      "sizes": "1280x720",
+      "sizes": "2560x1600",
       "type": "image/png",
       "form_factor": "wide"
     }, 
 
         {
       "src": "screenshots/091601.png",
-      "sizes": "1280x720",
+      "sizes": "2560x1600",
       "type": "image/png",
       "form_factor": "wide"
     }, 
 
         {
       "src": "screenshots/091838.png",
-      "sizes": "1280x720",
+      "sizes": "2560x1600",
       "type": "image/png",
       "form_factor": "wide"
     }
