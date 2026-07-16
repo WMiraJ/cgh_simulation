@@ -9,33 +9,33 @@
   "orientation": "landscape",
   "icons": [
     {
-      "src": "favicon_io/android-chrome-192x192.png",
+      "src": "https://wmiraj.github.io/cgh_simulation/favicon_io/android-chrome-192x192.png",
       "sizes": "192x192",
       "type": "image/png"
     },
     {
-      "src": "favicon_io/android-chrome-512x512.png",
+      "src": "https://wmiraj.github.io/cgh_simulation/favicon_io/android-chrome-512x512.png",
       "sizes": "512x512",
       "type": "image/png"
     }
   ],
   "screenshots": [
     {
-      "src": "screenshots/091536.png",
+      "src": "https://wmiraj.github.io/cgh_simulation/screenshots/091536.png",
       "sizes": "2560x1600",
       "type": "image/png",
       "form_factor": "wide"
     }, 
 
         {
-      "src": "screenshots/091601.png",
+      "src": "https://wmiraj.github.io/cgh_simulation/screenshots/091601.png",
       "sizes": "2560x1600",
       "type": "image/png",
       "form_factor": "wide"
     }, 
 
         {
-      "src": "screenshots/091838.png",
+      "src": "https://wmiraj.github.io/cgh_simulation/screenshots/091838.png",
       "sizes": "2560x1600",
       "type": "image/png",
       "form_factor": "wide"
@@ -47,7 +47,7 @@
       "url": "/cgh_simulation/?start=true",
       "icons": [
         {
-          "src": "favicon_io/android-chrome-192x192.png",
+          "src": "https://wmiraj.github.io/cgh_simulation/favicon_io/android-chrome-192x192.png",
           "sizes": "192x192"
         }
       ]
