@@ -1,0 +1,56 @@
+{
+  "name": "CGH CP Claustrophobia VR Simulation",
+  "short_name": "Claustro VR",
+  "start_url": "/cgh_simulation/",
+  "display": "fullscreen",
+  "background_color": "#ffffff",
+  "theme_color": "#ffffff",
+  "description": "A virtual reality simulation designed for claustrophobia exposure.",
+  "orientation": "landscape",
+  "icons": [
+    {
+      "src": "favicon_io/android-chrome-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "favicon_io/android-chrome-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "screenshots/091536.png",
+      "sizes": "1280x720",
+      "type": "image/png",
+      "form_factor": "wide"
+    }, 
+
+        {
+      "src": "screenshots/091601.png",
+      "sizes": "1280x720",
+      "type": "image/png",
+      "form_factor": "wide"
+    }, 
+
+        {
+      "src": "screenshots/091838.png",
+      "sizes": "1280x720",
+      "type": "image/png",
+      "form_factor": "wide"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Start Simulation",
+      "url": "/cgh_simulation/?start=true",
+      "icons": [
+        {
+          "src": "favicon_io/android-chrome-192x192.png",
+          "sizes": "192x192"
+        }
+      ]
+    }
+  ]
+}
