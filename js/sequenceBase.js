@@ -15,6 +15,8 @@ class SequenceBase {
     this.isDoorsOpen = false;
     this.hasSequenceCompleted = false;
     this.isSequenceRunning = false;
+    this.stopRequested = false;
+    this.pendingWaiters = new Set();
     
     window.isSimulationFrozen = false;
     window.activeSequenceKey = this.sequenceKey;
@@ -44,9 +46,45 @@ class SequenceBase {
     window.goToFloor = undefined;
   }
 
+  registerWaiter(waiter) {
+    this.pendingWaiters.add(waiter);
+    return waiter;
+  }
+
+  clearPendingWaiters() {
+    this.pendingWaiters.forEach(waiter => {
+      if (waiter.type === 'timeout') clearTimeout(waiter.timeoutId);
+      if (waiter.type === 'interval') clearInterval(waiter.intervalId);
+      waiter.reject?.(new Error('Sequence stopped'));
+    });
+    this.pendingWaiters.clear();
+  }
+
+  stopSequence() {
+    if (!this.isSequenceRunning && !this.isMoving) return;
+
+    this.stopRequested = true;
+    this.clearPendingWaiters();
+    window.isSimulationFrozen = false;
+    this.isMoving = false;
+    this.isDoorsOpen = false;
+    this.isSequenceRunning = false;
+    this.hasSequenceCompleted = false;
+
+    this.setNpcVisible(false);
+    this.setMovementEnabled(false);
+    this.resetLiftDoorState();
+    this.setFloorBackdrop(1);
+    this.updateAllDisplays(1, 'idle');
+
+    if (window.resetEnvironmentState) window.resetEnvironmentState(1);
+    if (window.showSequenceMenu) window.showSequenceMenu();
+  }
+
   // ─── Core Mechanics ────────────────────────────────────────────────────────
 
   async goToFloor(destFloor, isSilentMove = false) {
+    if (this.stopRequested) throw new Error('Sequence stopped');
     if (this.isMoving || this.currFloor === destFloor) return;
     this.isMoving = true;
 
@@ -103,13 +141,25 @@ class SequenceBase {
       this.elevator.emit('fade-in');
     }
 
-    await new Promise(resolve => {
+    await new Promise((resolve, reject) => {
       const interval = setInterval(() => {
+        if (this.stopRequested) {
+          clearInterval(interval);
+          this.pendingWaiters.delete(waiter);
+          reject(new Error('Sequence stopped'));
+          return;
+        }
         if (window.isSimulationFrozen) return;
         this.currFloor += isGoingUp ? 1 : -1;
         this.updateAllDisplays(this.currFloor, screenDir);
-        if (this.currFloor === destFloor) { clearInterval(interval); resolve(); }
+        if (this.currFloor === destFloor) {
+          clearInterval(interval);
+          this.pendingWaiters.delete(waiter);
+          resolve();
+        }
       }, 2800);
+      const waiter = { type: 'interval', intervalId: interval, resolve, reject };
+      this.registerWaiter(waiter);
     });
 
     if (!isSilentMove) {
@@ -137,10 +187,22 @@ class SequenceBase {
   // ─── Helpers ───────────────────────────────────────────────────────────────
 
   async sleep(ms) {
+    if (this.stopRequested) throw new Error('Sequence stopped');
+
     let elapsed = 0;
     const step  = 50;
     while (elapsed < ms) {
-      await new Promise(r => setTimeout(r, step));
+      if (this.stopRequested) throw new Error('Sequence stopped');
+
+      await new Promise((resolve, reject) => {
+        const timeoutId = setTimeout(() => {
+          this.pendingWaiters.delete(waiter);
+          resolve();
+        }, step);
+        const waiter = { type: 'timeout', timeoutId, resolve, reject };
+        this.registerWaiter(waiter);
+      });
+
       if (!window.isSimulationFrozen) elapsed += step;
     }
   }
@@ -213,11 +275,13 @@ class SequenceBase {
 
   setupEventListeners() {
     this.onStartHandler = this.onStartSequence.bind(this);
+    this.onStopHandler = this.onStopSequence.bind(this);
     this.onFreezeHandler = this.onFreezeSequence.bind(this);
     this.onKeyDownHandler = this.onKeyDown.bind(this);
     this.onAssetsLoadedHandler = this.onAssetsLoaded.bind(this);
 
     window.addEventListener('vr-start-sequence', this.onStartHandler);
+    window.addEventListener('vr-stop-sequence', this.onStopHandler);
     window.addEventListener('vr-freeze-sequence', this.onFreezeHandler);
     window.addEventListener('keydown', this.onKeyDownHandler);
 
@@ -244,6 +308,7 @@ class SequenceBase {
 
   removeEventListeners() {
     window.removeEventListener('vr-start-sequence', this.onStartHandler);
+    window.removeEventListener('vr-stop-sequence', this.onStopHandler);
     window.removeEventListener('vr-freeze-sequence', this.onFreezeHandler);
     window.removeEventListener('keydown', this.onKeyDownHandler);
     
@@ -255,8 +320,9 @@ class SequenceBase {
   onAssetsLoaded() {
     console.log(`[SequenceBase] 3D assets loaded for ${this.sequenceKey}.`);
     this.resetLiftDoorState();
+
     this.updateAllDisplays(this.currFloor, 'idle');
-    this.setFloorBackdrop(this.currFloor);
+    this.setFloorBackdrop(this.isSequenceRunning || this.hasSequenceCompleted ? this.currFloor : 1);
     this.setNpcVisible(false);
 
     if (this.loadingOverlay) this.loadingOverlay.style.display = 'none';
@@ -276,6 +342,8 @@ class SequenceBase {
 
   onStartSequence(evt) {
     if (window.isMenuOpen || this.isSequenceRunning) return;
+
+    this.stopRequested = false;
     
     if (this.isDoorsOpen) { 
       this.playLiftAnimation('DoorClose'); 
@@ -283,8 +351,19 @@ class SequenceBase {
     }
     
     if (!this.isMoving && !window.isSimulationFrozen) {
-      this.executeTimeline();
+      this.executeTimeline().catch(err => {
+        if (err?.message === 'Sequence stopped') {
+          this.stopSequence();
+          return;
+        }
+        console.error(`[${this.sequenceKey}] Sequence execution failed:`, err);
+      });
     }
+  }
+
+  onStopSequence() {
+    if (window.isMenuOpen) return;
+    this.stopSequence();
   }
 
   onFreezeSequence() {
@@ -318,6 +397,11 @@ class SequenceBase {
     if (window.isMenuOpen) return;
     if (evt.key === 'a' || evt.key === 'A') {
       if (this.hasSequenceCompleted) window.dispatchEvent(new Event('vr-start-sequence'));
+    } else if (evt.key === 'b' || evt.key === 'B') {
+      if (this.isSequenceRunning || this.isMoving) {
+        evt.preventDefault?.();
+        this.stopSequence();
+      }
     } else if (evt.key === 'x' || evt.key === 'X') {
       if (this.hasSequenceCompleted) {
         if (window.showSequenceMenu) window.showSequenceMenu();

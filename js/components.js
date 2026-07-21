@@ -110,6 +110,12 @@ AFRAME.registerComponent('sequence-controller', {
       window.dispatchEvent(new Event(window.isMenuOpen ? 'vr-menu-select' : 'vr-start-sequence'));
     });
 
+    this.el.addEventListener('bbuttondown', () => {
+      if (!window.isMenuOpen) {
+        window.dispatchEvent(new Event('vr-stop-sequence'));
+      }
+    });
+
     this.el.addEventListener('xbuttondown', () => {
       window.dispatchEvent(new Event(window.isMenuOpen ? 'vr-menu-back' : 'vr-freeze-sequence'));
     });
