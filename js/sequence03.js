@@ -192,7 +192,7 @@ window.Sequence03 = new (class extends window.SequenceBase {
         // 2. Turn immediately after arriving
         setTimeout(() => {
           npc.el.emit('npcTurn');
-          npc.el.setAttribute('animation-mixer', 'clip: turn; loop: once; timeScale:0.8; clampWhenFinished: true; crossFadeDuration: 0.2');
+          npc.el.setAttribute('animation-mixer', 'clip: Idle; loop: repeat; crossFadeDuration: 0.2');
           
           // 3. Return to Idle once the 2000ms turn animation is done
           setTimeout(() => {
