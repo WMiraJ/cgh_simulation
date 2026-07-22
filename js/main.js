@@ -178,25 +178,55 @@ window.resetEnvironmentState = function(floor = 2) {
   const elevator = document.querySelector('#elevatorModel');
   const mainChar = document.querySelector('#mainCharacterEntity');
   
-  // 1. Instantly snap player back to starting position
-  const currentY = rig.object3D.position.y; // Capture current Y position for dynamic use
-  rig.setAttribute('position', '-4.5 ' + currentY + ' 0');
-  rig.setAttribute('rotation', '0 -90 0');
+  if (rig) {
+    // 1. Kill any active camera/rig animations so they don't override the reset
+    rig.removeAttribute('animation__panIn');
+    rig.removeAttribute('animation__panOut');
+    rig.removeAttribute('animation__turn');
+
+    // 2. Instantly snap player back to starting position
+    const currentY = rig.object3D.position.y; // Capture current Y position for dynamic use
+    
+    // Check which sequence is active to set the precise starting coordinate
+    if (window.activeSequenceKey === 'easy-with-all-npcs') {
+      rig.setAttribute('position', { x: -4.194, y: currentY, z: -0.015 });
+    } else if (window.activeSequenceKey === 'normal') {
+      rig.setAttribute('position', { x: -3.965, y: currentY, z: 0.331 });
+    } else {
+      // Default for easy-standard and easy-without-npcs
+      rig.setAttribute('position', { x: -4.5, y: currentY, z: 0 });
+    }
+    
+    rig.setAttribute('rotation', '0 -90 0');
+
+    // 3. Reset the camera's physical look rotation (pitch and yaw)
+    const cameraEl = rig.querySelector('[camera]');
+    if (cameraEl?.components['look-controls']) {
+      cameraEl.components['look-controls'].pitchObject.rotation.x = 0;
+      cameraEl.components['look-controls'].yawObject.rotation.y = 0;
+    }
+  }
   
-  // 2. Stop player animations
-  mainChar.setAttribute('animation-mixer', 'clip: Idle; loop: repeat');
+  // 4. Reset the VR Body sync wrapper
+  const bodyWrapper = document.querySelector('#bodyWrapper');
+  if (bodyWrapper) bodyWrapper.object3D.rotation.y = 0;
   
-  // 3. Reset Elevator state instantly without re-triggering the door animation
+  // 5. Stop player animations
+  if (mainChar) {
+    mainChar.setAttribute('animation-mixer', 'clip: Idle; loop: repeat');
+  }
+  
+  // 6. Reset Elevator state instantly without re-triggering the door animation
   window.isMoving = false;
   window.isDoorsOpen = false;
-  elevator?.removeAttribute('animation-mixer');
+  if (elevator) elevator.removeAttribute('animation-mixer');
   
-  // 4. Keep the environment at the intended starting floor
+  // 7. Keep the environment at the intended starting floor
   if (floor) {
     window.currentStartFloor = floor;
   }
   
-  // 5. Hide dynamic sequence elements
+  // 8. Hide dynamic sequence elements
   document.querySelectorAll('[data-sequence-owned]').forEach(el => el.setAttribute('visible', 'false'));
 };
 
