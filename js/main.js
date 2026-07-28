@@ -51,6 +51,13 @@ const SEQUENCES = {
     startFloor: 4,
     html: 'sequences/sequence04.html',
     init: () => window.Sequence04?.init('normal')
+  },
+
+  'hard': {
+    key: 'hard',
+    startFloor: 4,
+    html: 'sequences/sequence05.html',
+    init: () => window.Sequence05?.init('hard')
   }
 };
 
@@ -101,6 +108,7 @@ async function loadSequence(cfg, { autostart = false } = {}) {
   window.Sequence02?.teardown?.();
   window.Sequence03?.teardown?.();
   window.Sequence04?.teardown?.();
+  window.Sequence05?.teardown?.();
   clearSequenceContent();
 
   // 1. Fetch the sequence HTML fragment

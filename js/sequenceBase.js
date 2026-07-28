@@ -122,6 +122,7 @@ class SequenceBase {
     const lowerFloorPlane  = document.querySelector('#lower-floor');
     const middleFloorPlane = document.querySelector('#middle-floor');
     const upperFloorPlane  = document.querySelector('#upper-floor');
+    const fiftyFloorPlane  = document.querySelector('#fifty-floor');
     const scrollingShaft   = document.querySelector('#scrolling-shaft');
 
     if (!isSilentMove) {
@@ -239,6 +240,7 @@ class SequenceBase {
     const lowerFloorPlane  = document.querySelector('#lower-floor');
     const middleFloorPlane = document.querySelector('#middle-floor');
     const upperFloorPlane  = document.querySelector('#upper-floor');
+    const fiftyFloorPlane  = document.querySelector('#fifty-floor');
 
     [scrollingShaft, firstFloorPlane, upperFloorPlane, middleFloorPlane, lowerFloorPlane]
       .forEach(el => el?.setAttribute('visible', 'false'));
@@ -246,7 +248,8 @@ class SequenceBase {
     if      (floorNumber === 1)  firstFloorPlane?.setAttribute('visible', 'true');
     else if (floorNumber <=  6) lowerFloorPlane?.setAttribute('visible', 'true');
     else if (floorNumber <= 10) middleFloorPlane?.setAttribute('visible', 'true');
-    else                        upperFloorPlane?.setAttribute('visible', 'true');
+    else if (floorNumber <=15) upperFloorPlane?.setAttribute('visible', 'true');
+    else                        fiftyFloorPlane?.setAttribute('visible', 'true');
   }
 
   setMovementEnabled(enabled) {

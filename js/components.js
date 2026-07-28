@@ -161,7 +161,7 @@ AFRAME.registerComponent('vr-height-fix', {
     this.camera = this.el.querySelector('[camera]');
     
     // Define target heights
-    this.targetVrHeight = 3.1;
+    this.targetVrHeight = 3.35;
     this.desktopHeight = 1.59;
     
     // Set default Laptop/Desktop height

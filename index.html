@@ -14,6 +14,7 @@
   <script src="js/sequence02.js"></script>
   <script src="js/sequence03.js"></script>
   <script src="js/sequence04.js"></script>
+  <script src="js/sequence05.js"></script>
   <script>navigator.serviceWorker.register("service-worker.js")</script> 
 
   <link rel="apple-touch-icon" sizes="180x180" href="favicon_io/apple-touch-icon.png">
@@ -73,6 +74,7 @@
   <img id="tex-middle" src="assets/floor-middle.jpg">
   <img id="tex-upper"  src="assets/floor-upper.jpg">
   <img id="tex-test"  src="assets/test3DD.png">
+  <img id="tex-50" src="assets/50th_floor.png">
 
   <!-- Lift sound effects -->
     <audio id="lift-move-sound"  src="assets/sounds/LiftMoving.mp3"></audio>
@@ -286,6 +288,12 @@
     <a-curvedimage id="upper-floor"
       position="0.6 3.6 0" radius="7.5" theta-length="137.5" theta-start="201.25"
       height="10.5" material="src: #tex-upper;"
+      visible="false">
+    </a-curvedimage>
+
+    <a-curvedimage id="fifty-floor"
+      position="0.6 3.6 0" radius="7.5" theta-length="137.5" theta-start="201.25"
+      height="10.5" material="src: #tex-50;"
       visible="false">
     </a-curvedimage>
 
