@@ -109,7 +109,7 @@ window.Sequence04 = new (class extends window.SequenceBase {
     }
 
     this.rig.setAttribute('animation__panIn', 'property: position; to: 0.862 1.87 0.610; startEvents: panCameraIn; dur: 7000; easing: easeInOutQuad');
-    this.rig.setAttribute('animation__panOut', 'property: position; to: -4.5 1.87 0; startEvents: panCameraOut; dur: 7000; easing: easeInOutQuad');
+    this.rig.setAttribute('animation__panOut', 'property: position; to: -3.2 1.87 0; startEvents: panCameraOut; dur: 7000; easing: easeInOutQuad');
     this.rig.setAttribute('animation__turn', 'property: rotation; to: 0 90 0; startEvents: turnCameraAround; dur: 4000; easing: easeInOutQuad');
 
     this.npcConfigs.forEach(npc => {

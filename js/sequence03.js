@@ -137,7 +137,7 @@ window.Sequence03 = new (class extends window.SequenceBase {
 
     // Pre-register animations
     this.rig.setAttribute('animation__panIn',   'property: position; to: -0.337 1.87 -0.127;   startEvents: panCameraIn;      dur: 7000; easing: easeInOutQuad');
-    this.rig.setAttribute('animation__panOut',  'property: position; to: -4.5 1.87 0;  startEvents: panCameraOut;     dur: 7000; easing: easeInOutQuad');
+    this.rig.setAttribute('animation__panOut',  'property: position; to: -3.2 1.87 0;  startEvents: panCameraOut;     dur: 7000; easing: easeInOutQuad');
     this.rig.setAttribute('animation__turn',    'property: rotation; to: 0 90 0;       startEvents: turnCameraAround; dur: 4000; easing: easeInOutQuad');
     
     // Pre-register the turn animation for ALL avatars

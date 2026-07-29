@@ -235,21 +235,41 @@ class SequenceBase {
   }
 
   setFloorBackdrop(floorNumber) {
-    const scrollingShaft   = document.querySelector('#scrolling-shaft');
-    const firstFloorPlane  = document.querySelector('#first-floor');
-    const lowerFloorPlane  = document.querySelector('#lower-floor');
-    const middleFloorPlane = document.querySelector('#middle-floor');
-    const upperFloorPlane  = document.querySelector('#upper-floor');
-    const fiftyFloorPlane  = document.querySelector('#fifty-floor');
+    const scrollingShaft  = document.querySelector('#scrolling-shaft');
+    
+    // Skies
+    const firstFloorPlane = document.querySelector('#first-floor');
+    const lobbyEnv        = document.querySelector('#lobby-environment');
+    
+    // Background views
+    const bgLowest = document.querySelector('#bg-lowest');
+    const bgLower  = document.querySelector('#bg-lower');
+    const bgMiddleLow = document.querySelector('#bg-middle-low');
+    const bgMiddleUp = document.querySelector('#bg-middle-up');
+    const bgUpper  = document.querySelector('#bg-upper');
+    const bgUppest  = document.querySelector('#bg-uppest');
+    const bgFifty  = document.querySelector('#bg-fifty');
 
-    [scrollingShaft, firstFloorPlane, upperFloorPlane, middleFloorPlane, lowerFloorPlane]
+    // 1. Hide everything first
+    [scrollingShaft, firstFloorPlane, lobbyEnv, bgLowest, bgLower, bgMiddleLow, bgMiddleUp, bgUpper,bgUppest, bgFifty]
       .forEach(el => el?.setAttribute('visible', 'false'));
 
-    if      (floorNumber === 1)  firstFloorPlane?.setAttribute('visible', 'true');
-    else if (floorNumber <=  6) lowerFloorPlane?.setAttribute('visible', 'true');
-    else if (floorNumber <= 10) middleFloorPlane?.setAttribute('visible', 'true');
-    else if (floorNumber <=15) upperFloorPlane?.setAttribute('visible', 'true');
-    else                        fiftyFloorPlane?.setAttribute('visible', 'true');
+    // 2. Display logic based on floor number
+    if (floorNumber === 1) {
+      // 1st Floor: Just show the dedicated first floor sky
+      firstFloorPlane?.setAttribute('visible', 'true');
+    } else {
+      // Upper Floors: Show the shared lobby AND the correct background image
+      lobbyEnv?.setAttribute('visible', 'true');
+      
+      if      (floorNumber <= 4)  bgLowest?.setAttribute('visible', 'true');
+      else if (floorNumber <= 7)  bgLower?.setAttribute('visible', 'true');
+      else if (floorNumber <= 8)  bgMiddleLow?.setAttribute('visible', 'true');
+      else if (floorNumber <= 10)  bgMiddleUp?.setAttribute('visible', 'true');
+      else if (floorNumber <= 13)  bgUpper?.setAttribute('visible', 'true');
+      else if (floorNumber <= 15)  bgUpper?.setAttribute('visible', 'true');
+      else                         bgFifty?.setAttribute('visible', 'true');
+    }
   }
 
   setMovementEnabled(enabled) {
