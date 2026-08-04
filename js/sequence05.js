@@ -17,22 +17,22 @@ window.Sequence05 = new (class extends window.SequenceBase {
         resetRotation: '0 90 0',
         enterCurve: {p1: '-3 1.065 0', p2: '0.650 1.065 -0.044'},
         enterDelay: 0,
-        exitCurve: { p1: '-2.5 1.065 1.5', p2: '-8 1.065 -6', dur: 6000, startEvent: 'npcWalkOut' }
+        exitCurve: { p1: '-2.5 1.065 1.5', p2: '-4 1.065 -6', dur: 6000, startEvent: 'npcWalkOut' }
       },
 
       { selector: '#avatarModelMegan',
         resetPosition: '-3 1.065 -1.505',
         resetRotation: '0 90 0',
-        enterCurve: {p1: '-3 1.065 0', p2: '0.667 1.065 0.918'},
+        enterCurve: {p1: '-3 1.065 0', p2: '0.862 1.065 -0.930'},
         enterDelay: 800,
-        exitCurve: { p1: '-2.5 1.065 1.5', p2: '-8 1.065 -6', dur: 6000, startEvent: 'npcWalkOut' }
+        exitCurve: { p1: '-2.5 1.065 1.5', p2: '-4 1.065 -6', dur: 6000, startEvent: 'npcWalkOut' }
       },
       { selector: '#avatarModelSophie',
         resetPosition: '-3.333 1.065 -0.2',
         resetRotation: '0 90 0',
         enterCurve: {p1: '-3 1.065 0', p2: '-0.008 1.065 -0.411'},
         enterDelay: 1600,
-        exitCurve: { p1: '-2.5 1.065 -1.5', p2: '-8 1.065 6', dur: 6000, startEvent: 'npcWalkOut' }
+        exitCurve: { p1: '-2.5 1.065 -1.5', p2: '-4 1.065 6', dur: 6000, startEvent: 'npcWalkOut' }
       },
   
       { selector: '#avatarModelLouise',
@@ -40,7 +40,7 @@ window.Sequence05 = new (class extends window.SequenceBase {
         resetRotation: '0 90 0',
         enterCurve: {p1: '-1.5 1.065 0.3', p2: '-1.057 1.065 -0.892'},
         enterDelay: 2400,
-        exitCurve: { p1: '-2.5 1.065 1.5', p2: '-8 1.065 -6', dur: 6000, startEvent: 'npcWalkOut' }
+        exitCurve: { p1: '-2.5 1.065 1.5', p2: '-4 1.065 -6', dur: 6000, startEvent: 'npcWalkOut' }
       },
 
       { selector: '#avatarModelBryce',
@@ -48,7 +48,7 @@ window.Sequence05 = new (class extends window.SequenceBase {
         resetRotation: '0 90 0',
         enterCurve: {p1: '-3 1.065 0', p2: '-0.088 1.065 0.585'},
         enterDelay: 3200,
-        exitCurve: { p1: '-2.5 1.065 -1.5', p2: '-8 1.065 6', dur: 6000, startEvent: 'npcWalkOut' }
+        exitCurve: { p1: '-2.5 1.065 -1.5', p2: '-4 1.065 6', dur: 6000, startEvent: 'npcWalkOut' }
       },
 
       { selector: '#avatarModelMartha',
@@ -56,7 +56,7 @@ window.Sequence05 = new (class extends window.SequenceBase {
         resetRotation: '0 90 0',
         enterCurve: {p1: '-3 1.065 0.5', p2: '0.298 1.065 -1.110'},
         enterDelay: 4800,
-        exitCurve: { p1: '-2.5 1.065 1.5', p2: '-8 1.065 -6', dur: 6000, startEvent: 'npcWalkOut' }
+        exitCurve: { p1: '-2.5 1.065 1.5', p2: '-4 1.065 -6', dur: 6000, startEvent: 'npcWalkOut' }
       },
 
       { selector: '#avatarModelJosh',
@@ -64,7 +64,7 @@ window.Sequence05 = new (class extends window.SequenceBase {
         resetRotation: '0 90 0',
         enterCurve: {p1: '-3 1.065 0', p2: '-1.0 1.065 0.835'},
         enterDelay: 5600,
-        exitCurve: { p1: '-2.5 1.065 -1.5', p2: '-8 1.065 6', dur: 6000, startEvent: 'npcWalkOut' }
+        exitCurve: { p1: '-2.5 1.065 -1.5', p2: '-4 1.065 6', dur: 6000, startEvent: 'npcWalkOut' }
       },
 
       { selector: '#avatarModelJody',
@@ -72,7 +72,7 @@ window.Sequence05 = new (class extends window.SequenceBase {
         resetRotation: '0 90 0',
         enterCurve: {p1: '-3 1.065 0', p2: '-0.572 1.065 -0.048'},
         enterDelay: 6400,
-        exitCurve: { p1: '-2.5 1.065 -0.5', p2: '-8 1.065 6', dur: 6000, startEvent: 'npcWalkOut' }
+        exitCurve: { p1: '-2.5 1.065 -0.5', p2: '-4 1.065 6', dur: 6000, startEvent: 'npcWalkOut' }
       }
     ];
   }
@@ -139,7 +139,7 @@ window.Sequence05 = new (class extends window.SequenceBase {
       this.mainChar.setAttribute('animation-mixer', 'clip: Idle; loop: repeat; crossFadeDuration: 0.2');
     }
 
-    this.rig.setAttribute('animation__panIn', 'property: position; to: 0.862 1.87 -0.930; startEvents: panCameraIn; dur: 7000; easing: easeInOutQuad');
+    this.rig.setAttribute('animation__panIn', 'property: position; to: 0.667 1.87 0.918; startEvents: panCameraIn; dur: 7000; easing: easeInOutQuad');
     this.rig.setAttribute('animation__panOut', 'property: position; to: -3.2 1.87 0; startEvents: panCameraOut; dur: 7000; easing: easeInOutQuad');
     this.rig.setAttribute('animation__turn', 'property: rotation; to: 0 90 0; startEvents: turnCameraAround; dur: 4000; easing: easeInOutQuad');
 
@@ -196,7 +196,7 @@ window.Sequence05 = new (class extends window.SequenceBase {
 
     await this.sleep(12000);
 
-    // 2. Level 4: 3 NPCs enter (Sophie, Bryce)
+    // 2. Level 4: 2 NPCs enter (Sophie, Bryce)
     console.log('[seq05] Moving to Floor 4…');
 
     const sophie = this.npcConfigs.find(npc => npc.selector === '#avatarModelSophie');

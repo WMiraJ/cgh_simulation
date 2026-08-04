@@ -93,6 +93,36 @@ function clearSequenceContent() {
   assets.querySelectorAll('[data-sequence-owned]').forEach(el => el.remove());
 }
 
+function trackAssetLoad(item) {
+  return new Promise((resolve) => {
+    if (item.hasLoaded) return resolve({ id: item.id, ok: true });
+    const cleanup = () => {
+      item.removeEventListener('loaded', onLoad);
+      item.removeEventListener('error', onError);
+    };
+    const onLoad  = () => { cleanup(); resolve({ id: item.id, ok: true }); };
+    const onError = (e) => {
+      cleanup();
+      console.error(`[main] Asset failed to load: ${item.id}`, e);
+      resolve({ id: item.id, ok: false });
+    };
+    item.addEventListener('loaded', onLoad);
+    item.addEventListener('error', onError);
+  });
+}
+
+function updateLoadingOverlay(done, total) {
+  const overlay = document.getElementById('loading-overlay');
+  if (overlay) overlay.textContent = total ? `LOADING ${done}/${total}...` : 'LOADING...';
+}
+
+function showLoadError(failedIds) {
+  const overlay = document.getElementById('loading-overlay');
+  if (!overlay) return;
+  overlay.textContent = `Couldn't load: ${failedIds.join(', ')}. Check connection and reload.`;
+  overlay.style.background = 'rgba(120,0,0,0.85)';
+}
+
 async function loadSequence(cfg, { autostart = false } = {}) {
   const scene  = document.querySelector('a-scene');
   const assets = document.querySelector('a-assets');
@@ -126,19 +156,37 @@ async function loadSequence(cfg, { autostart = false } = {}) {
   const tmp     = document.createElement('div');
   tmp.innerHTML = text;
 
-  // 3. Move sequence-specific static assets (images, audio) into <a-assets>
+  // 3. Move sequence-specific static assets (images, audio) into <a-assets> & track loading
   const seqAssets = tmp.querySelector('#seq-assets');
+  const assetPromises = [];
+  
   if (seqAssets) {
     [...seqAssets.children].forEach(el => {
-      if (el.id && assets.querySelector(`[id="${el.id}"]`)) {
-        return;
+      const existing = el.id && assets.querySelector(`[id="${el.id}"]`);
+      if (existing) { 
+        assetPromises.push(trackAssetLoad(existing)); 
+        return; 
       }
       const clone = el.cloneNode(true);
       clone.setAttribute('data-sequence-owned', 'true');
       assets.appendChild(clone);
+      assetPromises.push(trackAssetLoad(clone));
     });
   } else {
     console.warn('[main] #seq-assets not found in sequence HTML.');
+  }
+
+  updateLoadingOverlay(0, assetPromises.length);
+  let doneCount = 0;
+  
+  assetPromises.forEach(p => p.then(() => updateLoadingOverlay(++doneCount, assetPromises.length)));
+  
+  const results = await Promise.all(assetPromises);
+  const failed = results.filter(r => !r.ok);
+  
+  if (failed.length) { 
+    showLoadError(failed.map(f => f.id)); 
+    return; // Halt sequence loading if assets fail
   }
 
   // 4. Inject A-Frame entities into <a-scene>

@@ -17,7 +17,7 @@ window.Sequence03 = new (class extends window.SequenceBase {
         resetRotation: '0 90 0',
         enterCurve: {p1: '-3 1.065 0', p2: '0.650 1.065 -0.044'},
         enterDelay: 0,
-        exitCurve: { p1: '-2.5 1.065 1.5', p2: '-8 1.065 -6', dur: 6000, startEvent: 'npcWalkOut' }
+        exitCurve: { p1: '-5 1.065 1', p2: '-4 1.065 -6', dur: 6000, startEvent: 'npcWalkOut' }
       },
 
       { selector: '#avatarModelMegan',
@@ -25,14 +25,14 @@ window.Sequence03 = new (class extends window.SequenceBase {
         resetRotation: '0 90 0',
         enterCurve: {p1: '-3 1.065 0', p2: '0.667 1.065 0.918'},
         enterDelay: 800,
-        exitCurve: { p1: '-2.5 1.065 1.5', p2: '-8 1.065 -6', dur: 6000, startEvent: 'npcWalkOut' }
+        exitCurve: { p1: '-5 1.065 0', p2: '-4 1.065 -6', dur: 6000, startEvent: 'npcWalkOut' }
       },
       { selector: '#avatarModelSophie',
         resetPosition: '-3.333 1.065 -0.2',
         resetRotation: '0 90 0',
         enterCurve: {p1: '-3 1.065 0', p2: '0.975 1.065 -0.915'},
         enterDelay: 1600,
-        exitCurve: { p1: '-2.5 1.065 -1.5', p2: '-8 1.065 6', dur: 6000, startEvent: 'npcWalkOut' }
+        exitCurve: { p1: '-5 1.065 0', p2: '-4 1.065 6', dur: 6000, startEvent: 'npcWalkOut' }
       },
   
       { selector: '#avatarModelLouise',
@@ -40,7 +40,7 @@ window.Sequence03 = new (class extends window.SequenceBase {
         resetRotation: '0 90 0',
         enterCurve: {p1: '-3 1.065 0', p2: '0.1 1.065 -0.892'},
         enterDelay: 2400,
-        exitCurve: { p1: '-2.5 1.065 1.5', p2: '-8 1.065 -6', dur: 6000, startEvent: 'npcWalkOut' }
+        exitCurve: { p1: '-4.1 1.065 2.4', p2: '-4 1.065 -6', dur: 6000, startEvent: 'npcWalkOut' }
       },
 
       { selector: '#avatarModelBryce',
@@ -48,15 +48,15 @@ window.Sequence03 = new (class extends window.SequenceBase {
         resetRotation: '0 90 0',
         enterCurve: {p1: '-3 1.065 0', p2: '-0.088 1.065 0.585'},
         enterDelay: 3200,
-        exitCurve: { p1: '-2.5 1.065 -1.5', p2: '-8 1.065 6', dur: 6000, startEvent: 'npcWalkOut' }
+        exitCurve: { p1: '-5 1.065 -2', p2: '-4 1.065 6', dur: 6000, startEvent: 'npcWalkOut' }
       },
 
       { selector: '#avatarModelMartha',
         resetPosition: '-4.409 1.065 -1.114',
         resetRotation: '0 90 0',
         enterCurve: {p1: '-3 1.065 0', p2: '-0.847 1.065 -1.110'},
-        enterDelay: 4800,
-        exitCurve: { p1: '-2.5 1.065 1.5', p2: '-8 1.065 -6', dur: 6000, startEvent: 'npcWalkOut' }
+        enterDelay: 4000,
+        exitCurve: { p1: '-2.9 1.065 2.85', p2: '-4 1.065 -6', dur: 6000, startEvent: 'npcWalkOut' }
       },
 
       { selector: '#avatarModelJosh',
@@ -64,7 +64,7 @@ window.Sequence03 = new (class extends window.SequenceBase {
         resetRotation: '0 90 0',
         enterCurve: {p1: '-3 1.065 0', p2: '-1.0 1.065 0.835'},
         enterDelay: 5600,
-        exitCurve: { p1: '-2.5 1.065 -1.5', p2: '-8 1.065 6', dur: 6000, startEvent: 'npcWalkOut' }
+        exitCurve: { p1: '-2.37 1.065 -2.7', p2: '-4 1.065 6', dur: 6000, startEvent: 'npcWalkOut' }
       },
 
       { selector: '#avatarModelJody',
@@ -72,7 +72,7 @@ window.Sequence03 = new (class extends window.SequenceBase {
         resetRotation: '0 90 0',
         enterCurve: {p1: '-3 1.065 0', p2: '-1.165 1.065 0'},
         enterDelay: 6400,
-        exitCurve: { p1: '-2.5 1.065 -0.5', p2: '-8 1.065 6', dur: 6000, startEvent: 'npcWalkOut' }
+        exitCurve: { p1: '-4.55 1.065 -0.4', p2: '-4 1.065 6', dur: 6000, startEvent: 'npcWalkOut' }
       }
     ];
   }
@@ -225,7 +225,7 @@ window.Sequence03 = new (class extends window.SequenceBase {
       setTimeout(() => {
         if (this.mainChar) this.mainChar.setAttribute('animation-mixer', 'clip: Idle; loop: repeat');
       }, mainCharWalkDur);
-    }, 500); // Main char starts exiting first
+    }, 2200); // Changed from 500 to 2200 so they exit between Josh (1800ms) and Martha (2600ms)
 
     // B) NPCs Exit (Reverse Order)
     this.npcConfigs.forEach((npc, index) => {
@@ -250,7 +250,8 @@ window.Sequence03 = new (class extends window.SequenceBase {
 
     // Wait for all exit animations to finish
     const maxExitDelay = 1000 + (this.npcConfigs.length * 800) + 6000;
-    const mainExitDelay = 500 + mainCharWalkDur;
+    // Update the mainExitDelay calculation to reflect the new 2200ms timeout
+    const mainExitDelay = 2200 + mainCharWalkDur; 
     await this.sleep(Math.max(maxExitDelay, mainExitDelay) + 1000);
 
     // ── Done
