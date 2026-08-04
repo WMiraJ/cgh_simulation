@@ -72,46 +72,53 @@ self.addEventListener('activate', event => {
  *  All network requests are being intercepted here.
  */
 self.addEventListener('fetch', event => {
+    // 1. Ignore media Range requests entirely. 
+    // Caching partial media chunks causes cache poisoning and clone errors.
+    if (event.request.headers.has('range')) {
+        return; 
+    }
+
     const url = new URL(event.request.url);
 
-    // 1. Binary Assets: Cache-first, no re-fetch race.
+    // 2. Binary Assets: Cache-first, no re-fetch race.
     if (url.pathname.includes('/assets/')) {
         event.respondWith(
-            caches.match(event.request).then(cached => cached || fetch(event.request).then(resp => {
-                if (resp.ok) {
-                    caches.open(ASSET_CACHE).then(c => c.put(event.request, resp.clone()));
-                }
-                return resp;
-            }))
+            caches.match(event.request).then(cached => {
+                return cached || fetch(event.request).then(resp => {
+                    // Clone sequentially BEFORE returning the response
+                    if (resp.ok) {
+                        const responseToCache = resp.clone();
+                        caches.open(ASSET_CACHE).then(c => c.put(event.request, responseToCache));
+                    }
+                    return resp;
+                });
+            })
         );
         return; 
     }
 
-    // 2. App Shell: Stale-while-revalidate
+    // 3. App Shell: Stale-while-revalidate
     if (HOSTNAME_WHITELIST.indexOf(url.hostname) > -1) {
-        const cached = caches.match(event.request);
-        
-        // Pass the original event.request to preserve CORS modes and headers!
-        const fetched = fetch(event.request);
-        const fetchedCopy = fetched.then(resp => resp.clone());
-
-        // Call respondWith() with whatever we get first.
         event.respondWith(
-            Promise.race([fetched.catch(_ => cached), cached])
-                .then(resp => resp || fetched)
-                .catch(_ => { /* eat any errors */ })
-        );
+            caches.match(event.request).then(cached => {
+                // Fetch from network to revalidate the cache
+                const networkFetch = fetch(event.request).then(resp => {
+                    // Clone sequentially BEFORE returning
+                    const responseToCache = resp.clone();
+                    
+                    caches.open(PWA_CACHE).then(cache => {
+                        if (resp.ok || resp.type === 'opaque') {
+                            cache.put(event.request, responseToCache);
+                        }
+                    });
+                    
+                    return resp;
+                }).catch(_ => { /* eat any errors, like being offline */ });
 
-        // Update the cache with the version we fetched
-        event.waitUntil(
-            Promise.all([fetchedCopy, caches.open(PWA_CACHE)])
-                .then(([response, cache]) => {
-                    // Accept both 'ok' (same-origin) and 'opaque' (cross-origin no-cors) responses
-                    if (response.ok || response.type === 'opaque') {
-                        cache.put(event.request, response);
-                    }
-                })
-                .catch(_ => { /* eat any errors */ })
+                // Return the cached response immediately if we have it, 
+                // otherwise wait for the network fetch to complete.
+                return cached || networkFetch;
+            })
         );
     }
 });
