@@ -75,7 +75,6 @@ self.addEventListener('fetch', event => {
     const url = new URL(event.request.url);
 
     // 1. Binary Assets: Cache-first, no re-fetch race.
-    // Since these never change once shipped, we check the cache first.
     if (url.pathname.includes('/assets/')) {
         event.respondWith(
             caches.match(event.request).then(cached => cached || fetch(event.request).then(resp => {
@@ -89,11 +88,11 @@ self.addEventListener('fetch', event => {
     }
 
     // 2. App Shell: Stale-while-revalidate
-    // Skip some of cross-origin requests, like those for Google Analytics.
     if (HOSTNAME_WHITELIST.indexOf(url.hostname) > -1) {
         const cached = caches.match(event.request);
-        const fixedUrl = getFixedUrl(event.request);
-        const fetched = fetch(fixedUrl, { cache: 'no-store' });
+        
+        // Pass the original event.request to preserve CORS modes and headers!
+        const fetched = fetch(event.request);
         const fetchedCopy = fetched.then(resp => resp.clone());
 
         // Call respondWith() with whatever we get first.
@@ -103,10 +102,15 @@ self.addEventListener('fetch', event => {
                 .catch(_ => { /* eat any errors */ })
         );
 
-        // Update the cache with the version we fetched (only for ok status)
+        // Update the cache with the version we fetched
         event.waitUntil(
             Promise.all([fetchedCopy, caches.open(PWA_CACHE)])
-                .then(([response, cache]) => response.ok && cache.put(event.request, response))
+                .then(([response, cache]) => {
+                    // Accept both 'ok' (same-origin) and 'opaque' (cross-origin no-cors) responses
+                    if (response.ok || response.type === 'opaque') {
+                        cache.put(event.request, response);
+                    }
+                })
                 .catch(_ => { /* eat any errors */ })
         );
     }
