@@ -65,6 +65,7 @@
 <a-scene
   webxr="referenceSpaceType: local"
   renderer="colorManagement: true; physicallyCorrectLights: true; exposure: 1.2; toneMapping: ACESFilmic;"
+  gltf-model="basisTranscoderPath: https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/libs/basis/;"
   background="color: #222">
 
   <a-assets timeout="120000">
@@ -107,8 +108,8 @@
 
       const assets = document.querySelector('a-assets');
       [
-        { id: 'elevator',      file: 'elevator.glb'   },
-        { id: 'mainCharacter', file: 'main_char.glb'  }
+        { id: 'elevator',      file: 'elevator.opt.glb'   },
+        { id: 'mainCharacter', file: 'main_char.opt.glb'  }
       ].forEach(({ id, file }) => {
         const item = document.createElement('a-asset-item');
         item.setAttribute('id',  id);
