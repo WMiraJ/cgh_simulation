@@ -19,17 +19,44 @@ const HOSTNAME_WHITELIST = [
 ];
 
 const PRECACHE_ASSETS = [
-    'assets/elevator.glb',
-    'assets/main_char.glb',
-    'assets/NPCs/NPC_Sophie.glb',
-    'assets/NPCs/NPC_Bryce.glb',
-    'assets/NPCs/NPC_Jody.glb',
-    'assets/NPCs/NPC_Joe.glb',
-    'assets/NPCs/NPC_Josh.glb',
-    'assets/NPCs/NPC_Louise.glb',
-    'assets/NPCs/NPC_Martha.glb',
-    'assets/NPCs/NPC_Megan.glb'
-    // + Add backgrounds, posters, sounds here
+    // --- 3D Models ---
+    'assets/elevator.final.glb',
+    'assets/main_char.opt.glb',
+    'assets/NPCs/NPC_Sophie.opt.glb',
+    'assets/NPCs/NPC_Bryce.opt.glb',
+    'assets/NPCs/NPC_Jody.opt.glb',
+    'assets/NPCs/NPC_Joe.opt.glb',
+    'assets/NPCs/NPC_Josh.opt.glb',
+    'assets/NPCs/NPC_Louise.opt.glb',
+    'assets/NPCs/NPC_Martha.opt.glb',
+    'assets/NPCs/NPC_Megan.opt.glb',
+
+    // --- Backgrounds & Textures ---
+    'assets/floor-scroll.jpg',
+    'assets/first-floor-lobby.png',
+    'assets/lobby-environment.png',
+    'assets/hdb-view-lowest.png',
+    'assets/hdb-view-lower.png',
+    'assets/hdb-view-middle-low.png',
+    'assets/hdb-view-middle-up.png',
+    'assets/hdb-view-upper.png',
+    'assets/hdb-view-uppest.png',
+    'assets/hdb-view-fifty.png',
+    'assets/poster.jpg',
+
+    // --- Sounds ---
+    'assets/sounds/LiftMoving.mp3',
+    'assets/sounds/DoorOpen.mp3',
+    'assets/sounds/DoorClose.mp3',
+    'assets/sounds/Ding.mp3',
+    'assets/sounds/Voice_GoingUp.mp3',
+    'assets/sounds/Voice_GoingDown.mp3',
+    'assets/sounds/Voice_DoorsClosing.mp3',
+    
+    // --- Icons ---
+    'favicon_io/apple-touch-icon.png',
+    'favicon_io/favicon-32x32.png',
+    'favicon_io/favicon-16x16.png'
 ];
 
 // The Util Function to hack URLs of intercepted requests
