@@ -32,7 +32,7 @@ const PRECACHE_ASSETS = [
     'assets/NPCs/NPC_Megan.opt.glb',
 
     // --- Backgrounds & Textures ---
-    'assets/floor-scroll.jpg',
+    'assets/floor-scroll.png',
     'assets/first-floor-lobby.png',
     'assets/lobby-environment.png',
     'assets/hdb-view-lowest.png',
