@@ -121,9 +121,11 @@ AFRAME.registerComponent('sequence-controller', {
     });
 
     this.el.addEventListener('thumbstickmoved', evt => {
-      if (!window.isMenuOpen) return;
       evt.stopPropagation();
       evt.preventDefault();
+      evt.stopImmediatePropagation();
+
+      if (!window.isMenuOpen) return;
 
       const { x, y } = evt.detail;
       let direction = null;

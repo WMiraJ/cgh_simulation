@@ -69,7 +69,7 @@
   background="color: #222">
 
   <a-assets timeout="120000">
-  <img id="tex-loop"   src="assets/floor-scroll.jpg">
+  <img id="tex-loop"   src="assets/floor-scroll.png">
   <img id="tex-first"  src="assets/first-floor-lobby.png">
   <img id="tex-lobby"  src="assets/lobby-environment.png">
   <img id="tex-lowest"  src="assets/hdb-view-lowest.png">
@@ -93,12 +93,6 @@
     <img id="safety-poster-tex"  src="assets/poster.jpg">
   </a-assets>
 
-  <!--
-    GLB asset items are injected here BEFORE any entity that references them.
-    An inline script is used so the items exist in <a-assets> synchronously —
-    at the moment the entities below are initialised by A-Frame — regardless of
-    whether we are on localhost or the Netlify deployment.
-  -->
   <script>
     (function () {
       // const isLocal = ['localhost', '127.0.0.1'].includes(window.location.hostname);
@@ -147,7 +141,7 @@
     animation__turn="property: rotation; to: 0 90 0; startEvents: turnCameraAround; dur: 4000; easing: easeInOutQuad">
 
     <!-- Camera given an explicit ID so body-sync has an unambiguous target -->
-    <a-entity id="mainCamera" camera look-controls position="0 1.6 0"></a-entity>
+    <a-entity id="mainCamera" camera look-controls="enabled: true" position="0 1.6 0"></a-entity>
 
     <a-entity id="bodyWrapper" body-sync="camera: #mainCamera" position="0 -0.82 0">
       <a-entity id="mainCharacterEntity"
@@ -253,12 +247,12 @@
     <!-- ── Shaft view ── -->
 
     <!-- Looping scroll texture shown during transit -->
-    <a-curvedimage id="scrolling-shaft"
-      position="0.6 3 0" radius="7.5" theta-length="137.5" theta-start="201.25"
-      height="52.5" material="src: #tex-loop; repeat: 1 4;"
+    <a-image id="scrolling-shaft"
+      position="-2 2 0" rotation="0 90 0" width="1" height="9.2"
+      material="src: #tex-loop; repeat: 1 4;"
       texture-scroller="speed: 0.35; direction: down"
       visible="false">
-    </a-curvedimage>
+    </a-image>
 
     <!-- 1st Floor Sky (No Background Needed) -->
     <a-sky id="first-floor"
@@ -269,19 +263,19 @@
     <!-- Upper Floors Shared Lobby Sky -->
     <!-- Added alphaTest: 0.5 to prevent transparency sorting bugs with backgrounds -->
     <a-sky id="lobby-environment" 
-      position="-2.4 3.2 0" radius="4.5" src="#tex-lobby" 
+      position="-2.4 3.05 0" radius="4.5" src="#tex-lobby" 
       material="transparent: true; alphaTest: 0.5" rotation="0 177 0" visible="false">
     </a-sky>
 
     <!-- Outside Views for Upper Floors (Backgrounds) -->
-    <a-entity id="outside-views">
-      <a-image id="bg-lowest"  position="-6.9 4.1 -2.4" width="13.98" height="6" rotation="0 90 0" src="#tex-lowest" material="transparent: false" visible="false"></a-image>
-      <a-image id="bg-lower"  position="-6.9 4.1 -2.4" width="13.98" height="6" rotation="0 90 0" src="#tex-lower" material="transparent: false" visible="false"></a-image>
-      <a-image id="bg-middle-low"  position="-6.9 4.1 -2.4" width="13.98" height="6" rotation="0 90 0" src="#tex-middle-low" material="transparent: false" visible="false"></a-image>
-      <a-image id="bg-middle-up"  position="-6.9 4.1 -2.4" width="13.98" height="6" rotation="0 90 0" src="#tex-middle-up" material="transparent: false" visible="false"></a-image>
-      <a-image id="bg-upper"  position="-6.9 4.1 -2.4" width="13.98" height="6" rotation="0 90 0" src="#tex-upper" material="transparent: false" visible="false"></a-image>
-      <a-image id="bg-uppest"  position="-6.9 4.1 -2.4" width="13.98" height="6" rotation="0 90 0" src="#tex-uppest" material="transparent: false" visible="false"></a-image>
-      <a-image id="bg-fifty"  position="-6.9 4.1 -2.4" width="13.98" height="6" rotation="0 90 0" src="#tex-fifty" material="transparent: false" visible="false"></a-image>
+    <a-entity id="outside-views" position="-2.45 3.7 0">
+      <a-curvedimage id="bg-lowest" radius="4.7" height="5.1" theta-length="119" rotation="0 210.5 0" src="#tex-lowest" visible="false"></a-curvedimage>
+      <a-curvedimage id="bg-lower" radius="4.7" height="5.1" theta-length="119" rotation="0 210.5 0" src="#tex-lower" visible="false"></a-curvedimage>
+      <a-curvedimage id="bg-middle-low" radius="4.7" height="5.1" theta-length="119" rotation="0 210.5 0" src="#tex-middle-low" visible="false"></a-curvedimage>
+      <a-curvedimage id="bg-middle-up" radius="4.7" height="5.1" theta-length="119" rotation="0 210.5 0" src="#tex-middle-up" visible="false"></a-curvedimage>
+      <a-curvedimage id="bg-upper" radius="4.7" height="5.1" theta-length="119" rotation="0 210.5 0" src="#tex-upper" visible="false"></a-curvedimage>
+      <a-curvedimage id="bg-uppest" radius="4.7" height="5.1" theta-length="119" rotation="0 210.5 0" src="#tex-uppest" visible="false"></a-curvedimage>
+      <a-curvedimage id="bg-fifty" radius="4.7" height="5.1" theta-length="119" rotation="0 210.5 0" src="#tex-fifty" visible="false"></a-curvedimage>
     </a-entity>
 
     <!-- ── Lift interior: safety poster ── -->

@@ -59,7 +59,7 @@ window.Sequence01 = new (class extends window.SequenceBase {
 
     this.rig.setAttribute('animation__panOut', {
       property: 'position',
-      to: { x: -3.2, y: currentY, z: 0 },
+      to: { x: -4, y: currentY, z: 0 },
       startEvents: 'panCameraOut',
       dur: 7000,
       easing: 'easeInOutQuad'

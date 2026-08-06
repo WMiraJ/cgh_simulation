@@ -17,45 +17,47 @@ window.Sequence03 = new (class extends window.SequenceBase {
         resetRotation: '0 90 0',
         enterCurve: {p1: '-3 1.065 0', p2: '0.650 1.065 -0.044'},
         enterDelay: 0,
-        exitCurve: { p1: '-5 1.065 1', p2: '-4 1.065 -6', dur: 6000, startEvent: 'npcWalkOut' }
+        exitCurve: { p1: '-5 1.065 -1', p2: '-4 1.065 6', dur: 6000, startEvent: 'npcWalkOut' }
+      },
+      
+      { selector: '#avatarModelSophie',
+        resetPosition: '-3.333 1.065 -0.2',
+        resetRotation: '0 90 0',
+        enterCurve: {p1: '-3 1.065 0', p2: '0.975 1.065 -0.915'},
+        enterDelay: 800,
+        exitCurve: { p1: '-5 1.065 0', p2: '-4 1.065 6', dur: 6000, startEvent: 'npcWalkOut' }
+      },
+
+        
+      { selector: '#avatarModelLouise',
+        resetPosition: '-3.290 1.065 1.922',
+        resetRotation: '0 90 0',
+        enterCurve: {p1: '-3 1.065 0', p2: '0.1 1.065 -0.892'},
+        enterDelay: 1600,
+        exitCurve: { p1: '-4.1 1.065 2.4', p2: '-4 1.065 -6', dur: 6000, startEvent: 'npcWalkOut' }
       },
 
       { selector: '#avatarModelMegan',
         resetPosition: '-3 1.065 -1.505',
         resetRotation: '0 90 0',
-        enterCurve: {p1: '-3 1.065 0', p2: '0.667 1.065 0.918'},
-        enterDelay: 800,
-        exitCurve: { p1: '-5 1.065 0', p2: '-4 1.065 -6', dur: 6000, startEvent: 'npcWalkOut' }
-      },
-      { selector: '#avatarModelSophie',
-        resetPosition: '-3.333 1.065 -0.2',
-        resetRotation: '0 90 0',
-        enterCurve: {p1: '-3 1.065 0', p2: '0.975 1.065 -0.915'},
-        enterDelay: 1600,
-        exitCurve: { p1: '-5 1.065 0', p2: '-4 1.065 6', dur: 6000, startEvent: 'npcWalkOut' }
-      },
-  
-      { selector: '#avatarModelLouise',
-        resetPosition: '-3.290 1.065 1.922',
-        resetRotation: '0 90 0',
-        enterCurve: {p1: '-3 1.065 0', p2: '0.1 1.065 -0.892'},
+        enterCurve: {p1: '-3 1.065 0', p2: '-0.337 1.065 -0.127'},
         enterDelay: 2400,
-        exitCurve: { p1: '-4.1 1.065 2.4', p2: '-4 1.065 -6', dur: 6000, startEvent: 'npcWalkOut' }
+        exitCurve: { p1: '-5 1.065 0', p2: '-4 1.065 -6', dur: 6000, startEvent: 'npcWalkOut' }
       },
 
       { selector: '#avatarModelBryce',
         resetPosition: '-3.886 1.065 0.913',
         resetRotation: '0 90 0',
         enterCurve: {p1: '-3 1.065 0', p2: '-0.088 1.065 0.585'},
-        enterDelay: 3200,
-        exitCurve: { p1: '-5 1.065 -2', p2: '-4 1.065 6', dur: 6000, startEvent: 'npcWalkOut' }
+        enterDelay: 4000,
+        exitCurve: { p1: '-4.75 1.065 -1.2', p2: '-4 1.065 6', dur: 6000, startEvent: 'npcWalkOut' }
       },
 
       { selector: '#avatarModelMartha',
         resetPosition: '-4.409 1.065 -1.114',
         resetRotation: '0 90 0',
         enterCurve: {p1: '-3 1.065 0', p2: '-0.847 1.065 -1.110'},
-        enterDelay: 4000,
+        enterDelay: 4800,
         exitCurve: { p1: '-2.9 1.065 2.85', p2: '-4 1.065 -6', dur: 6000, startEvent: 'npcWalkOut' }
       },
 
@@ -136,8 +138,8 @@ window.Sequence03 = new (class extends window.SequenceBase {
     }
 
     // Pre-register animations
-    this.rig.setAttribute('animation__panIn',   'property: position; to: -0.337 1.87 -0.127;   startEvents: panCameraIn;      dur: 7000; easing: easeInOutQuad');
-    this.rig.setAttribute('animation__panOut',  'property: position; to: -3.2 1.87 0;  startEvents: panCameraOut;     dur: 7000; easing: easeInOutQuad');
+    this.rig.setAttribute('animation__panIn',   'property: position; to: 0.667 1.87 0.918;   startEvents: panCameraIn;      dur: 7000; easing: easeInOutQuad');
+    this.rig.setAttribute('animation__panOut',  'property: position; to: -4 1.87 0;  startEvents: panCameraOut;     dur: 7000; easing: easeInOutQuad');
     this.rig.setAttribute('animation__turn',    'property: rotation; to: 0 90 0;       startEvents: turnCameraAround; dur: 4000; easing: easeInOutQuad');
     
     // Pre-register the turn animation for ALL avatars
@@ -162,7 +164,7 @@ window.Sequence03 = new (class extends window.SequenceBase {
     console.log('[seq03] Characters entering and turning…');
     
     const npcEnterDur = 3500;
-    const mainCharEnterDelay = 3600;
+    const mainCharEnterDelay = 2000;
     const mainCharWalkDur = 7000;
 
     // A) Trigger Main Character Enter and Turn
@@ -216,25 +218,14 @@ window.Sequence03 = new (class extends window.SequenceBase {
     // ── Step 4: Everyone Exits
     console.log('[seq03] Characters walking out…');
     
-    // A) Main Character Exit
-    setTimeout(() => {
-      console.log('[seq03] Panning camera out…');
-      if (this.mainChar) this.mainChar.setAttribute('animation-mixer', 'clip: walk; loop: repeat');
-      this.rig.emit('panCameraOut');
-      
-      setTimeout(() => {
-        if (this.mainChar) this.mainChar.setAttribute('animation-mixer', 'clip: Idle; loop: repeat');
-      }, mainCharWalkDur);
-    }, 2200); // Changed from 500 to 2200 so they exit between Josh (1800ms) and Martha (2600ms)
-
-    // B) NPCs Exit (Reverse Order)
+    // A) NPCs Exit (Reverse Order)
     this.npcConfigs.forEach((npc, index) => {
       if (!npc.el) return;
 
       // Invert the index to calculate the delay. 
       // The last NPC gets the shortest delay, the first gets the longest.
       const reverseIndex = (this.npcConfigs.length - 1) - index;
-      const exitDelay = 1000 + (reverseIndex * 800); 
+      const exitDelay = 1000 + (reverseIndex * 1000); 
       
       setTimeout(() => {
         npc.el.setAttribute('animation-mixer', 'clip: walk; loop: repeat; timeScale: 0.8');
@@ -248,11 +239,23 @@ window.Sequence03 = new (class extends window.SequenceBase {
       }, exitDelay);
     });
 
+    // B) Main Character Exits After NPCs Start Exiting
+    const mainCharExitDelay = 1200 + (this.npcConfigs.length * 1000);
+
+    setTimeout(() => {
+      console.log('[seq03] Panning camera out…');
+      if (this.mainChar) this.mainChar.setAttribute('animation-mixer', 'clip: walk; loop: repeat');
+      this.rig.emit('panCameraOut');
+      
+      setTimeout(() => {
+        if (this.mainChar) this.mainChar.setAttribute('animation-mixer', 'clip: Idle; loop: repeat');
+      }, mainCharWalkDur);
+    }, mainCharExitDelay);
+
     // Wait for all exit animations to finish
     const maxExitDelay = 1000 + (this.npcConfigs.length * 800) + 6000;
-    // Update the mainExitDelay calculation to reflect the new 2200ms timeout
-    const mainExitDelay = 2200 + mainCharWalkDur; 
-    await this.sleep(Math.max(maxExitDelay, mainExitDelay) + 1000);
+    const mainExitTotalDuration = mainCharExitDelay + mainCharWalkDur;
+    await this.sleep(Math.max(maxExitDelay, mainExitTotalDuration) + 1000);
 
     // ── Done
     console.log('[seq03] Sequence complete.');
