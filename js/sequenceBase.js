@@ -274,12 +274,12 @@ class SequenceBase {
 
   setMovementEnabled(enabled) {
     if (window.setPlayerMovementEnabled) {
-      window.setPlayerMovementEnabled(enabled);
-    } else {
-      if (!this.rig) return;
-      if (enabled) this.rig.setAttribute('movement-controls', 'speed: 0.1');
-      else this.rig.removeAttribute('movement-controls');
+      window.setPlayerMovementEnabled(false);
+      return;
     }
+
+    if (!this.rig) return;
+    this.rig.removeAttribute('movement-controls');
   }
 
   setEntityAnimationsPaused(entity, paused) {

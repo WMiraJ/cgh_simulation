@@ -311,14 +311,13 @@ AFRAME.registerComponent('vr-sequence-menu', {
 
   setMenuMovementState: function (isOpen) {
     window.isMenuOpen = isOpen;
-    if (window.setPlayerMovementEnabled) window.setPlayerMovementEnabled(!isOpen);
-    else {
-      const rig = document.querySelector('#rig');
-      if (rig) {
-        if (isOpen) rig.removeAttribute('movement-controls');
-        else rig.setAttribute('movement-controls', 'speed: 0.1');
-      }
+    if (window.setPlayerMovementEnabled) {
+      window.setPlayerMovementEnabled(false);
+      return;
     }
+
+    const rig = document.querySelector('#rig');
+    if (rig) rig.removeAttribute('movement-controls');
   },
 
   returnToParentMenu: function () {

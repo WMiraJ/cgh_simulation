@@ -72,9 +72,16 @@ if (!SEQUENCES[seqKey]) {
   console.warn(`[main] Unknown sequence "${seqKey}", falling back to "easy-standard".`);
 }
 
+window.VR_DISABLE_THUMBSTICK_TURN = true;
+
 window.setPlayerMovementEnabled = function (enabled) {
   const rig = document.querySelector('#rig');
   if (!rig) return;
+
+  if (window.VR_DISABLE_THUMBSTICK_TURN) {
+    rig.removeAttribute('movement-controls');
+    return;
+  }
 
   if (enabled) rig.setAttribute('movement-controls', 'speed: 0.1');
   else rig.removeAttribute('movement-controls');
