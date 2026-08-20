@@ -107,11 +107,9 @@ AFRAME.registerComponent('texture-scroller', {
 AFRAME.registerComponent('sequence-controller', {
   init: function () {
     this.el.addEventListener('abuttondown', () => {
-      window.dispatchEvent(new Event(window.isMenuOpen ? 'vr-menu-select' : 'vr-start-sequence'));
-    });
-
-    this.el.addEventListener('bbuttondown', () => {
-      if (!window.isMenuOpen) {
+      if (window.isMenuOpen) {
+        window.dispatchEvent(new Event('vr-menu-select'));
+      } else {
         window.dispatchEvent(new Event('vr-stop-sequence'));
       }
     });
@@ -141,17 +139,25 @@ AFRAME.registerComponent('sequence-controller', {
 // Component: Keeps VR controllers usable for button input while hiding their visual model/laser.
 AFRAME.registerComponent('vr-controller-input', {
   init: function () {
-    const hideController = () => {
-      this.el.setAttribute('visible', 'false');
-      this.el.setAttribute('raycaster', 'enabled: false');
+    this.updatePointerVisibility = () => {
+      const shouldShowPointer = Boolean(window.isMenuOpen);
+      this.el.setAttribute('visible', shouldShowPointer ? 'true' : 'false');
+      this.el.setAttribute('raycaster', 'enabled', shouldShowPointer);
       this.el.setAttribute('cursor', 'fuse: false');
-      this.el.setAttribute('line', 'visible: false');
+      this.el.setAttribute('line', 'visible', shouldShowPointer);
     };
 
-    hideController();
+    this.updatePointerVisibility();
 
-    this.el.sceneEl.addEventListener('enter-vr', hideController);
-    this.el.sceneEl.addEventListener('exit-vr', hideController);
+    this.el.sceneEl.addEventListener('enter-vr', this.updatePointerVisibility);
+    this.el.sceneEl.addEventListener('exit-vr', this.updatePointerVisibility);
+    window.addEventListener('vr-menu-visibility-changed', this.updatePointerVisibility);
+  },
+
+  remove: function () {
+    this.el.sceneEl.removeEventListener('enter-vr', this.updatePointerVisibility);
+    this.el.sceneEl.removeEventListener('exit-vr', this.updatePointerVisibility);
+    window.removeEventListener('vr-menu-visibility-changed', this.updatePointerVisibility);
   }
 });
 
@@ -193,5 +199,31 @@ AFRAME.registerComponent('vr-height-fix', {
     
     // Modify the rig's Y directly on the object3D so it doesn't fight with your animations
     this.el.object3D.position.y = this.targetVrHeight - localCamY;
+  }
+});
+
+// Component: Fixes washed out colors and tone mapping on dynamic UI textures
+AFRAME.registerComponent('fix-ui-rendering', {
+  tick: function () {
+    const mesh = this.el.getObject3D('mesh');
+    if (!mesh || !mesh.material) return;
+
+    let needsUpdate = false;
+
+    // 1. Bypass scene tone mapping to prevent UI desaturation
+    if (mesh.material.toneMapped !== false) {
+      mesh.material.toneMapped = false;
+      needsUpdate = true;
+    }
+
+    // 2. Fix color space mismatch for dynamically generated canvas textures
+    if (mesh.material.map && mesh.material.map.colorSpace !== 'srgb') {
+      mesh.material.map.colorSpace = 'srgb';
+      needsUpdate = true;
+    }
+
+    if (needsUpdate) {
+      mesh.material.needsUpdate = true;
+    }
   }
 });

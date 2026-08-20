@@ -94,7 +94,6 @@ window.Sequence05 = new (class extends window.SequenceBase {
   }
 
   async executeTimeline() {
-    if (this.replayBtnContainer) this.replayBtnContainer.style.display = 'none';
     this.hasSequenceCompleted = false;
     this.isSequenceRunning = true;
     this.setMovementEnabled(false);
@@ -140,8 +139,8 @@ window.Sequence05 = new (class extends window.SequenceBase {
       this.mainChar.setAttribute('animation-mixer', 'clip: Idle; loop: repeat; crossFadeDuration: 0.2');
     }
 
-    this.rig.setAttribute('animation__panIn', 'property: position; to: 0.667 1.87 0.918; startEvents: panCameraIn; dur: 7000; easing: easeInOutQuad');
-    this.rig.setAttribute('animation__panOut', 'property: position; to: -4 1.87 0; startEvents: panCameraOut; dur: 7000; easing: easeInOutQuad');
+    this.rig.setAttribute('animation__panIn', 'property: position; to: 0.667 1.87 0.918; startEvents: panCameraIn; dur: 10500; easing: easeInOutQuad');
+    this.rig.setAttribute('animation__panOut', 'property: position; to: -4 1.87 0; startEvents: panCameraOut; dur: 10500; easing: easeInOutQuad');
     this.rig.setAttribute('animation__turn', 'property: rotation; to: 0 90 0; startEvents: turnCameraAround; dur: 4000; easing: easeInOutQuad');
 
     this.npcConfigs.forEach(npc => {
@@ -164,7 +163,7 @@ window.Sequence05 = new (class extends window.SequenceBase {
 
     const npcEnterDur = 3500;
     const mainCharEnterDelay = 1200;
-    const mainCharWalkDur = 7000;
+    const mainCharWalkDur = 10500;
 
     // 1. Main Character Enters
     setTimeout(() => {
@@ -421,7 +420,6 @@ window.Sequence05 = new (class extends window.SequenceBase {
     this.isSequenceRunning = false;
     this.hasSequenceCompleted = true;
     this.setMovementEnabled(true);
-    if (this.replayBtnContainer) this.replayBtnContainer.style.display = 'block';
   }
   
 })();

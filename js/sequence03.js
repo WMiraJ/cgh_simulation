@@ -45,19 +45,19 @@ window.Sequence03 = new (class extends window.SequenceBase {
         exitCurve: { p1: '-5 1.065 0', p2: '-4 1.065 -6', dur: 6000, startEvent: 'npcWalkOut' }
       },
 
-      { selector: '#avatarModelBryce',
+      { selector: '#avatarModelMartha',
         resetPosition: '-3.886 1.065 0.913',
         resetRotation: '0 90 0',
         enterCurve: {p1: '-3 1.065 0', p2: '-0.088 1.065 0.585'},
-        enterDelay: 4000,
+        enterDelay: 7500,
         exitCurve: { p1: '-4.75 1.065 -1.2', p2: '-4 1.065 6', dur: 6000, startEvent: 'npcWalkOut' }
       },
 
-      { selector: '#avatarModelMartha',
+      { selector: '#avatarModelBryce',
         resetPosition: '-4.409 1.065 -1.114',
         resetRotation: '0 90 0',
         enterCurve: {p1: '-3 1.065 0', p2: '-0.847 1.065 -1.110'},
-        enterDelay: 4800,
+        enterDelay: 8300,
         exitCurve: { p1: '-2.9 1.065 2.85', p2: '-4 1.065 -6', dur: 6000, startEvent: 'npcWalkOut' }
       },
 
@@ -65,7 +65,7 @@ window.Sequence03 = new (class extends window.SequenceBase {
         resetPosition: '-4.779 1.065 0.680',
         resetRotation: '0 90 0',
         enterCurve: {p1: '-3 1.065 0', p2: '-1.0 1.065 0.835'},
-        enterDelay: 5600,
+        enterDelay: 9100,
         exitCurve: { p1: '-2.37 1.065 -2.7', p2: '-4 1.065 6', dur: 6000, startEvent: 'npcWalkOut' }
       },
 
@@ -73,7 +73,7 @@ window.Sequence03 = new (class extends window.SequenceBase {
         resetPosition: '-5.233 1.065 -0.2',
         resetRotation: '0 90 0',
         enterCurve: {p1: '-3 1.065 0', p2: '-1.165 1.065 0'},
-        enterDelay: 6400,
+        enterDelay: 9900,
         exitCurve: { p1: '-4.55 1.065 -0.4', p2: '-4 1.065 6', dur: 6000, startEvent: 'npcWalkOut' }
       }
     ];
@@ -97,7 +97,6 @@ window.Sequence03 = new (class extends window.SequenceBase {
   }
 
   async executeTimeline() {
-    if (this.replayBtnContainer) this.replayBtnContainer.style.display = 'none';
     this.hasSequenceCompleted = false;
     this.isSequenceRunning = true;
     this.setMovementEnabled(false);
@@ -122,8 +121,6 @@ window.Sequence03 = new (class extends window.SequenceBase {
     const bodyWrapper = document.querySelector('#bodyWrapper');
     if (bodyWrapper) bodyWrapper.object3D.rotation.y = 0;
 
-    this.setNpcVisible(true);
-
     this.npcConfigs.forEach(npc => {
       if (npc.el) {
         npc.el.removeAttribute('curve-walk');
@@ -133,13 +130,15 @@ window.Sequence03 = new (class extends window.SequenceBase {
       }
     });
 
+    this.setNpcVisible(true);
+
     if (this.mainChar) {
       this.mainChar.setAttribute('animation-mixer', 'clip: Idle; loop: repeat; crossFadeDuration: 0.2');
     }
 
     // Pre-register animations
-    this.rig.setAttribute('animation__panIn',   'property: position; to: 0.667 1.87 0.918;   startEvents: panCameraIn;      dur: 7000; easing: easeInOutQuad');
-    this.rig.setAttribute('animation__panOut',  'property: position; to: -4 1.87 0;  startEvents: panCameraOut;     dur: 7000; easing: easeInOutQuad');
+    this.rig.setAttribute('animation__panIn',   'property: position; to: 0.667 1.87 0.918;   startEvents: panCameraIn;      dur: 10500; easing: easeInOutQuad');
+    this.rig.setAttribute('animation__panOut',  'property: position; to: -4 1.87 0;  startEvents: panCameraOut;     dur: 10500; easing: easeInOutQuad');
     this.rig.setAttribute('animation__turn',    'property: rotation; to: 0 90 0;       startEvents: turnCameraAround; dur: 4000; easing: easeInOutQuad');
     
     // Pre-register the turn animation for ALL avatars
@@ -165,7 +164,7 @@ window.Sequence03 = new (class extends window.SequenceBase {
     
     const npcEnterDur = 3500;
     const mainCharEnterDelay = 2000;
-    const mainCharWalkDur = 7000;
+    const mainCharWalkDur = 10500;
 
     // A) Trigger Main Character Enter and Turn
     setTimeout(() => {
@@ -262,7 +261,6 @@ window.Sequence03 = new (class extends window.SequenceBase {
     this.isSequenceRunning = false;
     this.hasSequenceCompleted = true;
     this.setMovementEnabled(true);
-    if (this.replayBtnContainer) this.replayBtnContainer.style.display = 'block';
   }
 
 })();

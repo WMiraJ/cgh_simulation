@@ -5,6 +5,7 @@
 
   <!-- A-Frame core + plugins (must come first) -->
   <script src="https://aframe.io/releases/1.6.0/aframe.min.js"></script>
+  <script src="https://supereggbert.github.io/aframe-htmlembed-component/dist/build.js"></script>
   <script src="https://cdn.jsdelivr.net/gh/c-frame/aframe-extras@7.5.0/dist/aframe-extras.min.js"></script>
   <script src="https://unpkg.com/aframe-environment-component/dist/aframe-environment-component.min.js"></script>
   <script src="js/components.js"></script>
@@ -27,7 +28,7 @@
       position: absolute;
       top: 0; left: 0;
       width: 100vw; height: 100vh;
-      background-color: rgba(0, 0, 0, 0.6);
+      background-color: rgba(0, 0, 0, 0);
       display: flex;
       justify-content: center; align-items: center;
       color: white; font-size: 36px;
@@ -35,32 +36,108 @@
       font-weight: bold; z-index: 1000;
     }
 
-    #ui-container {
-      position: absolute;
-      bottom: 30px; left: 50%;
-      transform: translateX(-50%);
-      z-index: 999; display: none;
+    :root {
+      --rest-fill: rgba(255, 255, 255, 1);
+      --rest-border: rgba(0, 71, 178, 1);
+      --rest-text: rgb(0, 30, 75);
+      --hover-fill: rgba(179, 214, 255, 1);
+      --hover-border: rgba(0, 99, 249, 1);
+      --hover-text: #0c3376;
+      --selected-fill: rgb(0, 53, 132);
+      --selected-border: #F2F2F7;
+      --selected-text: #FFFFFF;
     }
 
-    #replayBtn {
-      background-color: #0000FF; color: white;
-      border: none; padding: 15px 30px;
-      font-size: 18px; font-weight: bold;
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      border-radius: 8px; cursor: pointer;
-      box-shadow: 0 4px 6px rgba(0,0,0,0.3);
-      transition: background-color 0.3s, transform 0.1s;
+    /* Fixed 1215x540 stage mapping exactly to Figma Frame 7 & 8 bounds */
+    .stage {
+      width: 1215px;
+      height: 540px;
+      position: relative;
+      border-radius: 10px;
+      background:transparent;
     }
 
-    #replayBtn:hover  { background-color: #0000CC; }
-    #replayBtn:active { transform: scale(0.95); }
+    .panel {
+      position: absolute; width: 542px; height: 458px;
+      left: 345px; top: 53px;
+      background: rgba(199, 199, 199, 0.92);
+      backdrop-filter: blur(18px); -webkit-backdrop-filter: blur(18px);
+      border-radius: 25px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.35);
+    }
+
+    .title {
+      position: absolute; width: 482px; height: 92px;
+      left: 42px; top: 15px; text-align: center;
+      color: rgb(0, 22, 55);
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+    }
+    .title .bold { font-weight: 1000; font-size: 24px; line-height: 29px; }
+    .title .sub  { font-weight: 850; font-style: italic; font-size: 18px; margin-top: 4px; }
+
+    /* Buttons */
+    .btn, .sub-btn, .replay-btn { cursor: pointer; } 
+    .replay-btn {
+      all: unset; box-sizing: border-box; position: absolute;
+      top: 18px; right: 18px; width: 102px; height: 62.4px;
+      border-radius: 18px;
+      border: 2px solid var(--rest-border);
+      background: var(--rest-fill); color: var(--rest-text);
+      font-weight: 900; font-size: 19px;
+      display: flex; align-items: center; justify-content: center; gap: 6px;
+      z-index: 2;
+      transition: all 0.32s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    .replay-icon {
+      font-size: 24px;
+      line-height: 1;
+    }
+    .replay-btn[hidden] { display: none; }
+
+    .btn {
+      all: unset; box-sizing: border-box; position: absolute;
+      left: 103px; width: 359px; border-radius: 24px;
+      border: 2.5px solid var(--rest-border);
+      background: var(--rest-fill); color: var(--rest-text);
+      font-weight: 1000; font-size: 28px;
+      display: flex; align-items: center; justify-content: center;
+      transition: all 0.32s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    #introBtn { top: 130px; height: 86.46px; }
+    #interBtn { top: 239px; height: 86.46px; }
+    #advBtn   { top: 348px; height: 86.46px; }
+
+    .panel.expanded #introBtn { height: 54.02px; }
+    .panel.expanded #interBtn { top: 310px; height: 54.02px; }
+    .panel.expanded #advBtn   { top: 379.44px; height: 54.02px; }
+
+    .sub-btn {
+      all: unset; box-sizing: border-box; position: absolute;
+      top: 197px; width: 109.41px; height: 100px; border-radius: 24px;
+      border: 2px solid var(--rest-border);
+      background: var(--rest-fill); color: var(--rest-text);
+      font-weight: 850; font-size: 20px;
+      display: flex; align-items: center; justify-content: center;
+      opacity: 0; pointer-events: none; transform: scale(0.95);
+      transition: all 0.32s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    #subStandard { left: 103px; } #subEmpty { left: 228px; } #subCrowded { left: 353px; }
+
+    .panel.expanded .sub-btn { opacity: 1; pointer-events: auto; transform: scale(1); }
+
+    .btn:hover:not(.selected), .sub-btn:hover:not(.selected), .replay-btn:hover:not(.selected) {
+      background: var(--hover-fill); border-color: var(--hover-border); color: var(--hover-text);
+    }
+    .btn.selected, .sub-btn.selected, .replay-btn.selected {
+      background: var(--selected-fill); border-color: var(--selected-border); color: var(--selected-text);
+    }
 
   </style>
 </head>
 <body>
 
 <div id="loading-overlay">LOADING...</div>
-<div id="ui-container"><button id="replayBtn">START</button></div>
 
 <a-scene
   webxr="referenceSpaceType: local"
@@ -140,8 +217,13 @@
     animation__turn="property: rotation; to: 0 90 0; startEvents: turnCameraAround; dur: 4000; easing: easeInOutQuad">
 
     <!-- Camera given an explicit ID so body-sync has an unambiguous target -->
-    <a-entity id="mainCamera" camera look-controls="enabled: true" position="0 1.6 0"></a-entity>
-
+    <a-entity id="mainCamera" 
+      camera 
+      look-controls="enabled: true" 
+      position="0 1.6 0"
+      cursor="rayOrigin: mouse; fuse: false"
+      raycaster="objects: [htmlembed]">
+    </a-entity>
     <a-entity id="bodyWrapper" body-sync="camera: #mainCamera" position="0 -0.82 0">
       <a-entity id="mainCharacterEntity"
         gltf-model="#mainCharacter"
@@ -169,25 +251,33 @@
   </a-entity>
 
   <a-entity id="vr-menu-container"
+    htmlembed
+    fix-ui-rendering
+    material="shader: flat"
     vr-sequence-menu
     visible="false"
-    position="-2.5 3.5 0"
+    position="-2.5 3 0"
     rotation="0 -90 0">
-    <a-entity id="title-panel" position="0 1 -0.4">
-      <a-text id="title-text"
-                value="Welcome to CGH Clinical Psychology\nVR Simulation!\nPlease select a level to start with:"
-                align="center" color="#FFFFFF" width="2.8" position="0 0 0.01" line-height="60"
-                font="exo2semibold"></a-text>
-    </a-entity>
-    <a-entity id="carousel-container" position="0 0 0"></a-entity>
-    <a-entity id="dropdown-container" visible="false" position="0 -0.6 0">
-      <a-entity id="dropdown-panel">
-        <a-text id="dropdown-text" value="Standard\nWithout NPCs\nWith All NPCs"
-                  align="center" color="#FFFFFF" width="2" position="0 0 0.01" line-height="50"
-                  font="exo2semibold"></a-text>
-      </a-entity>
-      <a-entity id="dropdown-highlight"></a-entity>
-    </a-entity>
+    
+    <!-- This is pure HTML from your menu-demo.html -->
+    <div class="stage">
+      <div class="panel" id="panel">
+        <button class="replay-btn" id="replayBtn" hidden><span class="replay-icon">↺</span>Replay</button>
+        <div class="title">
+          <div class="bold">Welcome to the<br>CGH Clinical Simulation.</div>
+          <div class="sub">Please select a scenario to start:</div>
+        </div>
+        
+        <button class="btn" id="introBtn">Introductory</button>
+        
+        <button class="sub-btn" id="subStandard">Standard</button>
+        <button class="sub-btn" id="subEmpty">Empty</button>
+        <button class="sub-btn" id="subCrowded">Crowded</button>
+        
+        <button class="btn" id="interBtn">Intermediate</button>
+        <button class="btn" id="advBtn">Advanced</button>
+      </div>
+    </div>
   </a-entity>
 
   <a-entity id="persistent-environment">
@@ -299,6 +389,18 @@
     </a-light>
     <a-entity id="liftTarget" position="0 1 0"></a-entity>
 
+  </a-entity>
+
+  <!-- Add raycaster properties to your right hand controller -->
+  <a-entity
+    oculus-touch-controls="hand: right; model: false"
+    vive-controls="hand: right; model: false"
+    windows-motion-controls="hand: right; model: false"
+    vr-controller-input
+    sequence-controller
+    raycaster="objects: [htmlembed]; far: 10" 
+    laser-controls="hand: right"
+    cursor="fuse: false">
   </a-entity>
 
 </a-scene>

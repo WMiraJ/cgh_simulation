@@ -14,7 +14,6 @@ window.Sequence02 = new (class extends window.SequenceBase {
   }
 
   async executeTimeline() {
-    if (this.replayBtnContainer) this.replayBtnContainer.style.display = 'none';
     this.hasSequenceCompleted = false;
     this.isSequenceRunning = true;
     this.setMovementEnabled(false);
@@ -53,7 +52,7 @@ window.Sequence02 = new (class extends window.SequenceBase {
       property: 'position',
       to: { x: 0.3, y: currentY, z: 0 },
       startEvents: 'panCameraIn',
-      dur: 7000,
+      dur: 10500,
       easing: 'easeInOutQuad'
     });
 
@@ -61,7 +60,7 @@ window.Sequence02 = new (class extends window.SequenceBase {
       property: 'position',
       to: { x: -4, y: currentY, z: 0 },
       startEvents: 'panCameraOut',
-      dur: 7000,
+      dur: 10500,
       easing: 'easeInOutQuad'
     });
     
@@ -111,7 +110,6 @@ window.Sequence02 = new (class extends window.SequenceBase {
     this.isSequenceRunning = false;
     this.hasSequenceCompleted = true;
     this.setMovementEnabled(true);
-    if (this.replayBtnContainer) this.replayBtnContainer.style.display = 'block';
   }
 
 })();

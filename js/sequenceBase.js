@@ -19,12 +19,12 @@ class SequenceBase {
     this.pendingWaiters = new Set();
     
     window.isSimulationFrozen = false;
-    window.activeSequenceKey = this.sequenceKey;
   }
 
   // ─── Initialization & Teardown ─────────────────────────────────────────────
 
   init() {
+    window.activeSequence = this;
     this.cacheDOM();
     this.setupEventListeners();
   }
@@ -34,7 +34,6 @@ class SequenceBase {
     this.rig = document.querySelector('#rig');
     this.mainChar = document.querySelector('#mainCharacterEntity');
     this.assets = document.querySelector('a-assets');
-    this.replayBtnContainer = document.querySelector('#ui-container');
     this.loadingOverlay = document.querySelector('#loading-overlay');
     
     // Dynamically cache the NPC based on the config provided by the child class
@@ -43,6 +42,7 @@ class SequenceBase {
 
   teardown() {
     this.removeEventListeners();
+    if (window.activeSequence === this) window.activeSequence = null;
     window.goToFloor = undefined;
   }
 
@@ -308,21 +308,6 @@ class SequenceBase {
     window.addEventListener('vr-freeze-sequence', this.onFreezeHandler);
     window.addEventListener('keydown', this.onKeyDownHandler);
 
-    // Replay button setup
-    const replayBtn = document.querySelector('#replayBtn');
-    if (replayBtn) {
-      this.onReplayClickHandler = () => {
-        if (this.isDoorsOpen) { 
-          this.playLiftAnimation('DoorClose'); 
-          this.isDoorsOpen = false; 
-        } else {
-          this.resetLiftDoorState();
-        }
-        this.executeTimeline();
-      };
-      replayBtn.addEventListener('click', this.onReplayClickHandler);
-    }
-
     if (this.assets) {
       if (this.assets.hasLoaded) this.onAssetsLoaded();
       else this.assets.addEventListener('loaded', this.onAssetsLoadedHandler);
@@ -336,8 +321,6 @@ class SequenceBase {
     window.removeEventListener('keydown', this.onKeyDownHandler);
     
     if (this.assets) this.assets.removeEventListener('loaded', this.onAssetsLoadedHandler);
-    const replayBtn = document.querySelector('#replayBtn');
-    if (replayBtn && this.onReplayClickHandler) replayBtn.removeEventListener('click', this.onReplayClickHandler);
   }
 
   onAssetsLoaded() {
@@ -349,8 +332,6 @@ class SequenceBase {
     this.setNpcVisible(false);
 
     if (this.loadingOverlay) this.loadingOverlay.style.display = 'none';
-    if (this.replayBtnContainer) this.replayBtnContainer.style.display = 'none';
-
     const menuContainer = document.querySelector('#vr-menu-container');
     const shouldShowMenu = !window._suppressSequenceMenu;
 
@@ -386,6 +367,10 @@ class SequenceBase {
 
   onStopSequence() {
     if (window.isMenuOpen) return;
+    if (this.hasSequenceCompleted) {
+      if (window.showSequenceMenu) window.showSequenceMenu();
+      return;
+    }
     this.stopSequence();
   }
 
@@ -419,11 +404,11 @@ class SequenceBase {
   onKeyDown(evt) {
     if (window.isMenuOpen) return;
     if (evt.key === 'a' || evt.key === 'A') {
-      if (this.hasSequenceCompleted) window.dispatchEvent(new Event('vr-start-sequence'));
-    } else if (evt.key === 'b' || evt.key === 'B') {
       if (this.isSequenceRunning || this.isMoving) {
         evt.preventDefault?.();
         this.stopSequence();
+      } else if (this.hasSequenceCompleted) {
+        if (window.showSequenceMenu) window.showSequenceMenu();
       }
     } else if (evt.key === 'x' || evt.key === 'X') {
       if (this.hasSequenceCompleted) {
