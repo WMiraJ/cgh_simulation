@@ -106,17 +106,21 @@ AFRAME.registerComponent('texture-scroller', {
 // Component: Maps VR controller buttons to global sequence control events
 AFRAME.registerComponent('sequence-controller', {
   init: function () {
-    this.el.addEventListener('abuttondown', () => {
+    this.onTriggerDown = () => {
       if (window.isMenuOpen) {
-        window.dispatchEvent(new Event('vr-menu-select'));
+        window.dispatchEvent(new CustomEvent('vr-menu-select', {
+          detail: { controller: this.el }
+        }));
       } else {
         window.dispatchEvent(new Event('vr-stop-sequence'));
       }
-    });
+    };
+    this.el.addEventListener('triggerdown', this.onTriggerDown);
 
-    this.el.addEventListener('xbuttondown', () => {
+    this.onXButtonDown = () => {
       window.dispatchEvent(new Event(window.isMenuOpen ? 'vr-menu-back' : 'vr-freeze-sequence'));
-    });
+    };
+    this.el.addEventListener('xbuttondown', this.onXButtonDown);
 
     this.el.addEventListener('thumbstickmoved', evt => {
       evt.stopPropagation();
@@ -133,17 +137,20 @@ AFRAME.registerComponent('sequence-controller', {
       else if (y > 0.6) direction = 'down';
       if (direction) window.dispatchEvent(new CustomEvent('vr-menu-scroll', { detail: { direction } }));
     });
+  },
+
+  remove: function () {
+    this.el.removeEventListener('triggerdown', this.onTriggerDown);
+    this.el.removeEventListener('xbuttondown', this.onXButtonDown);
   }
 });
 
-// Component: Keeps VR controllers usable for button input while hiding their visual model/laser.
+// Component: Enables the menu pointer only while the VR menu is open.
 AFRAME.registerComponent('vr-controller-input', {
   init: function () {
     this.updatePointerVisibility = () => {
       const shouldShowPointer = Boolean(window.isMenuOpen);
-      this.el.setAttribute('visible', shouldShowPointer ? 'true' : 'false');
       this.el.setAttribute('raycaster', 'enabled', shouldShowPointer);
-      this.el.setAttribute('cursor', 'fuse: false');
       this.el.setAttribute('line', 'visible', shouldShowPointer);
     };
 

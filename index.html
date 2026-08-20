@@ -245,7 +245,10 @@
       vive-controls="hand: right; model: false"
       windows-motion-controls="hand: right; model: false"
       vr-controller-input
-      sequence-controller>
+      sequence-controller
+      raycaster="objects: [htmlembed]; far: 10"
+      laser-controls="hand: right"
+      cursor="fuse: false">
     </a-entity>
 
   </a-entity>
@@ -389,18 +392,6 @@
     </a-light>
     <a-entity id="liftTarget" position="0 1 0"></a-entity>
 
-  </a-entity>
-
-  <!-- Add raycaster properties to your right hand controller -->
-  <a-entity
-    oculus-touch-controls="hand: right; model: false"
-    vive-controls="hand: right; model: false"
-    windows-motion-controls="hand: right; model: false"
-    vr-controller-input
-    sequence-controller
-    raycaster="objects: [htmlembed]; far: 10" 
-    laser-controls="hand: right"
-    cursor="fuse: false">
   </a-entity>
 
 </a-scene>

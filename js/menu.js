@@ -46,6 +46,9 @@ AFRAME.registerComponent('vr-sequence-menu', {
     this.subEmpty.addEventListener('click', () => this.handleSubClick(this.subEmpty, 'Empty'));
     this.subCrowded.addEventListener('click', () => this.handleSubClick(this.subCrowded, 'Crowded'));
     this.replayBtn.addEventListener('click', () => this.replayLatestSequence());
+    window.addEventListener('vr-menu-select', evt => {
+      evt.detail?.controller?.components.cursor?.intersectedEl?.emit('click');
+    });
 
     // Initialize the summon listener
     this.armSummonListener();
