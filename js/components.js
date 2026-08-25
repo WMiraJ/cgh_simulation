@@ -106,16 +106,23 @@ AFRAME.registerComponent('texture-scroller', {
 // Component: Maps VR controller buttons to global sequence control events
 AFRAME.registerComponent('sequence-controller', {
   init: function () {
+    // Trigger only handles menu selection
     this.onTriggerDown = () => {
       if (window.isMenuOpen) {
         window.dispatchEvent(new CustomEvent('vr-menu-select', {
           detail: { controller: this.el }
         }));
-      } else {
-        window.dispatchEvent(new Event('vr-stop-sequence'));
       }
     };
     this.el.addEventListener('triggerdown', this.onTriggerDown);
+
+    // A button listener - stop the sequence and return to the menu
+    this.onAbuttonDown = () => {
+      if (!window.isMenuOpen) {
+        window.dispatchEvent(new Event('vr-stop-sequence'));
+      }
+    };
+    this.el.addEventListener('abuttondown', this.onAbuttonDown);
 
     this.onXButtonDown = () => {
       window.dispatchEvent(new Event(window.isMenuOpen ? 'vr-menu-back' : 'vr-freeze-sequence'));
@@ -142,6 +149,7 @@ AFRAME.registerComponent('sequence-controller', {
   remove: function () {
     this.el.removeEventListener('triggerdown', this.onTriggerDown);
     this.el.removeEventListener('xbuttondown', this.onXButtonDown);
+    this.el.removeEventListener('abuttondown', this.onAbuttonDown);
   }
 });
 
