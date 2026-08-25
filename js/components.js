@@ -158,6 +158,7 @@ AFRAME.registerComponent('vr-controller-input', {
   init: function () {
     this.updatePointerVisibility = () => {
       const shouldShowPointer = Boolean(window.isMenuOpen);
+      this.el.setAttribute('visible', shouldShowPointer);
       this.el.setAttribute('raycaster', 'enabled', shouldShowPointer);
       this.el.setAttribute('line', 'visible', shouldShowPointer);
     };
