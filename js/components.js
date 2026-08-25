@@ -158,21 +158,26 @@ AFRAME.registerComponent('vr-controller-input', {
   init: function () {
     this.updatePointerVisibility = () => {
       const shouldShowPointer = Boolean(window.isMenuOpen);
-      this.el.setAttribute('visible', shouldShowPointer);
+      const controllerModel = this.el.getObject3D('mesh');
+      if (controllerModel) controllerModel.visible = shouldShowPointer;
       this.el.setAttribute('raycaster', 'enabled', shouldShowPointer);
       this.el.setAttribute('line', 'visible', shouldShowPointer);
+      const laserLine = this.el.getObject3D('line');
+      if (laserLine) laserLine.visible = shouldShowPointer;
     };
 
     this.updatePointerVisibility();
 
     this.el.sceneEl.addEventListener('enter-vr', this.updatePointerVisibility);
     this.el.sceneEl.addEventListener('exit-vr', this.updatePointerVisibility);
+    this.el.addEventListener('object3dset', this.updatePointerVisibility);
     window.addEventListener('vr-menu-visibility-changed', this.updatePointerVisibility);
   },
 
   remove: function () {
     this.el.sceneEl.removeEventListener('enter-vr', this.updatePointerVisibility);
     this.el.sceneEl.removeEventListener('exit-vr', this.updatePointerVisibility);
+    this.el.removeEventListener('object3dset', this.updatePointerVisibility);
     window.removeEventListener('vr-menu-visibility-changed', this.updatePointerVisibility);
   }
 });
