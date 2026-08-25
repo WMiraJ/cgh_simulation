@@ -41,7 +41,7 @@ window.Sequence04 = new (class extends window.SequenceBase {
         resetPosition: '-4.163 1.065 1.493',
         resetRotation: '0 90 0',
         enterCurve: { p1: '-3 1.065 0', p2: '-1 1.065 -0.05' },
-        enterDelay: 3600,
+        enterDelay: 4200,
         exitCurve: { p1: '-2.5 1.065 -0.5', p2: '-8 1.065 6', dur: 6000, startEvent: 'npcWalkOut' }
       }
     ];

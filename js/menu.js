@@ -146,6 +146,7 @@ AFRAME.registerComponent('vr-sequence-menu', {
 
     this.panel.classList.remove('expanded');
     document.querySelectorAll('.btn, .sub-btn').forEach(b => b.classList.remove('selected'));
+    this.replayBtn.classList.remove('selected');
   },
 
   setMenuInteractionEnabled: function (enabled) {
