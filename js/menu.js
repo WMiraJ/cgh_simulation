@@ -35,6 +35,7 @@ AFRAME.registerComponent('vr-sequence-menu', {
     this.subEmpty = document.getElementById('subEmpty');
     this.subCrowded = document.getElementById('subCrowded');
     this.replayBtn = document.getElementById('replayBtn');
+    this.focusedMenuTarget = null;
 
     // Attach click listeners to top level buttons
     this.introBtn.addEventListener('click', () => this.handleMainClick(this.introBtn));
@@ -46,12 +47,31 @@ AFRAME.registerComponent('vr-sequence-menu', {
     this.subEmpty.addEventListener('click', () => this.handleSubClick(this.subEmpty, 'Empty'));
     this.subCrowded.addEventListener('click', () => this.handleSubClick(this.subCrowded, 'Crowded'));
     this.replayBtn.addEventListener('click', () => this.replayLatestSequence());
-    window.addEventListener('vr-menu-select', evt => {
-      evt.detail?.controller?.components.cursor?.intersectedEl?.emit('click');
-    });
+
+    this.onFocusableEnter = evt => {
+      const target = evt.detail?.target || evt.target;
+      const button = target?.closest?.('button');
+      if (button && this.panel.contains(button)) this.focusedMenuTarget = button;
+    };
+    this.onFocusableLeave = evt => {
+      const target = evt.detail?.target || evt.target;
+      const button = target?.closest?.('button');
+      if (!button || button === this.focusedMenuTarget) this.focusedMenuTarget = null;
+    };
+    this.onVRMenuSelect = evt => this.handleVRSelect(evt);
+
+    this.container.addEventListener('focusableenter', this.onFocusableEnter);
+    this.container.addEventListener('focusableleave', this.onFocusableLeave);
+    window.addEventListener('vr-menu-select', this.onVRMenuSelect);
 
     // Initialize the summon listener
     this.armSummonListener();
+  },
+
+  remove: function () {
+    this.container.removeEventListener('focusableenter', this.onFocusableEnter);
+    this.container.removeEventListener('focusableleave', this.onFocusableLeave);
+    window.removeEventListener('vr-menu-select', this.onVRMenuSelect);
   },
 
   armSummonListener: function () {
@@ -96,10 +116,13 @@ AFRAME.registerComponent('vr-sequence-menu', {
       if (!expanding) {
         document.querySelectorAll('.sub-btn').forEach(b => b.classList.remove('selected'));
       }
+
+      this.forceMenuRender();
     } else {
       document.querySelectorAll('.btn, .sub-btn').forEach(b => b.classList.remove('selected'));
       btn.classList.add('selected');
       this.panel.classList.remove('expanded');
+      this.forceMenuRender();
       this.launchSequence(SEQUENCE_KEY_MAP[sequenceKeyName]);
     }
   },
@@ -109,6 +132,7 @@ AFRAME.registerComponent('vr-sequence-menu', {
 
     document.querySelectorAll('.sub-btn').forEach(b => b.classList.remove('selected'));
     btn.classList.add('selected');
+    this.forceMenuRender();
     this.launchSequence(SEQUENCE_KEY_MAP[sequenceKeyName]);
   },
 
@@ -133,6 +157,7 @@ AFRAME.registerComponent('vr-sequence-menu', {
     if (!window.isMenuOpen || !window.havePreviousSequence || !window.latestSequenceKey) return;
     document.querySelectorAll('.btn, .sub-btn').forEach(b => b.classList.remove('selected'));
     this.replayBtn.classList.add('selected');
+    this.forceMenuRender();
     this.launchSequence(window.latestSequenceKey);
   },
 
@@ -147,6 +172,8 @@ AFRAME.registerComponent('vr-sequence-menu', {
     this.panel.classList.remove('expanded');
     document.querySelectorAll('.btn, .sub-btn').forEach(b => b.classList.remove('selected'));
     this.replayBtn.classList.remove('selected');
+    this.focusedMenuTarget = null;
+    this.forceMenuRender();
   },
 
   setMenuInteractionEnabled: function (enabled) {
@@ -161,5 +188,24 @@ AFRAME.registerComponent('vr-sequence-menu', {
   updateReplayButton: function () {
     if (!this.replayBtn) return;
     this.replayBtn.hidden = !window.havePreviousSequence;
+  },
+
+  handleVRSelect: function (evt) {
+    if (!window.isMenuOpen) return;
+
+    if (this.focusedMenuTarget && !this.focusedMenuTarget.disabled && !this.focusedMenuTarget.hidden) {
+      this.focusedMenuTarget.click();
+      return;
+    }
+
+    evt.detail?.controller?.components.cursor?.intersectedEl?.emit('click');
+  },
+
+  forceMenuRender: function () {
+    const embed = this.container.components?.htmlembed;
+    if (!embed?.forceRender) return;
+
+    embed.forceRender();
+    requestAnimationFrame(() => embed.forceRender());
   }
 });
