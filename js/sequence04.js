@@ -134,18 +134,21 @@ window.Sequence04 = new (class extends window.SequenceBase {
     const mainCharWalkDur = 10500;
 
     // 1. Main Character Enters
-    setTimeout(async () => {
-      console.log('[seq04] Panning camera in…');
-      if (this.mainChar) this.mainChar.setAttribute('animation-mixer', 'clip: walk; loop: repeat; timeScale: 0.8');
-      await this.showCameraWarning('The view will move forward shortly.');
-      this.rig.emit('panCameraIn');
-
+    setTimeout(() => {
+      this.showCameraWarning('', 5000);
+      
       setTimeout(() => {
-        if (this.mainChar) this.mainChar.setAttribute('animation-mixer', 'clip: Idle; loop: repeat');
-      }, mainCharWalkDur);
+        console.log('[seq04] Panning camera in…');
+        if (this.mainChar) this.mainChar.setAttribute('animation-mixer', 'clip: walk; loop: repeat; timeScale: 0.8');
+        this.rig.emit('panCameraIn');
+
+        setTimeout(() => {
+          if (this.mainChar) this.mainChar.setAttribute('animation-mixer', 'clip: Idle; loop: repeat');
+        }, mainCharWalkDur);
+      }, 2000); // 2-second delay after warning starts
     }, mainCharEnterDelay);
 
-    // 1. 3 NPCs (Louise, Joe, Jody) Enter (excluding Josh)
+    // 2. 3 NPCs (Louise, Joe, Jody) Enter (excluding Josh)
     this.npcConfigs.forEach((npc) => {
       if (!npc.el) return;
       if (npc.selector === '#avatarModelJosh') return; // Josh does not enter at level 1
@@ -166,7 +169,7 @@ window.Sequence04 = new (class extends window.SequenceBase {
 
     await this.sleep(15000);
 
-    // 2. Level 3: Jody exits
+    // 3. Level 3: Jody exits
     console.log('[seq04] Moving to Floor 3…');
     await this.goToFloor(3, false);
     await this.sleep(3000);
@@ -182,7 +185,7 @@ window.Sequence04 = new (class extends window.SequenceBase {
     }
     await this.sleep(7000);
 
-    // 3. Level 5: Josh enters
+    // 5. Level 5: Josh enters
     console.log('[seq04] Moving to Floor 5…');
     
     // --- FIX: Use setTimeout to delay visibility until doors are fully closed ---
@@ -212,7 +215,7 @@ window.Sequence04 = new (class extends window.SequenceBase {
     }
     await this.sleep(7000);
 
-    // 4. Level 8: Louise exits
+    // 6. Level 8: Louise exits
     console.log('[seq04] Moving to Floor 8…');
     await this.goToFloor(8, false);
     await this.sleep(3000);
@@ -232,7 +235,7 @@ window.Sequence04 = new (class extends window.SequenceBase {
     await this.sleep(7000);
 
 
-    // 4. Level 9: Joe exit
+    // 7. Level 9: Joe exit
     console.log('[seq04] Moving to Floor 9…');
     await this.goToFloor(9, false);
     await this.sleep(3000);
@@ -252,7 +255,7 @@ window.Sequence04 = new (class extends window.SequenceBase {
     await this.sleep(7000);
 
 
-    // 5. Level 13: Josh exits
+    // 8. Level 13: Josh exits
     console.log('[seq04] Moving to Floor 13…');
     await this.goToFloor(13, false);
     await this.sleep(3000);
@@ -267,21 +270,24 @@ window.Sequence04 = new (class extends window.SequenceBase {
     }
     await this.sleep(7000);
 
-    // 6. Level 15: MainChar exits
+    // 9. Level 15: MainChar exits
     console.log('[seq04] Moving to Floor 15…');
     await this.goToFloor(15, false);
     await this.sleep(3000);
 
     console.log('[seq04] Main character walking out…');
-    setTimeout(async () => {
-      console.log('[seq04] Panning camera out…');
-      if (this.mainChar) this.mainChar.setAttribute('animation-mixer', 'clip: walk; loop: repeat');
-      await this.showCameraWarning('The view will move out of the lift shortly.');
-      this.rig.emit('panCameraOut');
-
+    setTimeout(() => {
+      this.showCameraWarning('', 5000);
+      
       setTimeout(() => {
-        if (this.mainChar) this.mainChar.setAttribute('animation-mixer', 'clip: Idle; loop: repeat');
-      }, mainCharWalkDur);
+        console.log('[seq04] Panning camera out…');
+        if (this.mainChar) this.mainChar.setAttribute('animation-mixer', 'clip: walk; loop: repeat');
+        this.rig.emit('panCameraOut');
+
+        setTimeout(() => {
+          if (this.mainChar) this.mainChar.setAttribute('animation-mixer', 'clip: Idle; loop: repeat');
+        }, mainCharWalkDur);
+      }, 2000); // 2-second delay after warning starts
     }, 500);
 
     await this.sleep(13000);

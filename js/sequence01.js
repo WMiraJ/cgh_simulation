@@ -96,13 +96,15 @@ window.Sequence01 = new (class extends window.SequenceBase {
       this.avatar.setAttribute('animation-mixer', 'clip: walk; loop: repeat; timeScale: 0.8');
       this.avatar.emit('npcWalkIn');
     }
-    await this.sleep(1500);
 
     // ── Step 3: Player pans into the lift
     console.log('[seq01] Panning camera in…');
-    if (this.mainChar) this.mainChar.setAttribute('animation-mixer', 'clip: walk; loop: repeat; timeScale: 0.8');
 
-    await this.showCameraWarning('The view will move forward shortly.');
+    this.showCameraWarning('', 5000);
+
+    await this.sleep(1500);
+
+    if (this.mainChar) this.mainChar.setAttribute('animation-mixer', 'clip: walk; loop: repeat; timeScale: 0.8');
     this.rig.emit('panCameraIn');
     await this.sleep(1000);
 
@@ -135,12 +137,13 @@ window.Sequence01 = new (class extends window.SequenceBase {
     // ── Step 8: Continue to Floor 15 (destination)
     console.log('[seq01] Moving to Floor 15…');
     await this.goToFloor(15);
-    await this.sleep(2000);
+    
 
     // ── Step 9: Player exits the lift
     console.log('[seq01] Panning camera out…');
+    this.showCameraWarning('', 5000);
+    await this.sleep(2000);
     if (this.mainChar) this.mainChar.setAttribute('animation-mixer', 'clip: walk; loop: repeat');
-    await this.showCameraWarning('The view will move out of the lift shortly.');
     this.rig.emit('panCameraOut');
     await this.sleep(4000);
     if (this.mainChar) this.mainChar.setAttribute('animation-mixer', 'clip: Idle; loop: repeat');

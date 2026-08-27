@@ -166,18 +166,21 @@ window.Sequence05 = new (class extends window.SequenceBase {
     const mainCharWalkDur = 10500;
 
     // 1. Main Character Enters
-    setTimeout(async () => {
-      console.log('[seq05] Panning camera in…');
-      if (this.mainChar) this.mainChar.setAttribute('animation-mixer', 'clip: walk; loop: repeat; timeScale: 0.8');
-      await this.showCameraWarning('The view will move forward shortly.');
-      this.rig.emit('panCameraIn');
-
+    setTimeout(() => {
+      this.showCameraWarning('', 5000);
+      
       setTimeout(() => {
-        if (this.mainChar) this.mainChar.setAttribute('animation-mixer', 'clip: Idle; loop: repeat');
-      }, mainCharWalkDur);
+        console.log('[seq05] Panning camera in…');
+        if (this.mainChar) this.mainChar.setAttribute('animation-mixer', 'clip: walk; loop: repeat; timeScale: 0.8');
+        this.rig.emit('panCameraIn');
+
+        setTimeout(() => {
+          if (this.mainChar) this.mainChar.setAttribute('animation-mixer', 'clip: Idle; loop: repeat');
+        }, mainCharWalkDur);
+      }, 2000); // 2-second delay after warning starts
     }, mainCharEnterDelay);
 
-    // 1. 2 NPCs (Joe, Megan) Enter
+    // 2. 2 NPCs (Joe, Megan) Enter
     this.npcConfigs.forEach((npc) => {
       if (!npc.el) return;
       if (npc.selector !== '#avatarModelJoe' && npc.selector !== '#avatarModelMegan') return; 
@@ -197,7 +200,7 @@ window.Sequence05 = new (class extends window.SequenceBase {
 
     await this.sleep(15000);
 
-    // 2. Level 4: 2 NPCs enter (Sophie, Bryce)
+    // 3. Level 4: 2 NPCs enter (Sophie, Bryce)
     console.log('[seq05] Moving to Floor 4…');
 
     const sophie = this.npcConfigs.find(npc => npc.selector === '#avatarModelSophie');
@@ -237,7 +240,7 @@ window.Sequence05 = new (class extends window.SequenceBase {
     
     await this.sleep(7000);
 
-    // 3. level 5: 1 NPC enters (Martha)
+    // 4. Level 5: 1 NPC enters (Martha)
     console.log('[seq05] Moving to Floor 5…')
 
     const martha = this.npcConfigs.find(npc => npc.selector === '#avatarModelMartha');
@@ -271,7 +274,7 @@ window.Sequence05 = new (class extends window.SequenceBase {
 
     await this.sleep(7000);
 
-    // 4. Level 8: 2 NPCs enter (Josh, Jody)
+    // 6. Level 8: 2 NPCs enter (Josh, Jody)
     console.log('[seq05] Moving to Floor 8…');
 
     const josh = this.npcConfigs.find(npc => npc.selector === '#avatarModelJosh');
@@ -311,7 +314,7 @@ window.Sequence05 = new (class extends window.SequenceBase {
 
     await this.sleep(7000);
 
-    // 5. Level 10: 1 NPC enters (Louise)
+    // 8. Level 10: 1 NPC enters (Louise)
     console.log('[seq05] Moving to Floor 10…')
 
     const louise = this.npcConfigs.find(npc => npc.selector === '#avatarModelLouise');
@@ -345,7 +348,7 @@ window.Sequence05 = new (class extends window.SequenceBase {
 
     await this.sleep(7000);
 
-    // 6. Level 11: a "False Stop"
+    // 9. Level 11: a "False Stop"
     console.log('[seq05] Moving to Floor 11…');
     await this.goToFloor(11, false);
     await this.sleep(3000);
@@ -354,7 +357,7 @@ window.Sequence05 = new (class extends window.SequenceBase {
     await this.sleep(7000);
 
 
-    // 7. Level 15: Josh exits
+    // 10. Level 15: Josh exits
     console.log('[seq05] Moving to Floor 15…');
     await this.goToFloor(15, false);
     await this.sleep(3000);
@@ -369,7 +372,7 @@ window.Sequence05 = new (class extends window.SequenceBase {
     }
     await this.sleep(7000);
 
-    // 8. The express ride: life goes to level 50
+    // 11. The express ride: life goes to level 50
     console.log('[seq05] Moving to Floor 50…');
     await this.goToFloor(50, false);
     await this.sleep(3000);
@@ -402,20 +405,26 @@ window.Sequence05 = new (class extends window.SequenceBase {
     // B) Main Character Exits After NPCs
     const mainCharExitDelay = 500 + (remainingNpcs.length * 1000); // Delayed until the last NPC starts moving
     
-    setTimeout(async () => {
-      console.log('[seq05] Panning camera out…');
-      if (this.mainChar) this.mainChar.setAttribute('animation-mixer', 'clip: walk; loop: repeat');
-      await this.showCameraWarning('The view will move out of the lift shortly.');
-      this.rig.emit('panCameraOut');
+    setTimeout(() => {
+      this.showCameraWarning('', 5000);
       
       setTimeout(() => {
-        if (this.mainChar) this.mainChar.setAttribute('animation-mixer', 'clip: Idle; loop: repeat');
-      }, mainCharWalkDur);
+        console.log('[seq05] Panning camera out…');
+        if (this.mainChar) this.mainChar.setAttribute('animation-mixer', 'clip: walk; loop: repeat');
+        this.rig.emit('panCameraOut');
+        
+        setTimeout(() => {
+          if (this.mainChar) this.mainChar.setAttribute('animation-mixer', 'clip: Idle; loop: repeat');
+        }, mainCharWalkDur);
+      }, 2000); // 2-second delay after warning starts
     }, mainCharExitDelay);
 
     // Wait for all exit animations to finish dynamically based on the final main character exit timing
     const maxNpcExitDelay = 500 + ((remainingNpcs.length - 1) * 1000) + 6000;
-    const mainExitTotalDuration = mainCharExitDelay + 3000 + mainCharWalkDur;
+    
+    // NOTE: Added 2000 here to account for the camera warning delay!
+    const mainExitTotalDuration = mainCharExitDelay + 2000 + mainCharWalkDur; 
+    
     await this.sleep(Math.max(maxNpcExitDelay, mainExitTotalDuration) + 1000);
 
     console.log('[seq05] Sequence complete.');

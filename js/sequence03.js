@@ -167,17 +167,20 @@ window.Sequence03 = new (class extends window.SequenceBase {
     const mainCharWalkDur = 10500;
 
     // A) Trigger Main Character Enter and Turn
-    setTimeout(async () => {
-      console.log('[seq03] Panning camera in…');
-      if (this.mainChar) this.mainChar.setAttribute('animation-mixer', 'clip: walk; loop: repeat; timeScale: 0.8');
-      await this.showCameraWarning('The view will move forward shortly.');
-      this.rig.emit('panCameraIn');
+    setTimeout(() => {
+      this.showCameraWarning('', 5000);
       
-      // MainChar turns immediately after panning in finishes
       setTimeout(() => {
-        if (this.mainChar) this.mainChar.setAttribute('animation-mixer', 'clip: Idle; loop: repeat');
-        // this.rig.emit('turnCameraAround');
-      }, mainCharWalkDur);
+        console.log('[seq03] Panning camera in…');
+        if (this.mainChar) this.mainChar.setAttribute('animation-mixer', 'clip: walk; loop: repeat; timeScale: 0.8');
+        this.rig.emit('panCameraIn');
+        
+        // MainChar turns immediately after panning in finishes
+        setTimeout(() => {
+          if (this.mainChar) this.mainChar.setAttribute('animation-mixer', 'clip: Idle; loop: repeat');
+          // this.rig.emit('turnCameraAround');
+        }, mainCharWalkDur);
+      }, 2000); // 2-second delay after warning starts
     }, mainCharEnterDelay);
 
     // B) Trigger NPCs Enter and Turn
@@ -242,17 +245,20 @@ window.Sequence03 = new (class extends window.SequenceBase {
     // B) Main Character Exits After NPCs Start Exiting
     const mainCharExitDelay = 1200 + (this.npcConfigs.length * 1000);
 
-    setTimeout(async () => {
-      console.log('[seq03] Panning camera out…');
-      if (this.mainChar) this.mainChar.setAttribute('animation-mixer', 'clip: walk; loop: repeat');
-      await this.showCameraWarning('The view will move out of the lift shortly.');
-      this.rig.emit('panCameraOut');
+    setTimeout(() => {
+      this.showCameraWarning('', 5000);
       
       setTimeout(() => {
-        if (this.mainChar) this.mainChar.setAttribute('animation-mixer', 'clip: Idle; loop: repeat');
-      }, mainCharWalkDur);
+        console.log('[seq03] Panning camera out…');
+        if (this.mainChar) this.mainChar.setAttribute('animation-mixer', 'clip: walk; loop: repeat');
+        this.rig.emit('panCameraOut');
+        
+        setTimeout(() => {
+          if (this.mainChar) this.mainChar.setAttribute('animation-mixer', 'clip: Idle; loop: repeat');
+        }, mainCharWalkDur);
+      }, 2000); // 2-second delay after warning starts
     }, mainCharExitDelay);
-
+    
     // Wait for all exit animations to finish
     const maxExitDelay = 1000 + (this.npcConfigs.length * 800) + 6000;
     const mainExitTotalDuration = mainCharExitDelay + 3000 + mainCharWalkDur;
