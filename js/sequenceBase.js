@@ -35,6 +35,7 @@ class SequenceBase {
     this.mainChar = document.querySelector('#mainCharacterEntity');
     this.assets = document.querySelector('a-assets');
     this.loadingOverlay = document.querySelector('#loading-overlay');
+    this.cameraWarning = document.querySelector('#camera-warning');
     
     // Dynamically cache the NPC based on the config provided by the child class
     this.avatar = this.npcSelector ? document.querySelector(this.npcSelector) : null;
@@ -73,6 +74,7 @@ class SequenceBase {
 
     this.setNpcVisible(false);
     this.setMovementEnabled(false);
+    this.hideCameraCues();
     this.resetLiftDoorState();
     this.setFloorBackdrop(1);
     this.updateAllDisplays(1, 'idle');
@@ -331,7 +333,12 @@ class SequenceBase {
     this.setFloorBackdrop(this.isSequenceRunning || this.hasSequenceCompleted ? this.currFloor : 1);
     this.setNpcVisible(false);
 
-    if (this.loadingOverlay) this.loadingOverlay.style.display = 'none';
+    // ── NEW: Swap the loading image for the Enter VR button instead of hiding the screen
+    const btnLoading = document.getElementById('btn-loading');
+    const btnEnter = document.getElementById('btn-enter');
+    if (btnLoading) btnLoading.style.display = 'none';
+    if (btnEnter) btnEnter.style.display = 'block';
+
     const menuContainer = document.querySelector('#vr-menu-container');
     const shouldShowMenu = !window._suppressSequenceMenu;
 
@@ -422,6 +429,30 @@ class SequenceBase {
   async executeTimeline() {
     console.warn("executeTimeline() must be overridden by the child sequence.");
   }
+
+  hideCameraCues() {
+    document.querySelectorAll('#camera-warning, #vr-entry-cue').forEach(cue => {
+      cue.setAttribute('visible', 'false');
+      cue.removeAttribute('animation__cuefadein');
+    });
+  }
+
+  async showCameraWarning(message = '', durationMs = 3000) {
+    const cue = this.cameraWarning || document.querySelector('#camera-warning');
+    if (!cue) return;
+
+    // We no longer need to set the camera-cue attributes. 
+    // We just fade the static PNG image in.
+    cue.setAttribute('visible', 'true');
+    cue.setAttribute('animation__cuefadein',
+      'property: scale; from: 0.85 0.85 0.85; to: 1 1 1; dur: 220; easing: easeOutQuad');
+
+    await this.sleep(durationMs);
+
+    cue.setAttribute('visible', 'false');
+    cue.removeAttribute('animation__cuefadein');
+  }
+
 }
 
 window.SequenceBase = SequenceBase;

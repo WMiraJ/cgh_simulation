@@ -134,9 +134,10 @@ window.Sequence04 = new (class extends window.SequenceBase {
     const mainCharWalkDur = 10500;
 
     // 1. Main Character Enters
-    setTimeout(() => {
+    setTimeout(async () => {
       console.log('[seq04] Panning camera in…');
       if (this.mainChar) this.mainChar.setAttribute('animation-mixer', 'clip: walk; loop: repeat; timeScale: 0.8');
+      await this.showCameraWarning('The view will move forward shortly.');
       this.rig.emit('panCameraIn');
 
       setTimeout(() => {
@@ -163,7 +164,7 @@ window.Sequence04 = new (class extends window.SequenceBase {
       }, npc.enterDelay);
     });
 
-    await this.sleep(12000);
+    await this.sleep(15000);
 
     // 2. Level 3: Jody exits
     console.log('[seq04] Moving to Floor 3…');
@@ -272,9 +273,10 @@ window.Sequence04 = new (class extends window.SequenceBase {
     await this.sleep(3000);
 
     console.log('[seq04] Main character walking out…');
-    setTimeout(() => {
+    setTimeout(async () => {
       console.log('[seq04] Panning camera out…');
       if (this.mainChar) this.mainChar.setAttribute('animation-mixer', 'clip: walk; loop: repeat');
+      await this.showCameraWarning('The view will move out of the lift shortly.');
       this.rig.emit('panCameraOut');
 
       setTimeout(() => {
@@ -282,7 +284,7 @@ window.Sequence04 = new (class extends window.SequenceBase {
       }, mainCharWalkDur);
     }, 500);
 
-    await this.sleep(10000);
+    await this.sleep(13000);
 
     console.log('[seq04] Sequence complete.');
     this.isSequenceRunning = false;

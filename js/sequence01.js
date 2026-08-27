@@ -101,6 +101,8 @@ window.Sequence01 = new (class extends window.SequenceBase {
     // ── Step 3: Player pans into the lift
     console.log('[seq01] Panning camera in…');
     if (this.mainChar) this.mainChar.setAttribute('animation-mixer', 'clip: walk; loop: repeat; timeScale: 0.8');
+
+    await this.showCameraWarning('The view will move forward shortly.');
     this.rig.emit('panCameraIn');
     await this.sleep(1000);
 
@@ -138,6 +140,7 @@ window.Sequence01 = new (class extends window.SequenceBase {
     // ── Step 9: Player exits the lift
     console.log('[seq01] Panning camera out…');
     if (this.mainChar) this.mainChar.setAttribute('animation-mixer', 'clip: walk; loop: repeat');
+    await this.showCameraWarning('The view will move out of the lift shortly.');
     this.rig.emit('panCameraOut');
     await this.sleep(4000);
     if (this.mainChar) this.mainChar.setAttribute('animation-mixer', 'clip: Idle; loop: repeat');

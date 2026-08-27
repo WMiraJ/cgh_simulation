@@ -166,9 +166,10 @@ window.Sequence05 = new (class extends window.SequenceBase {
     const mainCharWalkDur = 10500;
 
     // 1. Main Character Enters
-    setTimeout(() => {
+    setTimeout(async () => {
       console.log('[seq05] Panning camera in…');
       if (this.mainChar) this.mainChar.setAttribute('animation-mixer', 'clip: walk; loop: repeat; timeScale: 0.8');
+      await this.showCameraWarning('The view will move forward shortly.');
       this.rig.emit('panCameraIn');
 
       setTimeout(() => {
@@ -194,7 +195,7 @@ window.Sequence05 = new (class extends window.SequenceBase {
       }, npc.enterDelay);
     });
 
-    await this.sleep(12000);
+    await this.sleep(15000);
 
     // 2. Level 4: 2 NPCs enter (Sophie, Bryce)
     console.log('[seq05] Moving to Floor 4…');
@@ -401,9 +402,10 @@ window.Sequence05 = new (class extends window.SequenceBase {
     // B) Main Character Exits After NPCs
     const mainCharExitDelay = 500 + (remainingNpcs.length * 1000); // Delayed until the last NPC starts moving
     
-    setTimeout(() => {
+    setTimeout(async () => {
       console.log('[seq05] Panning camera out…');
       if (this.mainChar) this.mainChar.setAttribute('animation-mixer', 'clip: walk; loop: repeat');
+      await this.showCameraWarning('The view will move out of the lift shortly.');
       this.rig.emit('panCameraOut');
       
       setTimeout(() => {
@@ -413,7 +415,7 @@ window.Sequence05 = new (class extends window.SequenceBase {
 
     // Wait for all exit animations to finish dynamically based on the final main character exit timing
     const maxNpcExitDelay = 500 + ((remainingNpcs.length - 1) * 1000) + 6000;
-    const mainExitTotalDuration = mainCharExitDelay + mainCharWalkDur;
+    const mainExitTotalDuration = mainCharExitDelay + 3000 + mainCharWalkDur;
     await this.sleep(Math.max(maxNpcExitDelay, mainExitTotalDuration) + 1000);
 
     console.log('[seq05] Sequence complete.');

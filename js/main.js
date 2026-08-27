@@ -118,17 +118,69 @@ function trackAssetLoad(item) {
   });
 }
 
+// 1. Simplify the loading updates since we are using a static .png now
 function updateLoadingOverlay(done, total) {
-  const overlay = document.getElementById('loading-overlay');
-  if (overlay) overlay.textContent = total ? `LOADING ${done}/${total}...` : 'LOADING...';
+  // Logic removed: We rely on the static "btn-loading.png" to communicate loading state
 }
 
 function showLoadError(failedIds) {
-  const overlay = document.getElementById('loading-overlay');
-  if (!overlay) return;
-  overlay.textContent = `Couldn't load: ${failedIds.join(', ')}. Check connection and reload.`;
-  overlay.style.background = 'rgba(120,0,0,0.85)';
+  const loadingBtn = document.getElementById('btn-loading');
+  if (loadingBtn) loadingBtn.style.display = 'none';
+  
+  const overlay = document.getElementById('ui-overlay');
+  if (overlay) {
+    let errDiv = document.getElementById('load-error-msg');
+    if (!errDiv) {
+      errDiv = document.createElement('div');
+      errDiv.id = 'load-error-msg';
+      errDiv.style.color = '#d32f2f';
+      errDiv.style.fontWeight = 'bold';
+      overlay.querySelector('.ui-content').appendChild(errDiv);
+    }
+    errDiv.textContent = `Couldn't load: ${failedIds.join(', ')}. Check connection.`;
+  }
 }
+
+// 2. Wire the new UI elements to A-Frame's VR entry logic
+document.addEventListener('DOMContentLoaded', () => {
+  const scene = document.querySelector('a-scene');
+  const mask = document.querySelector('#ui-overlay');
+  const enterButton = document.querySelector('#btn-enter');
+  let hasShownStartupCue = false;
+
+  const syncMask = () => {
+    if (!scene || !mask) return;
+    const shouldShow = !scene.is('vr-mode');
+    mask.classList.toggle('is-visible', shouldShow);
+  };
+
+  const showStartupCue = () => {
+    if (hasShownStartupCue) return;
+    hasShownStartupCue = true;
+
+    const cue = document.querySelector('#vr-entry-cue');
+    if (!cue) return;
+    cue.setAttribute('visible', 'true');
+    cue.setAttribute('animation__cuefadein', 'property: scale; from: 0.85 0.85 0.85; to: 1 1 1; dur: 220; easing: easeOutQuad');
+    setTimeout(() => {
+      cue.setAttribute('visible', 'false');
+      cue.removeAttribute('animation__cuefadein');
+    }, 5000);
+  };
+
+  // Wire the visual button directly to the VR scene logic
+  enterButton?.addEventListener('click', () => {
+    if (scene?.enterVR) scene.enterVR();
+  });
+
+  scene?.addEventListener('loaded', syncMask);
+  scene?.addEventListener('enter-vr', () => {
+    syncMask();
+    showStartupCue();
+  });
+  scene?.addEventListener('exit-vr', syncMask);
+  syncMask();
+});
 
 async function loadSequence(cfg, { autostart = false } = {}) {
   const scene  = document.querySelector('a-scene');
@@ -235,6 +287,45 @@ window.startSelectedSequence = function (key) {
 };
 
 document.addEventListener('DOMContentLoaded', () => loadSequence(config));
+
+document.addEventListener('DOMContentLoaded', () => {
+  const scene = document.querySelector('a-scene');
+  const mask = document.querySelector('#vr-entry-mask');
+  const enterButton = document.querySelector('#enter-vr-overlay-button');
+  let hasShownStartupCue = false;
+
+  const syncMask = () => {
+    if (!scene || !mask) return;
+    const shouldShow = !scene.is('vr-mode');
+    mask.classList.toggle('is-visible', shouldShow);
+  };
+
+  const showStartupCue = () => {
+    if (hasShownStartupCue) return;
+    hasShownStartupCue = true;
+
+    const cue = document.querySelector('#vr-entry-cue');
+    if (!cue) return;
+    cue.setAttribute('visible', 'true');
+    cue.setAttribute('animation__cuefadein', 'property: scale; from: 0.85 0.85 0.85; to: 1 1 1; dur: 220; easing: easeOutQuad');
+    setTimeout(() => {
+      cue.setAttribute('visible', 'false');
+      cue.removeAttribute('animation__cuefadein');
+    }, 5000);
+  };
+
+  enterButton?.addEventListener('click', () => {
+    if (scene?.enterVR) scene.enterVR();
+  });
+
+  scene?.addEventListener('loaded', syncMask);
+  scene?.addEventListener('enter-vr', () => {
+    syncMask();
+    showStartupCue();
+  });
+  scene?.addEventListener('exit-vr', syncMask);
+  syncMask();
+});
 
 window.resetEnvironmentState = function(floor = 2) {
   const rig = document.querySelector('#rig');

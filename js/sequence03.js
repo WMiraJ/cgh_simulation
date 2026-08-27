@@ -167,9 +167,10 @@ window.Sequence03 = new (class extends window.SequenceBase {
     const mainCharWalkDur = 10500;
 
     // A) Trigger Main Character Enter and Turn
-    setTimeout(() => {
+    setTimeout(async () => {
       console.log('[seq03] Panning camera in…');
       if (this.mainChar) this.mainChar.setAttribute('animation-mixer', 'clip: walk; loop: repeat; timeScale: 0.8');
+      await this.showCameraWarning('The view will move forward shortly.');
       this.rig.emit('panCameraIn');
       
       // MainChar turns immediately after panning in finishes
@@ -206,7 +207,7 @@ window.Sequence03 = new (class extends window.SequenceBase {
 
     // Wait dynamically for the slowest sequence to finish (Enter + Walk Duration + Turn Duration)
     const maxNpcTime = Math.max(...this.npcConfigs.map(n => n.enterDelay)) + npcEnterDur + 2000;
-    const maxMainTime = mainCharEnterDelay + mainCharWalkDur + 4000;
+    const maxMainTime = mainCharEnterDelay + 3000 + mainCharWalkDur + 4000;
     await this.sleep(Math.max(maxNpcTime, maxMainTime) + 1500);
 
     // ── Step 3: Ride to Floor 15 (Directly)
@@ -241,9 +242,10 @@ window.Sequence03 = new (class extends window.SequenceBase {
     // B) Main Character Exits After NPCs Start Exiting
     const mainCharExitDelay = 1200 + (this.npcConfigs.length * 1000);
 
-    setTimeout(() => {
+    setTimeout(async () => {
       console.log('[seq03] Panning camera out…');
       if (this.mainChar) this.mainChar.setAttribute('animation-mixer', 'clip: walk; loop: repeat');
+      await this.showCameraWarning('The view will move out of the lift shortly.');
       this.rig.emit('panCameraOut');
       
       setTimeout(() => {
@@ -253,7 +255,7 @@ window.Sequence03 = new (class extends window.SequenceBase {
 
     // Wait for all exit animations to finish
     const maxExitDelay = 1000 + (this.npcConfigs.length * 800) + 6000;
-    const mainExitTotalDuration = mainCharExitDelay + mainCharWalkDur;
+    const mainExitTotalDuration = mainCharExitDelay + 3000 + mainCharWalkDur;
     await this.sleep(Math.max(maxExitDelay, mainExitTotalDuration) + 1000);
 
     // ── Done

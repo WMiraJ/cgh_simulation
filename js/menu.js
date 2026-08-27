@@ -47,7 +47,25 @@ AFRAME.registerComponent('vr-sequence-menu', {
     this.subCrowded.addEventListener('click', () => this.handleSubClick(this.subCrowded, 'Crowded'));
     this.replayBtn.addEventListener('click', () => this.replayLatestSequence());
     window.addEventListener('vr-menu-select', evt => {
-      evt.detail?.controller?.components.cursor?.intersectedEl?.emit('click');
+      const intersectedEl = evt.detail?.controller?.components.cursor?.intersectedEl;
+      
+      if (intersectedEl && intersectedEl.components.htmlembed) {
+        const embedComponent = intersectedEl.components.htmlembed;
+        // Check if the component exposes the focused DOM element directly
+        const focusedHTML = embedComponent.focusedElem || embedComponent.activeTarget; 
+        
+        if (focusedHTML) {
+          // Click the actual HTML DOM element directly
+          focusedHTML.click();
+        } else {
+          // Fallback: trigger the internal click logic via down/up sequence
+          intersectedEl.emit('mousedown');
+          setTimeout(() => intersectedEl.emit('mouseup'), 50);
+        }
+      } else {
+        // Fallback for standard 3D A-Frame objects
+        intersectedEl?.emit('click');
+      }
     });
 
     // Initialize the summon listener
@@ -70,7 +88,7 @@ AFRAME.registerComponent('vr-sequence-menu', {
 
     // 2. VR Controllers: Listen for typical buttons
     const vrButtons = [
-      'triggerdown', 'gripdown',
+      'triggerdown', 'gripdown', 'abuttondown', 'bbuttondown',
       'xbuttondown', 'ybuttondown', 'thumbstickdown', 'trackpaddown'
     ];
     const attachController = (controller) => {
