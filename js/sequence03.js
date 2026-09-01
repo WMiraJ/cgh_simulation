@@ -49,7 +49,7 @@ window.Sequence03 = new (class extends window.SequenceBase {
         resetPosition: '-3.886 1.065 0.913',
         resetRotation: '0 90 0',
         enterCurve: {p1: '-3 1.065 0', p2: '-0.088 1.065 0.585'},
-        enterDelay: 7500,
+        enterDelay: 8300,
         exitCurve: { p1: '-4.75 1.065 -1.2', p2: '-4 1.065 6', dur: 6000, startEvent: 'npcWalkOut' }
       },
 
@@ -57,7 +57,7 @@ window.Sequence03 = new (class extends window.SequenceBase {
         resetPosition: '-4.409 1.065 -1.114',
         resetRotation: '0 90 0',
         enterCurve: {p1: '-3 1.065 0', p2: '-0.847 1.065 -1.110'},
-        enterDelay: 8300,
+        enterDelay: 9100,
         exitCurve: { p1: '-2.9 1.065 2.85', p2: '-4 1.065 -6', dur: 6000, startEvent: 'npcWalkOut' }
       },
 
@@ -65,7 +65,7 @@ window.Sequence03 = new (class extends window.SequenceBase {
         resetPosition: '-4.779 1.065 0.680',
         resetRotation: '0 90 0',
         enterCurve: {p1: '-3 1.065 0', p2: '-1.0 1.065 0.835'},
-        enterDelay: 9100,
+        enterDelay: 9900,
         exitCurve: { p1: '-2.37 1.065 -2.7', p2: '-4 1.065 6', dur: 6000, startEvent: 'npcWalkOut' }
       },
 
@@ -73,7 +73,7 @@ window.Sequence03 = new (class extends window.SequenceBase {
         resetPosition: '-5.233 1.065 -0.2',
         resetRotation: '0 90 0',
         enterCurve: {p1: '-3 1.065 0', p2: '-1.165 1.065 0'},
-        enterDelay: 9900,
+        enterDelay: 10700,
         exitCurve: { p1: '-4.55 1.065 -0.4', p2: '-4 1.065 6', dur: 6000, startEvent: 'npcWalkOut' }
       }
     ];

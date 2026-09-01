@@ -101,12 +101,11 @@ window.Sequence01 = new (class extends window.SequenceBase {
     console.log('[seq01] Panning camera in…');
 
     this.showCameraWarning('', 5000);
-
-    await this.sleep(1500);
+    await this.sleep(2000);
 
     if (this.mainChar) this.mainChar.setAttribute('animation-mixer', 'clip: walk; loop: repeat; timeScale: 0.8');
     this.rig.emit('panCameraIn');
-    await this.sleep(1000);
+    await this.sleep(1500);
 
     // ── Step 4: NPC turns to face the doors
     console.log('[seq01] NPC turning…');
@@ -115,7 +114,7 @@ window.Sequence01 = new (class extends window.SequenceBase {
       this.avatar.setAttribute('animation-mixer', 'clip: turn; loop: once');
       this.avatar.setAttribute('animation-mixer', 'clip: Idle; loop: repeat');
     }
-    await this.sleep(3000);
+    await this.sleep(7500);
 
     // ── Step 5: Camera transitions
     if (this.mainChar) this.mainChar.setAttribute('animation-mixer', 'clip: Idle; loop: repeat');
@@ -145,7 +144,7 @@ window.Sequence01 = new (class extends window.SequenceBase {
     await this.sleep(2000);
     if (this.mainChar) this.mainChar.setAttribute('animation-mixer', 'clip: walk; loop: repeat');
     this.rig.emit('panCameraOut');
-    await this.sleep(4000);
+    await this.sleep(9000);
     if (this.mainChar) this.mainChar.setAttribute('animation-mixer', 'clip: Idle; loop: repeat');
 
     // ── Done
