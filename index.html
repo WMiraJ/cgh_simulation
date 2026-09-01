@@ -29,16 +29,16 @@
 
   <style>
     :root {
-      --brand-blue: #044B99;
-      --deep-blue: #002A6B;
-      --soft-blue: #B3D6FF;
-      --rest-fill: rgba(255, 255, 255, 1);
-      --rest-border: rgba(0, 71, 178, 1);
-      --rest-text: rgb(0, 30, 75);
+      --brand-blue: rgba(4, 75, 153);
+      --deep-blue: rgba(0, 42, 107, 0.9);;
+      --soft-blue: rgba(179, 214, 255, 1);
+      --rest-fill: rgba(255, 255, 255);
+      --rest-border: rgba(0, 71, 178, 0.72);
+      --rest-text: rgba(0, 42, 107, 0.8);
       --hover-fill: rgba(179, 214, 255, 1);
-      --hover-border: rgba(0, 99, 249, 1);
-      --hover-text: #0c3376;
-      --selected-fill: rgb(0, 53, 132);
+      --hover-border: rgba(0, 71, 178, 0.72);
+      --hover-text: rgba(0, 42, 107, 0.8);
+      --selected-fill: rgba(0, 71, 178, 0.72);
       --selected-border: #F2F2F7;
       --selected-text: #FFFFFF;
     }
@@ -150,12 +150,12 @@
     .title {
       position: absolute; width: 482px; height: 92px;
       left: 42px; top: 15px; text-align: center;
-      color: rgb(0, 22, 55);
+      color: rgba(4, 75, 153, 1);
       display: flex; flex-direction: column;
       align-items: center; justify-content: center;
     }
-    .title .bold { font-weight: 1000; font-size: 24px; line-height: 29px; }
-    .title .sub  { font-weight: 850; font-style: italic; font-size: 18px; margin-top: 4px; }
+    .title .bold { font-weight: 1000; font-size: 24px; line-height: 29px; color: rgba(4, 75, 153, 1); }
+    .title .sub  { font-weight: 850; font-style: italic; font-size: 18px; margin-top: 4px; color: rgba(4, 75, 153, 1); }
 
     /* Buttons */
     .btn, .sub-btn, .replay-btn { cursor: pointer; } 

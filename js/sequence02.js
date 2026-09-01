@@ -90,7 +90,9 @@ window.Sequence02 = new (class extends window.SequenceBase {
 
     if (this.mainChar) this.mainChar.setAttribute('animation-mixer', 'clip: walk; loop: repeat; timeScale: 0.8');
     this.rig.emit('panCameraIn');
-    await this.sleep(4500);
+    await this.sleep(7000);
+    if (this.mainChar) this.mainChar.setAttribute('animation-mixer', 'clip: Idle; loop: repeat');
+    await this.sleep(1500);
 
     // ── Step 3: Ride to Floor 15 (destination)
     console.log('[seq02] Moving to Floor 15…');

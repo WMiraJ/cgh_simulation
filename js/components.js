@@ -223,21 +223,47 @@ AFRAME.registerComponent('vr-height-fix', {
   }
 });
 
-// Component: Fixes washed out colors and tone mapping on dynamic UI textures
+// Component: Fixes washed out colors, tone mapping, and depth occlusion on dynamic UI
 AFRAME.registerComponent('fix-ui-rendering', {
   tick: function () {
-    const mesh = this.el.getObject3D('mesh');
+    // aframe-htmlembed-component registers its plane under the 'screen' key,
+    // not 'mesh' — using the wrong key here silently no-ops every tick.
+    const mesh = this.el.getObject3D('screen');
     if (!mesh || !mesh.material) return;
 
     let needsUpdate = false;
 
-    // 1. Bypass scene tone mapping to prevent UI desaturation
-    if (mesh.material.toneMapped !== false) {
-      mesh.material.toneMapped = false;
+    // 1. Force the UI to render last, after all other transparent objects
+    if (mesh.renderOrder !== 9999) {
+      mesh.renderOrder = 9999;
+    }
+
+    // 2. Prevent the semi-transparent menu from blocking objects behind it
+    //    in the depth buffer
+    if (mesh.material.depthWrite !== false) {
+      mesh.material.depthWrite = false;
       needsUpdate = true;
     }
 
-    // 2. Fix color space mismatch for dynamically generated canvas textures
+    // 3. Ensure real alpha blending instead of a hard cutout — alphaTest
+    //    would force near-opaque pixels (e.g. the 0.92-alpha panel) to draw
+    //    at full 100% opacity, erasing whatever is behind them
+    if (mesh.material.transparent !== true) {
+      mesh.material.transparent = true;
+      needsUpdate = true;
+    }
+    if (mesh.material.alphaTest !== 0) {
+      mesh.material.alphaTest = 0;
+      needsUpdate = true;
+    }
+
+    // 4. Bypass scene tone mapping to prevent UI desaturation
+    //if (mesh.material.toneMapped !== false) {
+    //  mesh.material.toneMapped = false;
+    //  needsUpdate = true;
+    //}
+
+    // 5. Fix color space mismatch for dynamically generated canvas textures
     if (mesh.material.map && mesh.material.map.colorSpace !== 'srgb') {
       mesh.material.map.colorSpace = 'srgb';
       needsUpdate = true;
