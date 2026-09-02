@@ -99,8 +99,13 @@ self.addEventListener('activate', event => {
  *  All network requests are being intercepted here.
  */
 self.addEventListener('fetch', event => {
-    // 1. Ignore media Range requests entirely. 
-    // Caching partial media chunks causes cache poisoning and clone errors.
+    // 0. Cache API only supports GET. Let everything else (HEAD, POST, etc.)
+    //    pass straight through — fixes the "'HEAD' is unsupported" crash.
+    if (event.request.method !== 'GET') {
+        return;
+    }
+
+    // 1. Ignore media Range requests entirely.
     if (event.request.headers.has('range')) {
         return; 
     }
@@ -112,7 +117,6 @@ self.addEventListener('fetch', event => {
         event.respondWith(
             caches.match(event.request).then(cached => {
                 return cached || fetch(event.request).then(resp => {
-                    // Clone sequentially BEFORE returning the response
                     if (resp.ok) {
                         const responseToCache = resp.clone();
                         caches.open(ASSET_CACHE).then(c => c.put(event.request, responseToCache));
@@ -128,22 +132,19 @@ self.addEventListener('fetch', event => {
     if (HOSTNAME_WHITELIST.indexOf(url.hostname) > -1) {
         event.respondWith(
             caches.match(event.request).then(cached => {
-                // Fetch from network to revalidate the cache
                 const networkFetch = fetch(event.request).then(resp => {
-                    // Clone sequentially BEFORE returning
-                    const responseToCache = resp.clone();
-                    
-                    caches.open(PWA_CACHE).then(cache => {
-                        if (resp.ok || resp.type === 'opaque') {
-                            cache.put(event.request, responseToCache);
-                        }
-                    });
-                    
+                    // Never cache opaque cross-origin responses: the same URL can be
+                    // fetched elsewhere in a different mode (e.g. htmlembed's internal
+                    // `fetch()` needs a readable body), and an opaque response cached
+                    // under one mode will get wrongly served to the other, which Chrome
+                    // hard-rejects. Only cache responses we know are safe to reuse.
+                    if (resp.ok) {
+                        const responseToCache = resp.clone();
+                        caches.open(PWA_CACHE).then(cache => cache.put(event.request, responseToCache));
+                    }
                     return resp;
                 }).catch(_ => { /* eat any errors, like being offline */ });
 
-                // Return the cached response immediately if we have it, 
-                // otherwise wait for the network fetch to complete.
                 return cached || networkFetch;
             })
         );
