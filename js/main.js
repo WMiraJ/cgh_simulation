@@ -154,6 +154,15 @@ document.addEventListener('DOMContentLoaded', () => {
     mask.classList.toggle('is-visible', shouldShow);
   };
 
+  const softRefreshForNewSession = () => {
+    if (window.__softRefreshQueued) return;
+    window.__softRefreshQueued = true;
+
+    window.setTimeout(() => {
+      window.location.reload();
+    }, 250);
+  };
+
   const showStartupCue = () => {
     if (hasShownStartupCue) return;
     hasShownStartupCue = true;
@@ -175,10 +184,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
   scene?.addEventListener('loaded', syncMask);
   scene?.addEventListener('enter-vr', () => {
+    window.__softRefreshQueued = false;
     syncMask();
     showStartupCue();
   });
-  scene?.addEventListener('exit-vr', syncMask);
+  scene?.addEventListener('exit-vr', () => {
+    syncMask();
+    softRefreshForNewSession();
+  });
   syncMask();
 });
 
