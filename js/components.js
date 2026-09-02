@@ -129,6 +129,15 @@ AFRAME.registerComponent('sequence-controller', {
     };
     this.el.addEventListener('xbuttondown', this.onXButtonDown);
 
+    this.onMenuButtonDown = () => {
+      const hand = this.el.getAttribute('oculus-touch-controls')?.hand;
+      if (hand !== 'left' || !window.isMenuOpen) return;
+      if (this.el.sceneEl?.is('vr-mode')) {
+        this.el.sceneEl.exitVR();
+      }
+    };
+    this.el.addEventListener('menubuttondown', this.onMenuButtonDown);
+
     this.el.addEventListener('thumbstickmoved', evt => {
       evt.stopPropagation();
       evt.preventDefault();
@@ -150,6 +159,7 @@ AFRAME.registerComponent('sequence-controller', {
     this.el.removeEventListener('triggerdown', this.onTriggerDown);
     this.el.removeEventListener('xbuttondown', this.onXButtonDown);
     this.el.removeEventListener('abuttondown', this.onAbuttonDown);
+    this.el.removeEventListener('menubuttondown', this.onMenuButtonDown);
   }
 });
 
