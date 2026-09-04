@@ -4,7 +4,7 @@ A WebXR virtual reality exposure-therapy prototype that simulates riding a lift,
 
 **Live demo:** https://wmiraj.github.io/cgh_simulation/
 
-For a non-technical walkthrough of what the simulation does and how to run a session, see the [User Guide](./USER_GUIDE.md). For clinical background and design rationale, see the [Project Report](./REPORT.md).
+For a non-technical walkthrough of how to run a session, see the [User Guide](./USER_GUIDE.md). For clinical background and design rationale, see the [Project Report](./REPORT.md).
 
 ---
 
@@ -26,36 +26,47 @@ The app puts the user in a first-person VR view inside a lift. A menu lets the u
 
 ```
 index.html              Scene shell: persistent entities (lift model, lighting, floor
-                         displays, shaft-view images, camera/body rig, VR menu), shared
-                         by every sequence. Also defines the pre-VR "Enter" overlay UI.
-manifest.json            PWA manifest (icons, install shortcuts, screenshots)
-service-worker.js         Offline caching for the PWA
+                        displays, shaft-view images, camera/body rig, VR menu), shared
+                        by every sequence. Also defines the pre-VR "Enter" overlay UI.
+
+manifest.json           PWA manifest (icons, install shortcuts, screenshots)
+
+service-worker.js       Offline caching for the PWA
+
 
 js/
-  main.js                Sequence registry + router. Reads ?seq= from the URL, fetches
-                         the matching sequences/sequenceXX.html fragment, injects its
-                         assets/entities into the scene, then calls its init().
-  menu.js                Difficulty-select menu component (vr-sequence-menu) and the
-                         Intro/Intermediate/Advanced button → sequence-key mapping
-                         (SEQUENCE_KEY_MAP).
-  components.js          Shared custom A-Frame components used across sequences:
-                         vr-height-fix, body-sync, sequence-controller,
-                         vr-controller-input, texture-scroller, curve-walk,
-                         fix-ui-rendering.
-  sequenceBase.js         SequenceBase class — the shared engine for lift state,
-                         movement, door/floor logic, and VR event handling. Every
-                         sequence extends this.
-  sequence01.js .. 05.js  One controller per scenario (NPC configs, timelines).
-                         Registered on window as Sequence01 … Sequence05.
+  main.js               Sequence registry + router. Reads ?seq= from the URL, fetches
+                        the matching sequences/sequenceXX.html fragment, injects its
+                        assets/entities into the scene, then calls its init().
+
+  menu.js               Difficulty-select menu component (vr-sequence-menu) and the
+                        Intro/Intermediate/Advanced button → sequence-key mapping
+                        (SEQUENCE_KEY_MAP).
+
+  components.js         Shared custom A-Frame components used across sequences:
+                        vr-height-fix, body-sync, sequence-controller,
+                        vr-controller-input, texture-scroller, curve-walk,
+                        fix-ui-rendering.
+
+  sequenceBase.js       SequenceBase class — the shared engine for lift state,
+                        movement, door/floor logic, and VR event handling. Every
+                        sequence extends this.
+
+  sequence01 .. 05.js   One controller per scenario (NPC configs, timelines).
+                        Registered on window as Sequence01 … Sequence05.
+
 
 sequences/
-  sequence01.html .. 05.html   HTML fragments (entities + assets only, no player
-                                 rig) loaded on demand by main.js for each scenario.
+  sequence01.html .. 05.html    HTML fragments (entities + assets only, no player
+                                rig) loaded on demand by main.js for each scenario.
 
-assets/                  3D models (.glb, via Git LFS), lobby/floor-view images,
-                         UI graphics, sound effects.
-screenshots/             PWA install screenshots.
-favicon_io/              App icons.
+
+assets/                 3D models (.glb, via Git LFS), lobby/floor-view images,
+                        UI graphics, sound effects.
+
+screenshots/            PWA install screenshots.
+
+favicon_io/             App icons.
 ```
 
 ## Scenario / sequence map
@@ -75,9 +86,9 @@ The menu maps to `main.js`'s `SEQUENCES` registry via `SEQUENCE_KEY_MAP` in `men
 No build step is required — it's static HTML/JS. Serve the folder with any local static server (opening `index.html` directly via `file://` will break asset loading), for example:
 
 ```bash
-npx serve .
+npx localtunnel --port 8000
 # or
-python -m http.server 8000
+ngrok http 8000
 ```
 
 Then open the printed local URL in a WebXR-capable browser, or on a headset's browser for the full VR experience.
