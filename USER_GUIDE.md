@@ -55,4 +55,4 @@ Do a hard refresh: in the browser, go to **Menu → Clear all browsing data**, t
 
 ## Project status
 
-This has been internally tested and is a stable, running program — not a polished commercial product, but not a rough prototype either. For bug reports or questions, reach out to [Jiang Wenmiao](wenmiao_jiang@mymail.sutd.edu.sg).
+This has been internally tested and is a stable, running program — not a polished commercial product, but not a rough prototype either. For bug reports or questions, reach out to [Jiang Wenmiao](mailto:wenmiao_jiang@mymail.sutd.edu.sg).

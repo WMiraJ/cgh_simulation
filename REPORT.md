@@ -56,13 +56,13 @@ Claustro VR runs in a browser using WebXR — no app-store install required — 
 
 A user selects one of five scenarios from an in-VR menu before a session starts:
 
-| Sequence | Duration (inside lift) | Characters | Stops | What it does |
-|---|:---:|:---:|:---:|---|
-| Introductory — Standard | ~100s | 1 NPC | 2 | A gentle first step: one stranger, one intermediate stop |
-| Introductory — Empty | ~90s | 0 NPCs | 1 | Direct express ride, completely alone |
-| Introductory — Crowded | ~110s | 8 NPCs | 1 | Full crowding, but a direct ride — no stop-and-go |
-| Intermediate | ~190s | 4 NPCs | 6 | Realistic peak-hour ride: moderate crowding, frequent stops |
-| Advanced | ~320s | 8 NPCs | 7 | Full crowding and an extended, unpredictable ride |
+| Scenario | Total Time | Time in Lift | NPCs | Stops | Description |
+|---|---|---|:---:|:---:|---|
+| Introductory — Empty | ~1m 30s | ~1m 05s | 0 | 1 | Direct express ride, completely alone. |
+| Introductory — Standard | ~1m 40s | ~1m 15s | 1 | 2 | A gentle first step: one stranger, one intermediate stop. |
+| Introductory — Crowded | ~1m 50s | ~1m 20s | 8 | 1 | Full crowding, but a direct ride — no stop-and-go. |
+| Intermediate | ~3m 10s | ~2m 45s | 4 | 6 | Realistic peak-hour ride: moderate crowding, frequent stops. |
+| Advanced | ~5m 20s | ~4m 45s | 8 | 7 | Full crowding and an extended, unpredictable ride. |
 
 Crowd size and stop count are the two levers used to grade exposure intensity. Rough storyboards:
 
